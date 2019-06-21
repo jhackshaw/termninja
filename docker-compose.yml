@@ -1,0 +1,20 @@
+version: '3'
+
+services:
+  base_image:
+    build: ./base-image
+    
+  subnet-racer:
+    build: ./subnet-racer
+    ports:
+      - 3001:3000
+    depends_on:
+      - base_image
+    
+  tic-tac-toe:
+    build: ./tic-tac-toe
+    ports:
+      - 3002:3000
+    depends_on:
+      - base_image
+    

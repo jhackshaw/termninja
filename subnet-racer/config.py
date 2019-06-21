@@ -1,4 +1,4 @@
-from common import Cursor
+from shell_games import Cursor
 
 
 # constants

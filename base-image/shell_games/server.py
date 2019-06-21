@@ -2,19 +2,17 @@ import asyncio
 from .user import User
 
 
-def single_player(handler):
-    def wrapped(reader, writer):
-        return handler(User(reader, writer))
-    return wrapped
-
-def add_to_queue_handler(queue):
+def greet_and_queue_handler(queue, greeting):
     async def handler(reader, writer):
+        if greeting:
+            writer.write(greeting.encode())
+            await writer.drain()
         await queue.put(User(reader, writer))
     return handler
 
-async def start_server(queue, host, port):
+async def start_server(queue, host, port, greeting):
     server = await asyncio.start_server(
-        add_to_queue_handler(queue),
+        greet_and_queue_handler(queue, greeting),
         host=host,
         port=port,
         reuse_port=True
@@ -28,10 +26,10 @@ async def start_games(queue, player_count, handler):
             await queue.get() for _ in range(player_count)
         ]))
 
-async def main(handler, host, port, player_count):
+async def main(handler, host, port, player_count, greeting):
     queue = asyncio.Queue()
     server_task = asyncio.create_task(
-        start_server(queue, host, port)
+        start_server(queue, host, port, greeting)
     )
     start_games_task = asyncio.create_task(
         start_games(queue, player_count, handler)
@@ -41,8 +39,8 @@ async def main(handler, host, port, player_count):
         start_games_task
     )
 
-def start_game(handler, host, port, player_count=1):    
+def start_game(handler, host, port, player_count=1, greeting=None):    
     try:
-        asyncio.run(main(handler, host, port, player_count))
+        asyncio.run(main(handler, host, port, player_count, greeting))
     except KeyboardInterrupt:
         print("user shutdown\n")
