@@ -3,8 +3,9 @@ import os
 import random
 import ipaddress
 import itertools
-from shell_games import Cursor, start_game
+from shell_games import Cursor, RequireTokenServer, Controller
 from config import (WELCOME_MESSAGE,
+                    PRESS_ENTER_MESSAGE,
                     PROGRESS_UPDATE,
                     INITIAL_QUESTION,
                     CLEAR_ENTRY,
@@ -78,69 +79,94 @@ def get_question():
     question_type = random.choice(QUESTION_TYPES)
     return question_type(host, cidr, network)
 
-def check_answer(ans, answer):
-    return ans == answer
 
-async def welcome(user):
-    await user.send(WELCOME_MESSAGE)
-    await user.readline()
+class SubnetRacerController(Controller):
+    def setUp(self, user):
+        self.user = user
+        self.score = 0
+        self.loop = asyncio.get_event_loop()
 
-async def get_answer(user):
-    return await user.readline(timeout=0.5)
+    async def run(self):
+        try:
+            while True:
+                self.on_earned_points(await self.round())
+        except ConnectionResetError:
+            print("user disconnected", flush=True)
+    
+    async def round(self):
+        start = self.get_time()
+        question, answer = get_question()
+        await self.prompt(question)
 
-async def clear_user_entry(user):
-    await user.send(CLEAR_ENTRY)
-
-async def prompt(user, question, score):
-    msg = INITIAL_QUESTION.format(
-        prompt=question,
-        progress="#" * ROUND_LENGTH,
-        time="60",
-        score=score
-    )
-    await user.send(msg)
-
-async def update_progress(user, time_remaining):
-    percent_remaining = time_remaining / ROUND_LENGTH
-    count = int(percent_remaining * ROUND_LENGTH)
-    progress = Cursor.color_by_percentage(percent_remaining, '#' * count)
-
-    msg = PROGRESS_UPDATE.format(
-        progress=progress,
-        time=time_remaining,
-        value=ROUND_LENGTH - time_remaining
-    )
-    await user.send(msg)
-
-async def round(user, score):
-    loop = asyncio.get_event_loop()
-    question, answer = get_question()
-    round_start = loop.time()
-
-    await prompt(user, question, score)
-    while True:
-        time_remaining = int(60 - (loop.time() - round_start))
-        await update_progress(user, time_remaining)
-        ans = await get_answer(user)
-
-        if ans is not None:
-            await clear_user_entry(user)
-            if check_answer(ans, answer):
-                return time_remaining
-
-        if loop.time() - round_start > ROUND_LENGTH:
-            return 0
-
-async def subnet_racer(user):
-    try:
-        await welcome(user)
-        score = 0
         while True:
-            score += await round(user, score)
+            cur_time = self.get_time()
+            remiaining_time = int(ROUND_LENGTH - (cur_time - start))
+            await self.update_progress(remiaining_time)
+            guess = await self.get_answer()
 
-    except ConnectionResetError:
-        print("user disconnected", flush=True)
+            if guess is not None:
+                # clear the input line in the terminal 
+                # if something was actually entered
+                await self.clear_user_entry()
+            if self.check_answer(guess, answer):
+                # you earned however much time was remiaining points
+                return remiaining_time
+            if cur_time - start > ROUND_LENGTH:
+                # ran out of time, 0 points
+                return 0
+    
+    async def prompt(self, question):
+        msg = INITIAL_QUESTION.format(
+            prompt=question,
+            progress="#" * ROUND_LENGTH,
+            time="60",
+            score=self.score
+        )
+        await self.user.send(msg)
+
+    async def update_progress(self, time_remaining):
+        percent_remaining = time_remaining / ROUND_LENGTH
+        count = int(percent_remaining * ROUND_LENGTH)
+        progress = Cursor.color_by_percentage(percent_remaining, '#' * count)
+        msg = PROGRESS_UPDATE.format(
+            progress=progress,
+            time=time_remaining,
+            value=ROUND_LENGTH - time_remaining
+        )
+        await self.user.send(msg)
+
+    async def get_answer(self):
+        try:
+            return await self.user.readline(timeout=0.5)
+        except asyncio.TimeoutError:
+            return None
+
+    async def clear_user_entry(self):
+        await self.user.send(CLEAR_ENTRY)
+    
+    def check_answer(self, guess, expected):
+        return guess == expected
+
+    def get_time(self):
+        return self.loop.time()
+    
+    def on_earned_points(self, earned):
+        self.score += earned
+        
+
+class SubnetRacerServer(RequireTokenServer):
+    controller_class = SubnetRacerController
+    player_count = 1
+
+    async def user_connected(self, user):
+        await user.send(WELCOME_MESSAGE)
+    
+    async def on_user_accepted(self, user):
+        await super().on_user_accepted(user)
+        await user.send(PRESS_ENTER_MESSAGE)
+        await user.readline()
 
 
 if __name__ == "__main__":
-    start_game(subnet_racer, "0.0.0.0", 3000)
+    server = SubnetRacerServer()
+    server.start()
