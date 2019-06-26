@@ -26,10 +26,14 @@ WELCOME_MESSAGE = f"""{Cursor.CLEAR}{Cursor.resize(SCREEN_WIDTH,30)}
 
 Welcome to Subnet Racer!!!!{Cursor.RESET}
 
-{Cursor.GREEN}Press enter to continue...{Cursor.RESET}
-
 """
 
+#
+#   ask the user to press enter before starting
+#
+PRESS_ENTER_MESSAGE = f"""
+{Cursor.BLUE}Press enter to continue...{Cursor.RESET}
+"""
 
 
 #
@@ -40,7 +44,7 @@ INITIAL_QUESTION = f"""{Cursor.CLEAR}
 POINTS EARNED: {Cursor.GREEN}{{score}}{Cursor.RESET}
 
 
-{Cursor.YELLOW}{{prompt}}{Cursor.RESET}
+{Cursor.BLUE}{{prompt}}{Cursor.RESET}
 {{progress}} {Cursor.GREEN}{{time}}{Cursor.RESET}
 
 {Cursor.YELLOW}# {Cursor.RESET}"""
@@ -50,7 +54,7 @@ POINTS EARNED: {Cursor.GREEN}{{score}}{Cursor.RESET}
 #       gets sent every second or so to countdown time remaining
 #
 PROGRESS_UPDATE = f"{Cursor.SAVE}{Cursor.up(2)}{Cursor.HOME}" + \
-                  f"{Cursor.ERASE_LINE}{{progress}} " + \
+                  f"{Cursor.ERASE_TO_LINE_END}{{progress}} " + \
                   f"{Cursor.GREEN}{{time}}{Cursor.RESET}{Cursor.RESTORE}"
 
 

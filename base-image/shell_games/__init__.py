@@ -1,7 +1,7 @@
 from .cursor import Cursor
-from .server import start_game
 from .user import User
+from .server import Server, RequireTokenServer, Controller
 
 name = "shell_games"
 
-__all__ = ["Cursor", "start_game", "User"]
+__all__ = ["Cursor", "User", "Server", "RequireTokenServer", "Controller"]

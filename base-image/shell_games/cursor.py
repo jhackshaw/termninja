@@ -4,14 +4,16 @@ class Cursor:
     ESCAPE = "\x1b["
     RESET = f"{ESCAPE}0m"
     CLEAR = f"{ESCAPE}1J"
-    RED = f"{ESCAPE}1;31m"
-    GREEN = f"{ESCAPE}1;32m"
-    YELLOW = f"{ESCAPE}1;33m"
-    BLUE = f"{ESCAPE}1;34m"
     SAVE = f"{ESCAPE}s"
     RESTORE = f"{ESCAPE}u"
     ERASE_LINE = f"{ESCAPE}2K"
+    ERASE_TO_LINE_END = f"{ESCAPE}0K"
     HOME = f"{ESCAPE}1G"
+    
+    RED = f"{ESCAPE}31;1m"
+    GREEN = f"{ESCAPE}32;1m"
+    YELLOW = f"{ESCAPE}33;1m"
+    BLUE = f"{ESCAPE}36;1m"
 
     @classmethod
     def blue(cls, msg):
@@ -40,6 +42,10 @@ class Cursor:
     @classmethod
     def down(cls, n):
         return f"{cls.ESCAPE}{n}B"
+
+    @classmethod
+    def move_to_column(cls, col):
+        return f"{cls.ESCAPE}{col}G"
 
     @classmethod
     def reset(cls, n):
