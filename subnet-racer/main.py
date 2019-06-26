@@ -143,6 +143,9 @@ class SubnetRacerController(Controller):
 
     async def clear_user_entry(self):
         await self.user.send(CLEAR_ENTRY)
+
+    async def on_disconnect(self, error):
+        print("earned points:", self.score)
     
     def check_answer(self, guess, expected):
         return guess == expected

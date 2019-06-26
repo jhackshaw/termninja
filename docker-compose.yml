@@ -18,3 +18,10 @@ services:
     depends_on:
       - base_image
     
+  snake:
+    build: ./snake
+    ports:
+      - 3003:3000
+    depends_on:
+      - base_image
+    

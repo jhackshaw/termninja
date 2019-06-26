@@ -1,10 +1,8 @@
-import socketserver
-import socket
-import threading
+import asyncio
 import itertools
-import time
 import random
-from shared import Cursor
+from shell_games import Cursor, Controller, Server
+from config import WELCOME_MESSAGE
 
 
 class SnakeBoard:
@@ -36,13 +34,14 @@ class SnakeBoard:
         )
 
     def init_board(self):
+        header = f"\n\t\t\tSCORE: {Cursor.GREEN}{{score}}{Cursor.RESET}"
         top = " " * (self.PADDING+1) + \
               Cursor.blue("=" * self.WIDTH) + "\n"
         mid = " " * self.PADDING + \
               Cursor.blue("|") + \
               "{}" * self.WIDTH + \
               Cursor.blue("|\n") 
-        self.board = "\n\n" + top + mid*self.HEIGHT + top
+        self.board = header + "\n\n" + top + mid*self.HEIGHT + top
 
     def init_fills(self):
         self.fills = [
@@ -80,7 +79,6 @@ class SnakeBoard:
         delta_y, delta_x = self.DIRECTIONS[self.direction]
         new_head = (self.snake[0][0] + delta_y, self.snake[0][1] + delta_x)
         if self.check_game_over(new_head):
-            print("GO")
             self.game_over = True
         else:
             self.update_snake(new_head)
@@ -117,69 +115,50 @@ class SnakeBoard:
         return self.HEIGHT + 2
 
     def render(self):
-        return self.board.format(*itertools.chain(*self.fills))
+        return self.board.format(*itertools.chain(*self.fills), score=self.score)
 
 
-class SnakeController(socketserver.BaseRequestHandler):
-    DELAY = 0.18
+class SnakeController(Controller):
+    DELAY = 0.14
 
-    def setup(self):
+    def setUp(self, user):
         self.board = SnakeBoard()
+        self.user = user
         self.disconnected = False
-        self.request.setblocking(False)
 
-    def handle(self):
-        while not self.disconnected and not self.board.game_over:
-            self.handle_input()
+    async def run(self):
+        while not self.board.game_over:
+            await self.handle_input()
             self.board.tick()
-            self.send_board()
-            time.sleep(self.DELAY)
+            await self.send_board()
+            await asyncio.sleep(self.DELAY)
+        await self.user.close()
 
-    def handle_input(self):
+    async def handle_input(self):
         try:
-            data = self.request.recv(8).decode().strip()
-            if data == "":
-                self.disconnected = True
-            else:
-                self.board.turn(data[-1])
-        except socket.error as e:
-            # ignore non-blocking errors, throw anything else
-            if e.errno != 11:
-                raise e
-
-    def ready_up(self):
-        self.send("hi there")
+            data = await self.user.read(timeout=0.2)
+            self.board.turn(data[-1])
+        except asyncio.TimeoutError:
+            pass
     
-    def send_board(self):
-        self.send(
-            Cursor.reset(self.board.effective_height) + \
-            self.board.render()
+    async def send_board(self):
+        await self.user.send(
+            f"{Cursor.CLEAR_ALT}{self.board.render()}"
         )
 
-    def send(self, msg):
-        try:
-            self.request.sendall(msg.encode())
-        except socket.error:
-            self.disconnected = True
+    async def on_disconnect(self, err):
+        print("disconnected")
 
 
-class SnakeServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
+class SnakeServer(Server):
+    controller_class = SnakeController
     allow_reuse_address = True
 
-    def __init__(self, host, port):
-        self.host = host
-        self.port = port
-        super().__init__((host, port), SnakeController)
-
-    def process_request(self, request, client_address):
-        print(f"[+] {threading.active_count()} "
-              f"{client_address[0]}:{client_address[1]}")
-        return super().process_request(request, client_address)
+    async def user_connected(self, user):
+        await user.send(WELCOME_MESSAGE)
+        await user.readline()
 
 
 if __name__ == "__main__":
-    with SnakeServer("0.0.0.0", 3002) as server:
-        try:
-            server.serve_forever()
-        except KeyboardInterrupt:
-            pass
+    server = SnakeServer()
+    server.start()

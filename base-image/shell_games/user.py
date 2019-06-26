@@ -28,6 +28,27 @@ class User:
         self.writer.write(msg.encode())
         await self.writer.drain()
 
+    async def read(self, size=8, timeout=None):
+        """ attempt to read size bytes in timeout time
+
+        Args:
+            timeout (float): raise TimeoutError if exceeded
+            size (int): maximum number of bytes to read
+        
+        Returns:
+            decoded input received
+
+        Raises:
+            TimoutError: if timeout exceed while reading
+            ConnectionResetError: if EOF is received while reading
+        """
+        data = await asyncio.wait_for(
+            self.reader.read(size), timeout
+        )
+        if data == b'':
+            raise ConnectionResetError
+        return data.strip().decode()
+
     async def clear_input_buffer(self):
         """ read anything sitting in reader and throw it away
         """
@@ -99,8 +120,9 @@ class User:
     async def close(self):
         """ Write EOF if applicable and close the stream
         """
-        if self.writer.can_write_eof():
-            self.writer.write_eof()
-        await self.writer.drain()
-        self.writer.close()
+        if not self.writer.is_closing():
+            if self.writer.can_write_eof():
+                self.writer.write_eof()
+            await self.writer.drain()
+            self.writer.close()
         await self.writer.wait_closed()

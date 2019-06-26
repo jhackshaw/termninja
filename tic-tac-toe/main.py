@@ -1,12 +1,10 @@
 import asyncio
-from shell_games import Cursor, start_game
+from shell_games import Cursor, Server, Controller
 from config import (YOUR_TURN_MESSAGE,
                     OTHER_PLAYER_TURN_MESSAGE,
                     PLAYER_TIMED_OUT_MESSAGE,
                     BOARD_FORMAT,
                     WELCOME_MESSAGE)
-
-
 
 
 class TicTacToeBoard:
@@ -56,8 +54,8 @@ class TicTacToeBoard:
         return BOARD_FORMAT.format(*self.fills)
 
 
-class TicTacToeController:
-    def __init__(self, user1, user2):
+class TicTacToeController(Controller):
+    def setUp(self, user1, user2):
         self.users = [user1, user2]
         self.board = TicTacToeBoard()
         self.current_turn = 0
@@ -77,7 +75,7 @@ class TicTacToeController:
         self.next_turn()
     
     def next_turn(self):
-        self.current_turn ^= 1 
+        self.current_turn ^= 1
     
     async def get_player_choice(self):
         while True:
@@ -88,16 +86,12 @@ class TicTacToeController:
                     self.board.valid_move, coerce=int, timeout=8.0
                 )
             except asyncio.TimeoutError:
-                await asyncio.gather(*[
-                    u.send(PLAYER_TIMED_OUT_MESSAGE) for u in self.users
-                ])
+                await self.send_to_users(PLAYER_TIMED_OUT_MESSAGE)
                 self.next_turn()
 
     async def send_board(self):
         msg = self.board.render()
-        await asyncio.gather(*[
-            u.send(msg) for u in self.users
-        ])
+        await self.send_to_users(msg)
     
     async def prompt_players(self, turn):
         await asyncio.gather(
@@ -111,31 +105,15 @@ class TicTacToeController:
     async def handle_winner(self, winner):
         print(f"{winner} wins", flush=True)
 
+    async def on_disconnect(self, error):
+        print("disconnected")
 
-async def get_default_winner(user1, user2):
-    try:
-        await user1.send("other user disconnected, you win (by default)")
-        return 0
-    except BrokenPipeError:
-        try:
-            await user2.send("other user disconnected, you win (by default)")
-            return 1
-        except BrokenPipeError:
-            return None
 
-async def tic_tac_toe(user1, user2):
-    try:
-        controller = TicTacToeController(user1, user2)
-        winner = await controller.run()
-    except ConnectionResetError:
-        print("reset")
-        winner = await get_default_winner(user1, user2)
-    print(f"winner is {winner}")
+class TicTacToeServer(Server):
+    controller_class = TicTacToeController
+    player_count = 2
 
 
 if __name__ == "__main__":
-    start_game(tic_tac_toe, 
-               "0.0.0.0",
-               3000,
-               player_count=2,
-               greeting=WELCOME_MESSAGE)
+    server = TicTacToeServer()
+    server.start()

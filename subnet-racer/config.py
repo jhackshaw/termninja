@@ -9,7 +9,7 @@ SCREEN_WIDTH = 80
 #
 #   sent once on first connection
 #
-WELCOME_MESSAGE = f"""{Cursor.CLEAR}{Cursor.resize(SCREEN_WIDTH,30)}
+WELCOME_MESSAGE = f"""{Cursor.CLEAR}
 {Cursor.YELLOW}
         __-------__
       / _---------_ \\
@@ -42,7 +42,6 @@ PRESS_ENTER_MESSAGE = f"""
 INITIAL_QUESTION = f"""{Cursor.CLEAR}
 
 POINTS EARNED: {Cursor.GREEN}{{score}}{Cursor.RESET}
-
 
 {Cursor.BLUE}{{prompt}}{Cursor.RESET}
 {{progress}} {Cursor.GREEN}{{time}}{Cursor.RESET}

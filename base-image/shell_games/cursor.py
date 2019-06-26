@@ -3,7 +3,8 @@
 class Cursor:
     ESCAPE = "\x1b["
     RESET = f"{ESCAPE}0m"
-    CLEAR = f"{ESCAPE}1J"
+    CLEAR = f"{ESCAPE}2J"
+    CLEAR_ALT = f"{ESCAPE}1J{ESCAPE}0;0H"
     SAVE = f"{ESCAPE}s"
     RESTORE = f"{ESCAPE}u"
     ERASE_LINE = f"{ESCAPE}2K"
@@ -46,10 +47,6 @@ class Cursor:
     @classmethod
     def move_to_column(cls, col):
         return f"{cls.ESCAPE}{col}G"
-
-    @classmethod
-    def reset(cls, n):
-        return f"{cls.CLEAR}{cls.move_to(0,0)}"
 
     @classmethod
     def resize(cls, h, w):

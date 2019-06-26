@@ -3,59 +3,36 @@ from .user import User
 from .cursor import Cursor
 
 
-def greet_and_queue_handler(queue, greeting):
-    async def handler(reader, writer):
-        if greeting:
-            writer.write(greeting.encode())
-            await writer.drain()
-        await queue.put(User(reader, writer))
-    return handler
-
-async def start_server(queue, host, port, greeting):
-    server = await asyncio.start_server(
-        greet_and_queue_handler(queue, greeting),
-        host=host,
-        port=port,
-        reuse_port=True
-    )
-    async with server:
-        await server.serve_forever()
-
-async def start_games(queue, player_count, handler):
-    while True:
-        asyncio.create_task(handler(*[
-            await queue.get() for _ in range(player_count)
-        ]))
-
-async def main(handler, host, port, player_count, greeting):
-    queue = asyncio.Queue()
-    server_task = asyncio.create_task(
-        start_server(queue, host, port, greeting)
-    )
-    start_games_task = asyncio.create_task(
-        start_games(queue, player_count, handler)
-    )
-    await asyncio.gather(
-        server_task,
-        start_games_task
-    )
-
-def start_game(handler, host, port, player_count=1, greeting=None):    
-    try:
-        asyncio.run(main(handler, host, port, player_count, greeting))
-    except KeyboardInterrupt:
-        print("user shutdown\n")
-
-
 class Controller:
     def __init__(self, *users):
+        self._users = users
         self.setUp(*users)
     
-    def setUp(self):
+    def setUp(self, *users):
         pass
+
+    async def start(self):
+        try:
+            await self.run()
+        except (BrokenPipeError, ConnectionResetError) as e:
+            await self.on_disconnect(e)
+            await self.teardown()
 
     async def run(self):
         raise NotImplementedError
+
+    async def on_disconnect(self, error):
+        pass
+    
+    async def teardown(self):
+        await asyncio.gather(*[
+            u.close() for u in self._users
+        ])
+    
+    async def send_to_users(self, msg):
+        return await asyncio.gather(*[
+            u.send(msg) for u in self._users
+        ])
 
 
 class Server:
@@ -92,13 +69,13 @@ class Server:
     def get_controller_class(self):
         return self.controller_class
 
-    async def run(self, *users):
+    async def launch_game(self, *users):
         """ create an instance of game_controller and call it's run
         method
         """
         controller_class = self.get_controller_class()
         controller = controller_class(*users)
-        asyncio.create_task(controller.run())        
+        asyncio.create_task(controller.start())        
 
     async def _start_serving(self):
         """ start a self._server_task which acts as a producer of users, and
@@ -135,7 +112,7 @@ class Server:
         """ Block until self.player_count users have connected, then call run.
         """
         while True:
-            asyncio.create_task(self.run(*[
+            asyncio.create_task(self.launch_game(*[
                 await self._player_queue.get() for _ in range(self.player_count)
             ]))
 
