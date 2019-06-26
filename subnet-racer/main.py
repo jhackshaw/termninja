@@ -9,8 +9,7 @@ from config import (WELCOME_MESSAGE,
                     PROGRESS_UPDATE,
                     INITIAL_QUESTION,
                     CLEAR_ENTRY,
-                    ROUND_LENGTH,
-                    SCREEN_WIDTH)
+                    ROUND_LENGTH)
 
 # use np.random.choice(..., p=WEIGHTS) instead?
 WEIGHTS = [0, 0, 0, 0, 1, 1, 1, 1, # 1st octet
