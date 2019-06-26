@@ -1,5 +1,9 @@
 from shell_games import Cursor
 
+
+# constants
+ROUND_LENGTH = 60
+
 #
 #   sent once on first connection
 #
