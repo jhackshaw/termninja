@@ -1,4 +1,4 @@
-FROM shellgames_base_image
+FROM termninja_base_image
 
 WORKDIR /app
 
