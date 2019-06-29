@@ -5,3 +5,4 @@ venv/
 base-image/shell_games.egg-info/
 Pipfile
 Pipfile.lock
+config.env
