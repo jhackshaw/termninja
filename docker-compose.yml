@@ -1,6 +1,21 @@
 version: '3'
 
 services:
+  postgres:
+    image: postgres
+    restart: always
+    env_file:
+      - config.env
+
+  api-public:
+    build: ./api
+    ports:
+      - 80:3000
+    depends_on:
+      - postgres
+    env_file:
+      - config.env
+
   base_image:
     build: ./base-image
     
@@ -24,4 +39,3 @@ services:
       - 3003:3000
     depends_on:
       - base_image
-    

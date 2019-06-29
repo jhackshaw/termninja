@@ -3,3 +3,5 @@ __pycache__/
 .python-version
 venv/
 base-image/shell_games.egg-info/
+Pipfile
+Pipfile.lock
