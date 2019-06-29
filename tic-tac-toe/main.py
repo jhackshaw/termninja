@@ -113,6 +113,9 @@ class TicTacToeServer(Server):
     controller_class = TicTacToeController
     player_count = 2
 
+    # async def user_connected(self, user):
+    #     await user.send(WELCOME_MESSAGE)
+
 
 if __name__ == "__main__":
     server = TicTacToeServer()

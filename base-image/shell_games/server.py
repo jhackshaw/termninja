@@ -97,6 +97,7 @@ class Server:
     async def _on_connection(self, reader, writer):
         """ Queue a newly connected user after calling appropriate hooks.
         """
+        print("connection")
         user = User(reader, writer)
         try:
             await self.user_connected(user)

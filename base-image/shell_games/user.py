@@ -120,9 +120,5 @@ class User:
     async def close(self):
         """ Write EOF if applicable and close the stream
         """
-        if not self.writer.is_closing():
-            if self.writer.can_write_eof():
-                self.writer.write_eof()
-            await self.writer.drain()
-            self.writer.close()
+        self.writer.close()
         await self.writer.wait_closed()

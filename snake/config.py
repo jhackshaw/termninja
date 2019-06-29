@@ -1,14 +1,25 @@
 from shell_games import Cursor
 
-
 WELCOME_MESSAGE = f"""{Cursor.CLEAR}
-
-    {Cursor.GREEN}~~~~~~~~~~~~~~~~~~~~~~~~>{Cursor.RESET}
-    
-    {Cursor.YELLOW}WELCOME TO SNAKE!!!{Cursor.RESET}
-
-    {Cursor.GREEN}<~~~~~~~~~~~~~~~~~~~~~~~~{Cursor.RESET}
-
+{Cursor.GREEN}
+           /^\/^\\
+         _|__|  O|
+\/     /~     \_/ \\
+ \____|__________/  \\
+        \_______      \\
+                `\     \                 \\
+                  |     |                  \\
+                 /      /                    \\
+                /     /                       \\\\
+              /      /                         \ \\
+             /     /                            \  \\
+           /     /             _----_            \   \\
+          /     /           _-~      ~-_         |   |
+         (      (        _-~    _--_    ~-_     _/   |
+          \      ~-____-~    _-~    ~-_    ~-_-~    /
+            ~-_           _-~          ~-_       _-~
+               ~--______-~                ~-___-~
+{Cursor.RESET}
 
 - Use the following command for the best experience:
 {Cursor.YELLOW}stty -icanon && nc <host> <port>{Cursor.RESET}
