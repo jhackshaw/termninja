@@ -9,20 +9,21 @@ ROUND_LENGTH = 60
 #
 WELCOME_MESSAGE = f"""{Cursor.CLEAR}
 {Cursor.YELLOW}
-        __-------__
-      / _---------_ \\
-     / /           \ \\
-     | |           | |
-     |_|___________|_|
- /-\|                 |/-\\
-| _ |\       0       /| _ |
-|(_)| \      !      / |(_)|
-|___|__\_____!_____/__|___|
-[_____{Cursor.RESET}{Cursor.BLUE}|SUBNET RACER|{Cursor.RESET}{Cursor.YELLOW}______] 
- ||||    ~~~~~~~~     ||||
- `--'                 `--'
+                __-------__
+              / _---------_ \\
+              / /           \ \\
+              | |           | |
+              |_|___________|_|
+          /-\|                 |/-\\
+        | _ |\       0       /| _ |
+        |(_)| \      !      / |(_)|
+        |___|__\_____!_____/__|___|
+        [_____{Cursor.RESET}{Cursor.BLUE}|SUBNET RACER|{Cursor.RESET}{Cursor.YELLOW}______] 
+          ||||    ~~~~~~~~     ||||
+          `--'                 `--'
 
-Welcome to Subnet Racer!!!!{Cursor.RESET}
+        Welcome to Subnet Racer!!!!{Cursor.RESET}
+
 
 """
 

@@ -10,11 +10,21 @@ import { makeStyles } from '@material-ui/styles';
 
 const useStyles = makeStyles(theme => ({
   media: {
-    height: 0,
-    paddingTop: '56.25%'
+    minWidth: '20%'
   },
   root: {
-    height: '100%'
+    display: 'flex',
+    margin: theme.spacing(2),
+    padding: theme.spacing(2),
+    [theme.breakpoints.down('sm')]: {
+      marginRight: 0,
+      marginLeft: 0
+    }
+  },
+  contentRoot: {
+    display: 'flex',
+    flexDirection: 'column',
+    padding: theme.spacing(1)
   }
 }))
 
@@ -23,17 +33,16 @@ const GameTile = ({ name, description, image, url, port }) => {
 
   return (
     <Card classes={{root: classes.root}}>
-      <CardHeader
-        avatar={ <Avatar>{ name[0] }</Avatar> }
-        title={ name }
-      />
       <CardMedia
-        className={classes.media}
+        className={ classes.media }
         image={ `/static/images/${image}` }
         title={ name }
       />
-      <CardContent>
-        <Typography variant="body1" color="textSecondary" component="p">
+      <CardContent classes={{root: classes.contentRoot}}>
+        <Typography variant="h6" noWrap>
+          { name }
+        </Typography>
+        <Typography variant="body1" color="textSecondary" component="p" noWrap>
           { description }
         </Typography>
       </CardContent>

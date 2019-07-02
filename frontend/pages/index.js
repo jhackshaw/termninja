@@ -1,8 +1,9 @@
 import React from 'react';
-import { Grid } from '@material-ui/core';
+import { Grid, Hidden } from '@material-ui/core';
 import GameTile from '../src/GameTile';
 import Layout from '../src/Layout';
 import Jumbotron from '../src/Jumbotron';
+import CssBaseline from '@material-ui/core/CssBaseline';
 
 const games = [
   { name: "Subnet Racer", image: "subnet_racer.jpg", description: "How fast can you calculate basic subnets?" },
@@ -19,20 +20,21 @@ class Home extends React.Component {
   render() {
     const { games } = this.props; 
     return (
+      <>
+      <CssBaseline />
       <Layout>
-        <Jumbotron>
-          
-        </Jumbotron>
-        <div style={{ padding: 20 }}>
-          <Grid container justify="center" alignItems="stretch" spacing={4}>
-            {games.map(game => (
-              <Grid key={game.name} item xs={12} md={2} lg={3}>
-                <GameTile {...game} />
-              </Grid>
-            ))}
+        <Jumbotron />
+          <Grid container justify="center" spacing={0}>
+
+            <Grid item container direction="column" wrap="nowrap" xs={12} sm={10} md={8}>
+              {games.map(game => (
+                <GameTile {...game} key={game.name} />
+              ))}  
+            </Grid>
+
           </Grid>
-        </div>
       </Layout>
+      </>
     )
   }
 }
