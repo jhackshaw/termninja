@@ -23,15 +23,15 @@ services:
     volumes:
       - ./api/migrations/versions:/app/migrations/versions
 
-  subnet-racer:
-    build: ./subnet-racer
-    ports:
-      - 3001:3000
-    depends_on:
-      - core
-      - postgres
-    env_file:
-      - config.env
+  # subnet-racer:
+  #   build: ./subnet-racer
+  #   ports:
+  #     - 3001:3000
+  #   depends_on:
+  #     - core
+  #     - postgres
+  #   env_file:
+  #     - config.env
     
     
   # tic-tac-toe:
