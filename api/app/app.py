@@ -1,14 +1,11 @@
-from api_app.settings import DATABASE_URL
 from sanic import Sanic, response
-from databases import Database
-
+from termninja.db import db
 
 app = Sanic()
 
-
 @app.listener('after_server_start')
 async def setup_db(app, loop):
-    app.db = Database(DATABASE_URL)
+    app.db = db
     await app.db.connect()
 
 
@@ -19,8 +16,7 @@ async def close_db(app, loop):
 
 @app.route('/')
 async def ping(request):
-    return response.text('pong')
-
-
-def start_app():
-    app.run('0.0.0.0', 3000)
+    query = "SELECT * FROM alembic_version;"
+    res = await db.fetch_all(query=query)
+    print(res[0], dict(res[0]))
+    return response.json(res)

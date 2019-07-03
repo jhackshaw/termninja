@@ -3,7 +3,8 @@ from typing import Callable
 
 
 class User:
-    """ Wraps the standard StreamReader, StreamWriter for more
+    """
+    Wraps the standard StreamReader, StreamWriter for more
     concise api for these types of applications.
     """
 
@@ -17,7 +18,8 @@ class User:
         self.writer = writer
 
     async def send(self, msg: str):
-        """ encode and send message and wait until 
+        """
+        encode and send message and wait until 
         appropriate to call send again
 
         Args:
@@ -29,7 +31,8 @@ class User:
         await self.writer.drain()
 
     async def read(self, size=8, timeout=None):
-        """ attempt to read size bytes in timeout time
+        """ 
+        attempt to read size bytes in timeout time
 
         Args:
             timeout (float): raise TimeoutError if exceeded
@@ -50,7 +53,8 @@ class User:
         return data.strip().decode()
 
     async def clear_input_buffer(self):
-        """ read anything sitting in reader and throw it away
+        """ 
+        read anything sitting in reader and throw it away
         """
         try:
             await asyncio.wait_for(
@@ -60,7 +64,8 @@ class User:
             pass
 
     async def readline(self, timeout: float=None):
-        """ read a single line. throw ResetError if user disconnected
+        """
+        read a single line. throw ResetError if user disconnected
 
         Args:
             timeout (float): raise TimeoutError if exceeded
@@ -83,7 +88,8 @@ class User:
                                coerce: Callable=str,
                                timeout: Callable=None,
                                prompt: str="\n# "):
-        """ recieve input 1 line at a time until it passes validation.
+        """
+        recieve input 1 line at a time until it passes validation.
 
         Args:
             validator (func): validation function f(data) -> True or False
@@ -105,7 +111,8 @@ class User:
     async def _readlines_until_validates(self,
                                          coerce: Callable,
                                          validator: Callable):
-        """ Implementation of read_until_valid in a single
+        """ 
+        Implementation of read_until_valid in a single
         coroutine that can be timed out by calling function
         """
         while True:
@@ -118,7 +125,8 @@ class User:
                 continue
 
     async def close(self):
-        """ Write EOF if applicable and close the stream
+        """ 
+        Just close the stream, forget EOF and awaiting closed.
         """
         self.writer.close()
-        await self.writer.wait_closed()
+

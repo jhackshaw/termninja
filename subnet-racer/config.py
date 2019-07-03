@@ -1,4 +1,4 @@
-from shell_games import Cursor
+from termninja.cursor import Cursor
 
 
 # constants

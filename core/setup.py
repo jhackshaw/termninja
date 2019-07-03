@@ -2,7 +2,7 @@ import setuptools
 
 
 setuptools.setup(
-    name="shell_games",
+    name="termninja_core",
     version="0.0.1",
     author="Jeff Hackshaw",
     author_email="jeffrey.hackshaw@gmail.com",

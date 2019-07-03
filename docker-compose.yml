@@ -7,7 +7,12 @@ services:
     env_file:
       - config.env
 
-  api-public:
+  core:
+    build: ./core
+    depends_on:
+      - postgres
+    
+  api:
     build: ./api
     ports:
       - 80:3000
@@ -15,27 +20,30 @@ services:
       - postgres
     env_file:
       - config.env
+    volumes:
+      - ./api/migrations/versions:/app/migrations/versions
 
-  base_image:
-    build: ./base-image
-    
   subnet-racer:
     build: ./subnet-racer
     ports:
       - 3001:3000
     depends_on:
-      - base_image
+      - core
+      - postgres
+    env_file:
+      - config.env
     
-  tic-tac-toe:
-    build: ./tic-tac-toe
-    ports:
-      - 3002:3000
-    depends_on:
-      - base_image
     
-  snake:
-    build: ./snake
-    ports:
-      - 3003:3000
-    depends_on:
-      - base_image
+  # tic-tac-toe:
+  #   build: ./tic-tac-toe
+  #   ports:
+  #     - 3002:3000
+  #   depends_on:
+  #     - base_image
+    
+  # snake:
+  #   build: ./snake
+  #   ports:
+  #     - 3003:3000
+  #   depends_on:
+  #     - base_image

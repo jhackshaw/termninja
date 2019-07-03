@@ -3,7 +3,9 @@ import os
 import random
 import ipaddress
 import itertools
-from shell_games import Cursor, RequireTokenServer, Controller
+from termninja.cursor import Cursor
+from termninja.server import Server
+from termninja.controller import Controller
 from config import (WELCOME_MESSAGE,
                     PRESS_ENTER_MESSAGE,
                     PROGRESS_UPDATE,
@@ -86,11 +88,8 @@ class SubnetRacerController(Controller):
         self.loop = asyncio.get_event_loop()
 
     async def run(self):
-        try:
-            while True:
-                self.on_earned_points(await self.round())
-        except ConnectionResetError:
-            print("user disconnected", flush=True)
+        while True:
+            self.on_earned_points(await self.round())
     
     async def round(self):
         start = self.get_time()
@@ -143,7 +142,7 @@ class SubnetRacerController(Controller):
     async def clear_user_entry(self):
         await self.user.send(CLEAR_ENTRY)
 
-    async def on_disconnect(self, error):
+    async def on_disconnect(self):
         print("earned points:", self.score)
     
     def check_answer(self, guess, expected):
@@ -156,7 +155,7 @@ class SubnetRacerController(Controller):
         self.score += earned
         
 
-class SubnetRacerServer(RequireTokenServer):
+class SubnetRacerServer(Server):
     controller_class = SubnetRacerController
     player_count = 1
 
@@ -170,5 +169,6 @@ class SubnetRacerServer(RequireTokenServer):
 
 
 if __name__ == "__main__":
+    print("starting subnet racer")
     server = SubnetRacerServer()
     server.start()
