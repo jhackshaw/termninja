@@ -2,7 +2,7 @@ import asyncio
 from .user import User
 from .cursor import Cursor
 from .controller import Controller
-from .db import db
+from .db import db, users
 
 
 class Server:
@@ -145,12 +145,12 @@ class RequireTokenServer(Server):
     """ 
     Only accept user's if they provide a valid, signed JWT
     """
-    enter_token_prompt = "Enter your token: "
+    enter_token_prompt = "Enter a token to track score or press enter: "
 
     async def should_accept_user(self, user):
         await user.send(self.enter_token_prompt)
         token = await user.readline()
-        return self.verify_token(token)
+        return await self.process_token(user, token)
     
     async def on_user_accepted(self, user):
         await user.send(
@@ -161,6 +161,5 @@ class RequireTokenServer(Server):
         )
         return await super().on_user_accepted(user)
 
-    def verify_token(self, token):
-        return token == "shellgames" # will verify jwt, this for now
-
+    async def process_token(self, user, token):
+        pass

@@ -18,7 +18,7 @@ class Controller:
         """
         try:
             await self.run()
-        except (BrokenPipeError, ConnectionResetError) as e:
+        except (BrokenPipeError, ConnectionResetError):
             pass
         finally:
             print("caught disconnect in controller base...")

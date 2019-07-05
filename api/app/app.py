@@ -1,5 +1,5 @@
 from sanic import Sanic, response
-from termninja.db import db
+from termninja.db import db, users
 
 app = Sanic()
 
@@ -20,3 +20,14 @@ async def ping(request):
     res = await db.fetch_all(query=query)
     print(res[0], dict(res[0]))
     return response.json(res)
+
+@app.route('/user')
+async def create(request):
+    await users.create_user("testuser3")
+    return response.text("ok")
+
+
+@app.route('/token')
+async def token(request):
+    user = await users.get_user("testuser")
+    return user
