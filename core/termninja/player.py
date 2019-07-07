@@ -1,8 +1,23 @@
 import asyncio
-from typing import Callable
+import datetime
 
 
-class User:
+anonymous_identity = {
+    "username": None,
+    "score": 0,
+    "play_token_expires_at": None
+}
+
+def format_timedelta(delta):
+    total_seconds = delta.total_seconds()
+    hours = total_seconds // (60 * 60)
+    total_seconds %= 60 * 60
+    minutes = total_seconds // 60
+    total_seconds %= 60
+    return f"{hours:.0f}h {minutes:.0f}m {total_seconds:.0f}s"
+
+
+class Player:
     """
     Wraps the standard StreamReader, StreamWriter for more
     concise api for these types of applications.
@@ -11,11 +26,34 @@ class User:
     def __init__(self,
                  reader: asyncio.StreamReader,
                  writer: asyncio.StreamWriter):
-        """ Pass the reader, writer objects as created by something
+        """
+        Pass the reader, writer objects as created by something
         like asyncio.start_server()
         """
         self.reader = reader
         self.writer = writer
+        self.identity = anonymous_identity
+        self.score = 0
+        self.earned = 0
+        self._play_token_expires_at = None
+
+    @property
+    def play_token_expires_at(self):
+        if self.identity['play_token_expires_at'] is None:
+            return 'never'
+        delta = self.identity['play_token_expires_at'] - datetime.datetime.now()
+        return format_timedelta(delta)
+
+    @property
+    def username(self):
+        name = self.identity['username']
+        if name is None:
+            return 'anonymous'
+        return name
+
+    def assign_db_user(self, user):
+        self.score = user['score']
+        self.identity = user
 
     async def send(self, msg: str):
         """
@@ -84,10 +122,10 @@ class User:
         return data.strip().decode()  
 
     async def read_until_valid(self,
-                               validator: Callable,
-                               coerce: Callable=str,
-                               timeout: Callable=None,
-                               prompt: str="\n# "):
+                               validator,
+                               coerce=str,
+                               timeout=None,
+                               prompt="\n# "):
         """
         recieve input 1 line at a time until it passes validation.
 
@@ -108,9 +146,7 @@ class User:
             self._readlines_until_validates(coerce, validator), timeout
         )
 
-    async def _readlines_until_validates(self,
-                                         coerce: Callable,
-                                         validator: Callable):
+    async def _readlines_until_validates(self, coerce, validator):
         """ 
         Implementation of read_until_valid in a single
         coroutine that can be timed out by calling function
@@ -129,4 +165,6 @@ class User:
         Just close the stream, forget EOF and awaiting closed.
         """
         self.writer.close()
+        await self.writer.wait_closed()
+        print("[-] connection closed")
 

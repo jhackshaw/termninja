@@ -4,7 +4,7 @@ import random
 import ipaddress
 import itertools
 from termninja.cursor import Cursor
-from termninja.server import Server
+from termninja.server import TermninjaServer
 from termninja.controller import Controller
 from config import (WELCOME_MESSAGE,
                     PRESS_ENTER_MESSAGE,
@@ -82,8 +82,10 @@ def get_question():
 
 
 class SubnetRacerController(Controller):
-    def setUp(self, user):
-        self.user = user
+    friendly_name = "Subnet Racer"
+
+    def setUp(self, player):
+        self.player = player
         self.score = 0
         self.loop = asyncio.get_event_loop()
 
@@ -105,7 +107,7 @@ class SubnetRacerController(Controller):
             if guess is not None:
                 # clear the input line in the terminal 
                 # if something was actually entered
-                await self.clear_user_entry()
+                await self.clear_player_entry()
             if self.check_answer(guess, answer):
                 # you earned however much time was remiaining points
                 return remiaining_time
@@ -120,7 +122,7 @@ class SubnetRacerController(Controller):
             time="60",
             score=self.score
         )
-        await self.user.send(msg)
+        await self.player.send(msg)
 
     async def update_progress(self, time_remaining):
         percent_remaining = time_remaining / ROUND_LENGTH
@@ -131,16 +133,16 @@ class SubnetRacerController(Controller):
             time=time_remaining,
             value=ROUND_LENGTH - time_remaining
         )
-        await self.user.send(msg)
+        await self.player.send(msg)
 
     async def get_answer(self):
         try:
-            return await self.user.readline(timeout=0.5)
+            return await self.player.readline(timeout=0.5)
         except asyncio.TimeoutError:
             return None
 
-    async def clear_user_entry(self):
-        await self.user.send(CLEAR_ENTRY)
+    async def clear_player_entry(self):
+        await self.player.send(CLEAR_ENTRY)
 
     async def on_disconnect(self):
         print("earned points:", self.score)
@@ -155,17 +157,9 @@ class SubnetRacerController(Controller):
         self.score += earned
         
 
-class SubnetRacerServer(Server):
+class SubnetRacerServer(TermninjaServer):
     controller_class = SubnetRacerController
     player_count = 1
-
-    async def user_connected(self, user):
-        await user.send(WELCOME_MESSAGE)
-    
-    async def on_user_accepted(self, user):
-        await super().on_user_accepted(user)
-        await user.send(PRESS_ENTER_MESSAGE)
-        await user.readline()
 
 
 if __name__ == "__main__":

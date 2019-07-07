@@ -1,9 +1,9 @@
 FROM termninja_core
 
 
-WORKDIR /app
-COPY . /app
+WORKDIR /api
+COPY . /api
 
 EXPOSE 8080
 
-CMD ["python", "app"]
+CMD ["python", "-m", "sanic", "api.app", "--port=3000", "--host=0.0.0.0", "--debug"]

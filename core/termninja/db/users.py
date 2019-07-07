@@ -1,26 +1,27 @@
 import datetime
-from sqlalchemy import insert, Column, String, Integer, Table, DateTime
 from uuid import uuid4
 from passlib.hash import pbkdf2_sha256
-from .exceptions import NotFoundError
-from .db import metadata, db
+from sqlalchemy import (insert,
+                        select,
+                        update)
+from .conn import conn
+from .tables import users_table
+
+
+default_columns = [
+    users_table.c.id,
+    users_table.c.username,
+    users_table.c.play_token,
+    users_table.c.play_token_expires_at,
+    users_table.c.score
+]
 
 def make_token():
     return str(uuid4())
 
-def make_token_expires_at():
+def make_token_expires_at(days):
     now = datetime.datetime.now()
-    return now + datetime.timedelta(days=1)
-
-table = Table(
-    'users',
-    metadata,
-    Column('id', Integer, primary_key=True),
-    Column('username', String(64), nullable=False, unique=True),
-    Column('password_hash', String(128), nullable=False),
-    Column('play_token', String(36), nullable=False),
-    Column('play_token_expires_at', DateTime(), nullable=False)
-)
+    return now + datetime.timedelta(days=days)
 
 def create_password_hash(password):
     return pbkdf2_sha256.hash(password)
@@ -36,27 +37,60 @@ async def create_user(username, password):
         'username': username,
         'password_hash': create_password_hash(password),
         'play_token': make_token(),
-        'play_token_expires_at': make_token_expires_at()
+        'play_token_expires_at': make_token_expires_at(1)
     }
-    query = table.insert(None)
-    return await db.execute(query=query, values=values)
+    query = insert(users_table)
+    return await conn.execute(query=query, values=values)
 
 async def verify_login(username, password):
     """
-    Return userid if username and password are valid
+    Return user if username and password are valid
     """
-    user = table.select()\
-                .where(table.c.username == username)
-    if verify_password(password, user['password_hash']):
-        return user
+    # this needs to select all columns, we need the password
+    query = select([users_table])\
+              .where(users_table.c.username == username)
+    user = await conn.fetch_one(query=query)
+    if user and verify_password(password, user['password_hash']):
+        return dict(user)
     return None
 
-async def get_user(user_id):
+async def select_by_username(username):
     """
-    Get a user by id
+    Get a user by username
     """
-    query = table.select()\
-                 .where(table.c.id == user_id)
-    return await db.fetch_one(query=query)
+    query = select(default_columns)\
+              .where(users_table.c.username == username)
+    user = await conn.fetch_one(query=query)
+    return user and dict(user)
 
+async def select_by_play_token(token):
+    """
+    Get a user by their play token
+    """
+    query = select(default_columns)\
+                .where(users_table.c.play_token == token)
+    user = await conn.fetch_one(query=query)
+    return user and dict(user)
 
+async def refresh_play_token(username, days=1):
+    """
+    Give a user a new play token with more time
+        username is expected to exist.
+    """
+    query = update(users_table)\
+                .where(users_table.c.username == username)
+    values = {
+        'play_token': make_token(),
+        'play_token_expires_at': make_token_expires_at(days=days)
+    }
+    await conn.execute(query=query, values=values)
+    return await select_by_username(username)
+
+async def increment_score(username, earned):
+    """
+    Give more points to a user
+    """
+    query = update(users_table)\
+                .where(users_table.c.username == username)\
+                .values(users_table.c.score + earned)
+    await conn.execute(query=query)

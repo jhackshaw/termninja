@@ -1,27 +1,34 @@
 import asyncio
+from termninja import db
 
 
 class Controller:
-    def __init__(self, *users):
-        self._users = users
-        self.setUp(*users)
+    def __init__(self, *players):
+        self._players = players
+        self.setUp(*players)
     
-    def setUp(self, *users):
+    def setUp(self, *players):
         """
-        initialization for subclasses. don't override __init__()
+        Initialization for subclasses. don't override __init__()
         """
         pass
+    
+    @classmethod
+    def get_friendly_name(cls):
+        """
+        The name that represents this game in the database
+        """
+        return getattr(cls, 'friendly_name', cls.__name__)
 
     async def start(self):
         """
-        call run and handle any errors. should not be overriden.
+        Call run and handle any errors. should not be overriden.
         """
         try:
             await self.run()
         except (BrokenPipeError, ConnectionResetError):
             pass
         finally:
-            print("caught disconnect in controller base...")
             await self.on_disconnect()
             await self.teardown()
 
@@ -33,23 +40,44 @@ class Controller:
 
     async def on_disconnect(self):
         """
-        Any subclass action on disconnect.
-        users are closed immediately after this.
+        Hook for any diconnect actions
+        players are closed immediately after this.
         """
         pass
     
     async def teardown(self):
         """
-        close all user streams
+        Close all player streams
         """
-        await asyncio.gather(*[
-            u.close() for u in self._users
+        close_task = asyncio.gather(*[
+            p.close() for p in self._players
         ])
+        store_task = asyncio.gather(*[
+            self.store_round_played(p) for p in self._players
+        ])
+        await asyncio.gather(
+            close_task,
+            store_task
+        )
     
-    async def send_to_users(self, msg):
+    async def send_to_players(self, msg):
         """
-        send message to all users in this controller
+        Send message to all players in this controller
         """
         return await asyncio.gather(*[
-            u.send(msg) for u in self._users
+            p.send(msg) for p in self._players
         ])
+
+    async def store_round_played(self, player):
+        """
+        Record the fact that this player played this game in the db
+        """
+        await db.rounds.add_round_played(
+            self.get_friendly_name(),
+            player.identity['username'],
+            player.earned
+        )
+
+
+class GenericQuizController(Controller):
+    pass

@@ -1,0 +1,51 @@
+version: '3'
+
+services:
+  postgres:
+    image: postgres
+    restart: always
+    env_file:
+      - config.env
+
+  core:
+    build: ./core
+    depends_on:
+      - postgres
+    
+  api:
+    build: ./api
+    ports:
+      - 80:3000
+    depends_on:
+      - postgres
+    env_file:
+      - config.env
+    volumes:
+      - ./api/:/api/
+      - ./core/termninja/:/app/termninja/
+
+  subnet-racer:
+    build: ./subnet-racer
+    command: -p 3001
+    ports:
+      - 3001:3001
+    depends_on:
+      - core
+      - postgres
+    env_file:
+      - config.env
+    
+    
+  # tic-tac-toe:
+  #   build: ./tic-tac-toe
+  #   ports:
+  #     - 3002:3000
+  #   depends_on:
+  #     - base_image
+    
+  # snake:
+  #   build: ./snake
+  #   ports:
+  #     - 3003:3000
+  #   depends_on:
+  #     - base_image
