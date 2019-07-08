@@ -1,6 +1,6 @@
 FROM python:3.7.3-alpine
 
-WORKDIR /app
+WORKDIR /core
 
 RUN \
   apk --update add --no-cache postgresql-libs && \
@@ -8,6 +8,6 @@ RUN \
   pip install setuptools wheel databases sqlalchemy asyncpg sanic sanic-jwt alembic psycopg2 passlib && \
   apk --purge del build-deps
 
-COPY . /app
+COPY . /core
 
 RUN pip install -e .

@@ -146,6 +146,14 @@ class Player:
             self._readlines_until_validates(coerce, validator), timeout
         )
 
+    async def on_earned_points(self, earned):
+        """
+        Whenever the player earns points, update the players total score
+        and their earned points for this round
+        """
+        self.earned += earned
+        self.score += earned
+
     async def _readlines_until_validates(self, coerce, validator):
         """ 
         Implementation of read_until_valid in a single
@@ -167,4 +175,3 @@ class Player:
         self.writer.close()
         await self.writer.wait_closed()
         print("[-] connection closed")
-

@@ -22,11 +22,11 @@ services:
       - config.env
     volumes:
       - ./api/:/api/
-      - ./core/termninja/:/app/termninja/
+      - ./core/termninja/:/core/termninja/
 
   subnet-racer:
     build: ./subnet-racer
-    command: -p 3001
+    command: -a -p 3001
     ports:
       - 3001:3001
     depends_on:
@@ -34,6 +34,9 @@ services:
       - postgres
     env_file:
       - config.env
+    volumes:
+        - ./core/termninja/:/core/termninja/
+        - ./subnet-racer/:/app/
     
     
   # tic-tac-toe:

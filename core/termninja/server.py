@@ -3,6 +3,8 @@ import signal
 import functools
 import datetime
 import argparse
+import os
+from .reloader import watchdog
 from .player import Player
 from .cursor import Cursor
 from .controller import Controller
@@ -10,6 +12,7 @@ from . import db
 
 WELCOME_MSG = fr"""
 {Cursor.CLEAR}{Cursor.GREEN}
+
    _____                   _   _ _       _       
   |_   _|                 | \ | (_)     (_)      
     | | ___ _ __ _ __ ___ |  \| |_ _ __  _  __ _ 
@@ -25,6 +28,8 @@ WELCOME_MSG = fr"""
 parser = argparse.ArgumentParser()
 parser.add_argument('-p', '--port', action='store',
                     type=int, dest='port', default=3000)
+parser.add_argument('-a', '--auto-reload', action='store_true',
+                    dest='auto_reload')
 
 class Server:
     HOST = "0.0.0.0"
@@ -39,7 +44,13 @@ class Server:
         """
         args = parser.parse_args()
         self.port = args.port
-        asyncio.run(self._start_serving(), debug=True)
+
+        if (args.auto_reload and 
+            os.environ.get('TERMNINJA_SERVER_RUNNING') != "true"
+        ):
+            watchdog(2)
+        else:
+            asyncio.run(self._start_serving(), debug=True)
     
     def get_controller_class(self):
         """
@@ -91,7 +102,6 @@ class Server:
         """
         await self._register_signal_handlers()
         await self._initialize()
-        await self.on_server_started()
         try:
             server_task = asyncio.create_task(
                 self._server_task()
@@ -99,6 +109,7 @@ class Server:
             start_games_task = asyncio.create_task(
                 self._start_game_task()
             )
+            await self.on_server_started()
             await asyncio.gather(
                 server_task,
                 start_games_task
@@ -116,7 +127,7 @@ class Server:
         for signame in {'SIGINT', 'SIGTERM'}:
             loop.add_signal_handler(
                 getattr(signal, signame),
-                functools.partial(self._handle_stop_signal, signal, loop)
+                functools.partial(self._handle_stop_signal, signame, loop)
             )
 
     def _handle_stop_signal(self, signal, loop):
@@ -124,7 +135,8 @@ class Server:
         Kill dis
         """
         print(f"[!] Recieved {signal}")
-        loop.stop()
+        for task in asyncio.Task.all_tasks():
+            task.cancel()
     
     async def _initialize(self):
         """
@@ -163,7 +175,6 @@ class Server:
             await self.on_player_connected(player)
             await self._accept_player(player)
         except ConnectionResetError:
-            print("connection closed before player queued")
             await player.close()
 
     async def _accept_player(self, player):
@@ -208,7 +219,7 @@ class OptionalAuthenticationMixin:
         f"{Cursor.move_to_column(len(enter_token_prompt))}"
         f"{Cursor.ERASE_TO_LINE_END}"
     )
-    token_accepted_message = f"{erase_input}{Cursor.green(' accepted')}\n\n"
+    token_accepted_message = f"{erase_input}{Cursor.green(' accepted')}\n"
     token_rejected_message = f"{erase_input}{Cursor.red(' rejected')}\n"
     token_expired_message = f"{erase_input}{Cursor.red(' token expired')}\n"
 
@@ -237,6 +248,7 @@ class OptionalAuthenticationMixin:
     
     async def on_player_accepted(self, player):
         await player.send(
+            f"\n"
             f"username:         {Cursor.green(player.username)}\n"
             f"score:            {Cursor.green(player.score)}\n"
             f"token expires in: {Cursor.green(player.play_token_expires_at)}\n\n"
