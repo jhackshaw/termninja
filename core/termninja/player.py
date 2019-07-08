@@ -175,7 +175,6 @@ class Player:
         try:
             self.writer.write_eof()
             await self.writer.drain()
-            print('wrote eof')
         except (ConnectionResetError, BrokenPipeError):
             pass
         self.writer.close()

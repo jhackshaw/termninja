@@ -167,7 +167,7 @@ class SnakeController(Controller):
             self.board.turn(data[-1])
             return self.get_time() - start
         except asyncio.TimeoutError:
-            return 0
+            return self.DELAY
     
     async def send_board(self):
         await self.player.send(
