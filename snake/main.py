@@ -35,6 +35,10 @@ class SnakeBoard:
         )
 
     def init_board(self):
+        """
+        self.board is a format string with WIDTH*HEIGHT number
+        of arguments expected
+        """
         top = " " * (self.PADDING+1) + \
               Cursor.blue("=" * self.WIDTH) + "\n"
         mid = " " * self.PADDING + \
@@ -44,17 +48,27 @@ class SnakeBoard:
         self.board = top + mid*self.HEIGHT + top
 
     def init_fills(self):
+        """
+        Fills contains the string representation of each cell
+        on the board to be used in the self.board format string
+        """
         self.fills = [
             [" " for _ in range(self.WIDTH)]
             for _ in range(self.HEIGHT)
         ]
     
     def init_snake(self):
+        """
+        In the beginning, there was a snake with only a head
+        """
         head = (self.HEIGHT // 2, self.WIDTH // 2)
         self.snake = [head,]
         self.fills[head[0]][head[1]] = Cursor.red("@")
     
     def init_food(self):
+        """
+        Food options are the set of all cells in the board
+        """
         self.food_options = set(
             (r, c)
             for r in range(self.HEIGHT)
@@ -63,6 +77,10 @@ class SnakeBoard:
         self.spawn_food()
 
     def spawn_food(self):
+        """
+        Pick a random spot for the next snake food. Options
+        are the set of all unoccupied cells.
+        """
         choices = self.food_options - set(self.snake)
         self.food = random.choice(list(choices))
         self.fills[self.food[0]][self.food[1]] = Cursor.green("*")
@@ -72,10 +90,19 @@ class SnakeBoard:
             self.direction = turn
     
     def is_valid_turn(self, turn):
+        """
+        Turning the exact oposite direction is not allowed. Eg.
+        if you're going to the right you can't start going left
+        """
         invalid = self.INVALID_TURNS.get(self.direction)
         return turn in self.INVALID_TURNS and turn != invalid
 
     def tick(self):
+        """
+        Each tick updates the board by one. Basically move the
+        snake one cell and check for collisions with the wall
+        or some food
+        """
         delta_y, delta_x = self.DIRECTIONS[self.direction]
         new_head = (self.snake[0][0] + delta_y, self.snake[0][1] + delta_x)
         if self.check_game_over(new_head):
@@ -84,6 +111,9 @@ class SnakeBoard:
             return self.update_snake(new_head)
 
     def check_game_over(self, new_head):
+        """
+        Game is over if they've run into a wall or themself
+        """
         new_y, new_x = new_head
         if new_x >= self.WIDTH or new_x < 0:
             # hit side will
@@ -116,11 +146,10 @@ class SnakeBoard:
             self.fills[tail[0]][tail[1]] = " "
             return False
     
-    @property
-    def effective_height(self):
-        return self.HEIGHT + 2
-
     def render(self):
+        """
+        Fill self.board in with the contents of self.fills
+        """
         return self.board.format(*itertools.chain(*self.fills))
 
 
@@ -170,6 +199,9 @@ class SnakeController(Controller):
             return self.DELAY
     
     async def send_board(self):
+        """
+        Send one frame
+        """
         await self.player.send(
             f"{Cursor.CLEAR}"
             f"{self.make_header()}"
@@ -177,11 +209,16 @@ class SnakeController(Controller):
         )
     
     async def earned_point(self):
-        await self.player.on_earned_points(1)
+        """
+        Create the task but don't block while waiting for it
+        Allows player.on_earned_points to do some work
+        """
+        asyncio.create_task(self.player.on_earned_points(1))
 
 
 class SnakeServer(TermninjaServer):
     controller_class = SnakeController
+    player_count = 1
 
     async def on_player_connected(self, player):
         """
