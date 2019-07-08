@@ -1,4 +1,4 @@
-FROM termninja_base_image
+FROM termninja_core
 
 WORKDIR /app
 
@@ -6,4 +6,4 @@ COPY . /app
 
 EXPOSE 3000
 
-ENTRYPOINT [ "python", "-u", "main.py" ]
+ENTRYPOINT [ "python", "main.py" ]

@@ -9,6 +9,7 @@ from .config import (GENERIC_QUIZ_INITIAL_QUESTION,
 class Controller:
     def __init__(self, *players):
         self._players = players
+        self._loop = asyncio.get_running_loop()
         self.setUp(*players)
     
     def setUp(self, *players):
@@ -16,6 +17,9 @@ class Controller:
         Initialization for subclasses. don't override __init__()
         """
         pass
+
+    def get_time(self):
+        return self._loop.time()
     
     @classmethod
     def get_friendly_name(cls):
@@ -108,10 +112,6 @@ class GenericQuizController(Controller):
     
     def setUp(self, player):
         self.player = player
-        self._loop = asyncio.get_running_loop()
-    
-    def get_time(self):
-        return self._loop.time()
 
     async def iter_questions(self):
         """

@@ -1,7 +1,9 @@
 import asyncio
 import itertools
 import random
-from shell_games import Cursor, Controller, Server
+from termninja.server import TermninjaServer
+from termninja.controller import Controller
+from termninja.cursor import Cursor
 from config import WELCOME_MESSAGE
 
 
@@ -27,21 +29,19 @@ class SnakeBoard:
         self.init_fills()
         self.init_snake()
         self.init_food()
-        self.score = 0
         self.game_over = False
         self.direction = random.choice(
             list(self.DIRECTIONS.keys())
         )
 
     def init_board(self):
-        header = f"\n\t\t\tSCORE: {Cursor.GREEN}{{score}}{Cursor.RESET}"
         top = " " * (self.PADDING+1) + \
               Cursor.blue("=" * self.WIDTH) + "\n"
         mid = " " * self.PADDING + \
               Cursor.blue("|") + \
               "{}" * self.WIDTH + \
               Cursor.blue("|\n") 
-        self.board = header + "\n\n" + top + mid*self.HEIGHT + top
+        self.board = top + mid*self.HEIGHT + top
 
     def init_fills(self):
         self.fills = [
@@ -81,7 +81,7 @@ class SnakeBoard:
         if self.check_game_over(new_head):
             self.game_over = True
         else:
-            self.update_snake(new_head)
+            return self.update_snake(new_head)
 
     def check_game_over(self, new_head):
         new_y, new_x = new_head
@@ -100,63 +100,98 @@ class SnakeBoard:
         return self.food[0] == new_head[0] and self.food[1] == new_head[1]
 
     def update_snake(self, new_head):
+        """
+        Move the head in the current direction and remove
+        the last cell from the tail unless food was eaten.
+        Return whether or not food was eaten.
+        """
         self.fills[self.snake[0][0]][self.snake[0][1]] = Cursor.yellow("#")
         self.fills[new_head[0]][new_head[1]] = Cursor.red("@")
         self.snake.insert(0, new_head)
         if self.eats_food(new_head):
-            self.score += 1
             self.spawn_food()
+            return True
         else:
             tail = self.snake.pop()
             self.fills[tail[0]][tail[1]] = " "
+            return False
     
     @property
     def effective_height(self):
         return self.HEIGHT + 2
 
     def render(self):
-        return self.board.format(*itertools.chain(*self.fills), score=self.score)
+        return self.board.format(*itertools.chain(*self.fills))
 
 
 class SnakeController(Controller):
-    DELAY = 0.14
+    friendly_name = "Snake"
+    DELAY = 0.17 # this seems to be the sweet spot
 
-    def setUp(self, user):
+    def setUp(self, player):
         self.board = SnakeBoard()
-        self.user = user
+        self.player = player
         self.disconnected = False
 
-    async def run(self):
-        while not self.board.game_over:
-            await self.handle_input()
-            self.board.tick()
-            await self.send_board()
-            await asyncio.sleep(self.DELAY)
-        await self.user.close()
-
-    async def handle_input(self):
-        try:
-            data = await self.user.read(timeout=0.2)
-            self.board.turn(data[-1])
-        except asyncio.TimeoutError:
-            pass
-    
-    async def send_board(self):
-        await self.user.send(
-            f"{Cursor.CLEAR_ALT}{self.board.render()}"
+    def make_header(self):
+        return (
+            f"\tTOTAL SCORE: {Cursor.green(self.player.score)}\n"
+            f"\tEARNED: {Cursor.green(self.player.earned)}\n\n"
         )
 
-    async def on_disconnect(self, err):
-        print("disconnected")
+    async def run(self):
+        """
+        Loop through:
+            - attempt to get input
+            - tick() the board to update
+            - send a frame
+            - sleep
+        """
+        while not self.board.game_over:
+            time_spent = await self.handle_input()
+            got_food = self.board.tick()
+            if got_food:
+                asyncio.create_task(self.earned_point())
+            await self.send_board()
+            await asyncio.sleep(self.DELAY - time_spent)
+
+    async def handle_input(self):
+        """
+        Read input if it's there and send to the board
+        The return is the amount of time that we waited
+        for input
+        """
+        try:
+            start = self.get_time()
+            data = await self.player.read(timeout=self.DELAY)
+            self.board.turn(data[-1])
+            return self.get_time() - start
+        except asyncio.TimeoutError:
+            return 0
+    
+    async def send_board(self):
+        await self.player.send(
+            f"{Cursor.CLEAR}"
+            f"{self.make_header()}"
+            f"{self.board.render()}"
+        )
+    
+    async def earned_point(self):
+        await self.player.on_earned_points(1)
 
 
-class SnakeServer(Server):
+class SnakeServer(TermninjaServer):
     controller_class = SnakeController
-    allow_reuse_address = True
 
-    async def user_connected(self, user):
-        await user.send(WELCOME_MESSAGE)
-        await user.readline()
+    async def on_player_connected(self, player):
+        """
+        Let the player know the best way to play before
+        queuing them for the game
+        """
+        await player.send(WELCOME_MESSAGE)
+        await player.clear_input_buffer()
+        await player.readline()
+        await super().on_player_connected(player)
 
 
 if __name__ == "__main__":

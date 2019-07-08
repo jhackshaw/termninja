@@ -6,4 +6,4 @@ COPY . /app
 
 EXPOSE 3000
 
-ENTRYPOINT [ "python", "-u", "main.py" ]
+ENTRYPOINT [ "python", "main.py" ]

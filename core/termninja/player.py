@@ -170,8 +170,15 @@ class Player:
 
     async def close(self):
         """ 
-        Just close the stream, forget EOF and awaiting closed.
+        Close the stream (send and EOF if possible).
         """
+        try:
+            self.writer.write_eof()
+            await self.writer.drain()
+            print('wrote eof')
+        except (ConnectionResetError, BrokenPipeError):
+            pass
         self.writer.close()
         await self.writer.wait_closed()
         print("[-] connection closed")
+

@@ -8,7 +8,10 @@ services:
       - config.env
 
   core:
-    build: ./core
+    build:
+      context: ./core
+      args:
+        editable: sure
     depends_on:
       - postgres
     
@@ -20,13 +23,14 @@ services:
       - postgres
     env_file:
       - config.env
+      - config.dev.env
     volumes:
       - ./api/:/api/
       - ./core/termninja/:/core/termninja/
 
   subnet-racer:
     build: ./subnet-racer
-    command: -a -p 3001
+    command: -p 3001 -a
     ports:
       - 3001:3001
     depends_on:
@@ -34,21 +38,30 @@ services:
       - postgres
     env_file:
       - config.env
+      - config.dev.env
     volumes:
         - ./core/termninja/:/core/termninja/
         - ./subnet-racer/:/app/
+    
+  snake:
+    build: ./snake
+    command: -p 3002 -a
+    ports:
+      - 3002:3002
+    depends_on:
+      - core
+      - postgres
+    env_file:
+      - config.env
+      - config.dev.env
+    volumes:
+      - ./core/termninja/:/core/termninja/
+      - ./snake/:/app/
     
     
   # tic-tac-toe:
   #   build: ./tic-tac-toe
   #   ports:
   #     - 3002:3000
-  #   depends_on:
-  #     - base_image
-    
-  # snake:
-  #   build: ./snake
-  #   ports:
-  #     - 3003:3000
   #   depends_on:
   #     - base_image

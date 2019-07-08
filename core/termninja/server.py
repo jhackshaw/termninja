@@ -169,7 +169,7 @@ class Server:
         Queue a newly connected player after calling appropriate hooks.
         """
         addr = writer.get_extra_info('peername')
-        print(f"[+] connection {addr[0]}")
+        print(f"[+] connection {addr[0]}", flush=True)
         player = Player(reader, writer)
         try:
             await self.on_player_connected(player)

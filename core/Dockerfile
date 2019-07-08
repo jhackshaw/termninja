@@ -1,5 +1,7 @@
 FROM python:3.7.3-alpine
 
+ARG editable
+
 WORKDIR /core
 
 RUN \
@@ -10,4 +12,4 @@ RUN \
 
 COPY . /core
 
-RUN pip install -e .
+RUN if [[ -n "$editable" ]]; then pip install -e .; else pip install .; fi

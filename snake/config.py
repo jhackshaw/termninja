@@ -1,19 +1,19 @@
-from shell_games import Cursor
+from termninja.cursor import Cursor
 
-WELCOME_MESSAGE = f"""{Cursor.CLEAR}
+WELCOME_MESSAGE = fr"""{Cursor.CLEAR}
 {Cursor.GREEN}
-                /^\/^\\
-              _|__|  O|
-      \/     /~     \_/ \\
-      \____|__________/  \\
-              \_______      \\
-                      `\     \                 \\
-                        |     |                  \\
-                      /      /                    \\
-                      /     /                       \\\\
-                    /      /                         \ \\
-                  /     /                            \  \\
-                /     /             _----_            \   \\
+                /^\/^ \
+              _|__|  O| \
+      \/     /~     \_/  \
+      \____|__________/   \
+              \_______      \
+                      `\     \                  \
+                        |     |                   \
+                      /      /                     \
+                      /     /                       \ \
+                    /      /                         \  \
+                  /     /                            \   \
+                /     /             _----_            \   \
                 /     /           _-~      ~-_         |   |
               (      (        _-~    _--_    ~-_     _/   |
                 \      ~-____-~    _-~    ~-_    ~-_-~    /
@@ -25,4 +25,6 @@ WELCOME_MESSAGE = f"""{Cursor.CLEAR}
   {Cursor.YELLOW}stty -icanon && nc <host> <port>{Cursor.RESET}
 
 
-  {Cursor.BLUE}Press enter when ready....{Cursor.RESET}"""
+  {Cursor.BLUE}Press enter when ready....{Cursor.RESET}
+
+"""
