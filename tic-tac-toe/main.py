@@ -1,10 +1,14 @@
 import asyncio
-from shell_games import Cursor, Server, Controller
+from termninja.cursor import Cursor
+from termninja.server import TermninjaServer
+from termninja.controller import TermninjaController
 from config import (YOUR_TURN_MESSAGE,
                     OTHER_PLAYER_TURN_MESSAGE,
                     PLAYER_TIMED_OUT_MESSAGE,
                     BOARD_FORMAT,
-                    WELCOME_MESSAGE)
+                    WELCOME_MESSAGE,
+                    TIE_VALUE,
+                    WIN_VALUE)
 
 
 class TicTacToeBoard:
@@ -20,15 +24,25 @@ class TicTacToeBoard:
         self.fills[board_index-1] = self.get_player_marker(player_id)
 
     def valid_move(self, mv):
+        """
+        Only currently empty cells are valid moves
+        """
         return 0 < mv < 10 and self.get_val(mv) == " "
 
     def get_player_marker(self, player):
+        """
+        Player 0 is the blue 'X', player 1 is the
+        yellow 'O'
+        """
         if player == 0:
             return Cursor.blue("X")
         return Cursor.yellow("O")
       
     @staticmethod
     def part_is_winner(part):
+        """
+        Checks if a list of 3 characters is a tic-tac-toe winner
+        """
         # if a list is a winning combo
         st = part[0]
         return st != " " and all([p == st for p in part])
@@ -54,13 +68,22 @@ class TicTacToeBoard:
         return BOARD_FORMAT.format(*self.fills)
 
 
-class TicTacToeController(Controller):
-    def setUp(self, user1, user2):
-        self.users = [user1, user2]
+class TicTacToeController(TermninjaController):
+    def setUp(self, player1, player2):
+        self.players = [player1, player2]
         self.board = TicTacToeBoard()
         self.current_turn = 0
     
+    def next_turn(self):
+        """
+        1, 0, 1, 0, 1 ....
+        """
+        self.current_turn ^= 1
+    
     async def run(self):
+        """
+        Do at most 9 rounds before it's a tie
+        """
         await self.send_board()
         for i in range(9):
             await self.do_round(i)
@@ -69,52 +92,63 @@ class TicTacToeController(Controller):
         await self.handle_tie()
 
     async def do_round(self, round_number):
+        """
+        No matter what a player needs to make a valid choice and
+        then the board gets updated.
+        """
         choice = await self.get_player_choice()
         self.board.set_val(choice, self.current_turn)
         await self.send_board()
         self.next_turn()
     
-    def next_turn(self):
-        self.current_turn ^= 1
-    
     async def get_player_choice(self):
+        """
+        Each player gets 8 seconds to make a valid choice before
+        they lose their turn to the other player
+        """
         while True:
             try:
                 await self.prompt_players(self.current_turn)
-                await self.users[self.current_turn].clear_input_buffer()
-                return await self.users[self.current_turn].read_until_valid(
+                await self.players[self.current_turn].clear_input_buffer()
+                return await self.players[self.current_turn].read_until_valid(
                     self.board.valid_move, coerce=int, timeout=8.0
                 )
             except asyncio.TimeoutError:
-                await self.send_to_users(PLAYER_TIMED_OUT_MESSAGE)
+                await self.send_to_players(PLAYER_TIMED_OUT_MESSAGE)
                 self.next_turn()
 
     async def send_board(self):
-        msg = self.board.render()
-        await self.send_to_users(msg)
+        await self.send_to_players(
+            self.board.render()
+        )
     
     async def prompt_players(self, turn):
         await asyncio.gather(
-            self.users[turn].send(YOUR_TURN_MESSAGE),
-            self.users[turn-1].send(OTHER_PLAYER_TURN_MESSAGE)
+            self.players[turn].send(YOUR_TURN_MESSAGE),
+            self.players[turn-1].send(OTHER_PLAYER_TURN_MESSAGE)
         )
 
     async def handle_tie(self):
-        print("tie game")    
+        await asyncio.gather(*[
+            p.on_earned_points(TIE_VALUE) for p in self.players
+        ])
 
     async def handle_winner(self, winner):
-        print(f"{winner} wins", flush=True)
+        self.players[winner].on_earned_points(WIN_VALUE)
 
-    async def on_disconnect(self, error):
-        print("disconnected")
+    def make_result_message_for(self, player, other_player):
+        if player.earned == TIE_VALUE:
+            return f'Tied against {other_player.username}'
+        elif player.earned == WIN_VALUE:
+            return f'Won against {other_player.username}'
+        else:
+            return f'Lost against {other_player.username}'
 
 
-class TicTacToeServer(Server):
+class TicTacToeServer(TermninjaServer):
+    friendly_name = "Tic-Tac-Toe"
     controller_class = TicTacToeController
     player_count = 2
-
-    # async def user_connected(self, user):
-    #     await user.send(WELCOME_MESSAGE)
 
 
 if __name__ == "__main__":

@@ -5,7 +5,8 @@ import ipaddress
 import itertools
 from termninja.cursor import Cursor
 from termninja.server import TermninjaServer
-from termninja.controller import GenericQuizController, GenericQuestion
+from termninja.controller import (TermninjaQuizController,
+                                  GenericQuestion)
 
 # use np.random.choice(..., p=WEIGHTS) instead?
 WEIGHTS = [0, 0, 0, 0, 1, 1, 1, 1, # 1st octet
@@ -81,16 +82,15 @@ def get_question():
     return question_type(host, cidr)
 
 
-class SubnetRacerController(GenericQuizController):
-    friendly_name = "Subnet Racer"
-
+class SubnetRacerController(TermninjaQuizController):
     async def iter_questions(self):
         for _ in range(25):
             prompt, answer = get_question()
             yield GenericQuestion(prompt, answer)
-        
+
 
 class SubnetRacerServer(TermninjaServer):
+    friendly_name = "Subnet Racer"
     controller_class = SubnetRacerController
     player_count = 1
 

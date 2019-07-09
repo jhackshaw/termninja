@@ -32,3 +32,9 @@ GENERIC_QUIZ_CLEAR_ENTRY = (
     f"{Cursor.ERASE_LINE}{Cursor.up(1)}{Cursor.ERASE_LINE}"
     f"{Cursor.YELLOW}# {Cursor.RESET}"
 )
+
+GENERIC_QUIZ_INTERMISSION_REPORT = (
+    f"\n\nCorrect answer: {{correct_answer}}\n"
+    f"Points earned:  {{earned_points}}\n\n"
+    f"{Cursor.blue('Press enter to continue...')}"
+)

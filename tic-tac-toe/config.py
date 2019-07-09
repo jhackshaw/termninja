@@ -1,4 +1,8 @@
-from shell_games import Cursor
+from termninja.cursor import Cursor
+
+
+TIE_VALUE = 15
+WIN_VALUE = 70
 
 
 YOUR_TURN_MESSAGE = Cursor.green(

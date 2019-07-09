@@ -57,6 +57,12 @@ class Server:
         can override this to have dynamic controllers
         """
         return self.controller_class
+    
+    def get_friendly_name(self):
+        """
+        This is the SERVER friendly name (used as a key in database)
+        """
+        return getattr(self, 'friendly_name', self.__class__.__name__)
 
     async def on_server_started(self):
         """
@@ -168,9 +174,8 @@ class Server:
         """
         Queue a newly connected player after calling appropriate hooks.
         """
-        addr = writer.get_extra_info('peername')
-        print(f"[+] connection {addr[0]}", flush=True)
         player = Player(reader, writer)
+        print('[+] connection: ', player.address)
         try:
             await self.on_player_connected(player)
             await self._accept_player(player)
@@ -204,7 +209,7 @@ class Server:
         method
         """
         controller_class = self.get_controller_class()
-        controller = controller_class(*players)
+        controller = controller_class(*players, server_friendly_name=self.get_friendly_name())
         asyncio.create_task(controller.start()) 
 
 
@@ -257,14 +262,14 @@ class OptionalAuthenticationMixin:
 
 
 class PingDatabaseMixin:
-    interval_seconds = 2 * 60
+    interval_seconds = 2 * 60 # every 2 minutes
 
     async def on_server_started(self):
         asyncio.create_task(self._update_database_task())
         return await super().on_server_started()
     
     async def _update_database_task(self):
-        friendly_name = self.controller_class.get_friendly_name()
+        friendly_name = self.get_friendly_name()
         await db.games.register_server(friendly_name, self.port)
         while True:
             await self.update_database(friendly_name, self.port)

@@ -40,5 +40,7 @@ rounds_table = Table(
     Column('played_at', DateTime, nullable=False),
     Column('game_friendlyname', ForeignKey('games.friendlyname'), nullable=False),
     Column('user_username', ForeignKey('users.username'), nullable=True), # null user = anonymous user
-    Column('score', Integer, server_default='0')
+    Column('score', Integer, server_default='0'),
+    Column('result_message', String(128), nullable=False, server_default='')
 )
+

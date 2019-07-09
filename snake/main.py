@@ -2,7 +2,7 @@ import asyncio
 import itertools
 import random
 from termninja.server import TermninjaServer
-from termninja.controller import Controller
+from termninja.controller import TermninjaController
 from termninja.cursor import Cursor
 from config import WELCOME_MESSAGE
 
@@ -153,8 +153,7 @@ class SnakeBoard:
         return self.board.format(*itertools.chain(*self.fills))
 
 
-class SnakeController(Controller):
-    friendly_name = "Snake"
+class SnakeController(TermninjaController):
     DELAY = 0.17 # this seems to be the sweet spot
 
     def setUp(self, player):
@@ -215,8 +214,12 @@ class SnakeController(Controller):
         """
         asyncio.create_task(self.player.on_earned_points(1))
 
+    def make_result_message_for(self, player):
+        return f'Ate {player.earned} pieces of snake food'
+
 
 class SnakeServer(TermninjaServer):
+    friendly_name = "Snake"
     controller_class = SnakeController
     player_count = 1
 

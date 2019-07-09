@@ -7,20 +7,20 @@ ROUND_LENGTH = 60
 #
 #   sent once on first connection
 #
-WELCOME_MESSAGE = f"""{Cursor.CLEAR}
+WELCOME_MESSAGE = fr"""{Cursor.CLEAR}
 {Cursor.YELLOW}
-                __-------__
-              / _---------_ \\
-              / /           \ \\
-              | |           | |
-              |_|___________|_|
-          /-\|                 |/-\\
+               __---------__
+             / _-----------_ \
+            / /             \ \
+            | |             | |
+            |_|_____________|_|
+         /-\|                 |/-\
         | _ |\       0       /| _ |
         |(_)| \      !      / |(_)|
         |___|__\_____!_____/__|___|
         [_____{Cursor.RESET}{Cursor.BLUE}|SUBNET RACER|{Cursor.RESET}{Cursor.YELLOW}______] 
-          ||||    ~~~~~~~~     ||||
-          `--'                 `--'
+         ||||    ~~~~~~~~     ||||
+         `--'                 `--'
 
         Welcome to Subnet Racer!!!!{Cursor.RESET}
 

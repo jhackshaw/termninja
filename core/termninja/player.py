@@ -51,6 +51,11 @@ class Player:
             return 'anonymous'
         return name
 
+    @property
+    def address(self):
+        addr = self.writer.get_extra_info('peername')
+        return addr[0]
+
     def assign_db_user(self, user):
         self.score = user['score']
         self.identity = user

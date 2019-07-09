@@ -3,13 +3,15 @@ from termninja import db
 from .cursor import Cursor
 from .config import (GENERIC_QUIZ_INITIAL_QUESTION,
                      GENERIC_QUIZ_PROGRESS_UPDATE,
-                     GENERIC_QUIZ_CLEAR_ENTRY)
+                     GENERIC_QUIZ_CLEAR_ENTRY,
+                     GENERIC_QUIZ_INTERMISSION_REPORT)
 
 
 class Controller:
-    def __init__(self, *players):
+    def __init__(self, *players, server_friendly_name=None):
         self._players = players
         self._loop = asyncio.get_running_loop()
+        self.server_friendly_name = server_friendly_name
         self.setUp(*players)
     
     def setUp(self, *players):
@@ -20,13 +22,6 @@ class Controller:
 
     def get_time(self):
         return self._loop.time()
-    
-    @classmethod
-    def get_friendly_name(cls):
-        """
-        The name that represents this game in the database
-        """
-        return getattr(cls, 'friendly_name', cls.__name__)
 
     async def start(self):
         """
@@ -48,8 +43,8 @@ class Controller:
 
     async def on_disconnect(self):
         """
-        Hook for any diconnect actions
-        players are closed immediately after this.
+        Hook for any diconnect actions. Players are
+        closed immediately after this.
         """
         pass
     
@@ -57,16 +52,9 @@ class Controller:
         """
         Close all player streams
         """
-        close_task = asyncio.gather(*[
+        await asyncio.gather(*[
             p.close() for p in self._players
         ])
-        store_task = asyncio.gather(*[
-            self.store_round_played(p) for p in self._players
-        ])
-        await asyncio.gather(
-            close_task,
-            store_task
-        )
     
     async def send_to_players(self, msg):
         """
@@ -76,15 +64,60 @@ class Controller:
             p.send(msg) for p in self._players
         ])
 
-    async def store_round_played(self, player):
-        """
-        Record the fact that this player played this game in the db
-        """
-        await db.rounds.add_round_played(
-            self.get_friendly_name(),
-            player.identity['username'],
-            player.earned
+
+class StoreGamesMixin:
+    async def on_disconnect(self):
+        await asyncio.gather(
+            super().teardown(),
+            self.store_round_played()
         )
+
+    async def store_round_played(self):
+        """
+        For each player, record the fact that this player 
+        played this game in the db
+        """
+        await asyncio.gather(*[
+            self.add_round_played(p) 
+            for p in self._players
+        ])
+
+    async def add_round_played(self, player):
+        await db.rounds.add_round_played(
+            self.server_friendly_name,
+            player.identity['username'], # this gives us None for anonymous
+            player.earned,
+            self.make_result_message_for(player)
+        )
+
+    def make_result_message_for(self, player):
+        """
+        Probably override this with something more discriptive,
+        e.g. Lost to opponent
+             Averaged X% in Y quiz
+             etc
+        """
+        return None
+
+
+class StoreGamesWithSnapshotMixin(StoreGamesMixin):
+    async def add_round_played(self, player):
+        pass
+
+    def make_final_snapshot(self):
+        """
+        TODO: render a final snapshot of the game (e.g. the board)
+        to store in database. Will need to:
+            1. call subclass (returns ANSI string)
+            2. convert to html
+            3. sanitize html
+        """
+        return None
+
+
+class TermninjaController(StoreGamesMixin,
+                          Controller):
+    pass
 
 
 class GenericQuestion:
@@ -109,9 +142,12 @@ class GenericQuizController(Controller):
     INITIAL_QUESTION = GENERIC_QUIZ_INITIAL_QUESTION
     PROGRESS_UPDATE = GENERIC_QUIZ_PROGRESS_UPDATE
     CLEAR_ENTRY = GENERIC_QUIZ_CLEAR_ENTRY
+    INTERMISSION_REPORT = GENERIC_QUIZ_INTERMISSION_REPORT
     
     def setUp(self, player):
         self.player = player
+        self.correct_count = 0   # number of questions with > 0 points earned
+        self.question_count = 0  # total number of questions played
 
     async def iter_questions(self):
         """
@@ -126,6 +162,9 @@ class GenericQuizController(Controller):
         """
         async for question in self.iter_questions():
             earned = await self.round(question)
+            self.question_count += 1
+            if earned:
+                self.correct_count += 1
             await self.player.on_earned_points(earned)
             await self.intermission(question, earned)
 
@@ -209,9 +248,18 @@ class GenericQuizController(Controller):
         color = Cursor.red
         if earned > 0:
             color = Cursor.green
-        await self.player.send(
-            f"\n\nCorrect answer: {color(question.get_display_answer())}\n"
-            f"Points earned:  {color(earned)}\n\n"
-            f"{Cursor.blue('Press enter to continue...')}"
-        )
+        await self.player.send(GENERIC_QUIZ_INTERMISSION_REPORT.format(
+            correct_answer=color(question.get_display_answer()),
+            earned_points=color(earned)
+        ))
         await self.player.readline()
+
+
+class TermninjaQuizController(StoreGamesMixin,
+                              GenericQuizController):
+    def make_result_message_for(self, player):
+        return (
+            f'Answered {(self.correct_count / self.question_count)*100:.2f}% '
+            f'({self.correct_count}/{self.question_count}) '
+            f'correctly'
+        )
