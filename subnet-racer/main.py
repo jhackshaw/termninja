@@ -3,7 +3,6 @@ import os
 import random
 import ipaddress
 import itertools
-from termninja.cursor import Cursor
 from termninja.server import TermninjaServer
 from termninja.controller import (TermninjaQuizController,
                                   GenericQuestion)

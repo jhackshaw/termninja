@@ -1,9 +1,9 @@
 import asyncio
 import itertools
 import random
+from termninja import cursor
 from termninja.server import TermninjaServer
 from termninja.controller import TermninjaController
-from termninja.cursor import Cursor
 from config import WELCOME_MESSAGE
 
 
@@ -40,11 +40,11 @@ class SnakeBoard:
         of arguments expected
         """
         top = " " * (self.PADDING+1) + \
-              Cursor.blue("=" * self.WIDTH) + "\n"
+              cursor.blue("=" * self.WIDTH) + "\n"
         mid = " " * self.PADDING + \
-              Cursor.blue("|") + \
+              cursor.blue("|") + \
               "{}" * self.WIDTH + \
-              Cursor.blue("|\n") 
+              cursor.blue("|\n") 
         self.board = top + mid*self.HEIGHT + top
 
     def init_fills(self):
@@ -63,7 +63,7 @@ class SnakeBoard:
         """
         head = (self.HEIGHT // 2, self.WIDTH // 2)
         self.snake = [head,]
-        self.fills[head[0]][head[1]] = Cursor.red("@")
+        self.fills[head[0]][head[1]] = cursor.red("@")
     
     def init_food(self):
         """
@@ -83,7 +83,7 @@ class SnakeBoard:
         """
         choices = self.food_options - set(self.snake)
         self.food = random.choice(list(choices))
-        self.fills[self.food[0]][self.food[1]] = Cursor.green("*")
+        self.fills[self.food[0]][self.food[1]] = cursor.green("*")
 
     def turn(self, turn):
         if self.is_valid_turn(turn):
@@ -135,8 +135,8 @@ class SnakeBoard:
         the last cell from the tail unless food was eaten.
         Return whether or not food was eaten.
         """
-        self.fills[self.snake[0][0]][self.snake[0][1]] = Cursor.yellow("#")
-        self.fills[new_head[0]][new_head[1]] = Cursor.red("@")
+        self.fills[self.snake[0][0]][self.snake[0][1]] = cursor.yellow("#")
+        self.fills[new_head[0]][new_head[1]] = cursor.red("@")
         self.snake.insert(0, new_head)
         if self.eats_food(new_head):
             self.spawn_food()
@@ -163,8 +163,8 @@ class SnakeController(TermninjaController):
 
     def make_header(self):
         return (
-            f"\tTOTAL SCORE: {Cursor.green(self.player.score)}\n"
-            f"\tEARNED: {Cursor.green(self.player.earned)}\n\n"
+            f"\tTOTAL SCORE: {cursor.green(self.player.score)}\n"
+            f"\tEARNED: {cursor.green(self.player.earned)}\n\n"
         )
 
     async def run(self):
@@ -202,7 +202,7 @@ class SnakeController(TermninjaController):
         Send one frame
         """
         await self.player.send(
-            f"{Cursor.CLEAR}"
+            f"{cursor.CLEAR}"
             f"{self.make_header()}"
             f"{self.board.render()}"
         )

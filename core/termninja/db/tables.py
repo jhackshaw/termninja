@@ -1,6 +1,7 @@
 from sqlalchemy import (Table,
                         Column,
                         String,
+                        Text,
                         Integer,
                         DateTime,
                         ForeignKey)
@@ -41,6 +42,7 @@ rounds_table = Table(
     Column('game_friendlyname', ForeignKey('games.friendlyname'), nullable=False),
     Column('user_username', ForeignKey('users.username'), nullable=True), # null user = anonymous user
     Column('score', Integer, server_default='0'),
-    Column('result_message', String(128), nullable=False, server_default='')
+    Column('result_message', String(128), server_default=''),
+    Column('result_snapshot', Text, nullable=True, server_default=None)
 )
 

@@ -6,12 +6,11 @@ import argparse
 import os
 from .reloader import watchdog
 from .player import Player
-from .cursor import Cursor
 from .controller import Controller
-from . import db
+from . import db, cursor
 
 WELCOME_MSG = fr"""
-{Cursor.CLEAR}{Cursor.GREEN}
+{cursor.CLEAR}{cursor.GREEN}
 
    _____                   _   _ _       _       
   |_   _|                 | \ | (_)     (_)      
@@ -22,7 +21,7 @@ WELCOME_MSG = fr"""
                                         / |      
                                        |__/
 
-{Cursor.RESET}
+{cursor.RESET}
 """
 
 parser = argparse.ArgumentParser()
@@ -34,7 +33,7 @@ parser.add_argument('-a', '--auto-reload', action='store_true',
 class Server:
     HOST = "0.0.0.0"
     welcome_message = WELCOME_MSG
-    continuation_message = Cursor.blue("Press enter to get started...")
+    continuation_message = cursor.blue("Press enter to get started...")
     controller_class = Controller
     player_count = 1
     
@@ -220,13 +219,13 @@ class OptionalAuthenticationMixin:
     """
     enter_token_prompt = "Enter a token to track score or press enter to play anonymously: "
     erase_input = (
-        f"{Cursor.up(1)}"
-        f"{Cursor.move_to_column(len(enter_token_prompt))}"
-        f"{Cursor.ERASE_TO_LINE_END}"
+        f"{cursor.up(1)}"
+        f"{cursor.move_to_column(len(enter_token_prompt))}"
+        f"{cursor.ERASE_TO_LINE_END}"
     )
-    token_accepted_message = f"{erase_input}{Cursor.green(' accepted')}\n"
-    token_rejected_message = f"{erase_input}{Cursor.red(' rejected')}\n"
-    token_expired_message = f"{erase_input}{Cursor.red(' token expired')}\n"
+    token_accepted_message = f"{erase_input}{cursor.green(' accepted')}\n"
+    token_rejected_message = f"{erase_input}{cursor.red(' rejected')}\n"
+    token_expired_message = f"{erase_input}{cursor.red(' token expired')}\n"
 
     def token_is_expired(self, expiration_datetime):
         return expiration_datetime < datetime.datetime.now()
@@ -254,9 +253,9 @@ class OptionalAuthenticationMixin:
     async def on_player_accepted(self, player):
         await player.send(
             f"\n"
-            f"username:         {Cursor.green(player.username)}\n"
-            f"score:            {Cursor.green(player.score)}\n"
-            f"token expires in: {Cursor.green(player.play_token_expires_at)}\n\n"
+            f"username:         {cursor.green(player.username)}\n"
+            f"score:            {cursor.green(player.score)}\n"
+            f"token expires in: {cursor.green(player.play_token_expires_at)}\n\n"
         )
         return await super().on_player_accepted(player)
 

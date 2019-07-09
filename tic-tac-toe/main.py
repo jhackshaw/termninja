@@ -1,5 +1,4 @@
 import asyncio
-from termninja.cursor import Cursor
 from termninja.server import TermninjaServer
 from termninja.controller import TermninjaController
 from config import (YOUR_TURN_MESSAGE,
@@ -8,7 +7,9 @@ from config import (YOUR_TURN_MESSAGE,
                     BOARD_FORMAT,
                     WELCOME_MESSAGE,
                     TIE_VALUE,
-                    WIN_VALUE)
+                    WIN_VALUE,
+                    X_MARKER,
+                    O_MARKER)
 
 
 class TicTacToeBoard:
@@ -30,13 +31,9 @@ class TicTacToeBoard:
         return 0 < mv < 10 and self.get_val(mv) == " "
 
     def get_player_marker(self, player):
-        """
-        Player 0 is the blue 'X', player 1 is the
-        yellow 'O'
-        """
         if player == 0:
-            return Cursor.blue("X")
-        return Cursor.yellow("O")
+            return X_MARKER
+        return O_MARKER
       
     @staticmethod
     def part_is_winner(part):

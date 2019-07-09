@@ -1,7 +1,7 @@
-from termninja.cursor import Cursor
+from termninja import cursor
 
-WELCOME_MESSAGE = fr"""{Cursor.CLEAR}
-{Cursor.GREEN}
+WELCOME_MESSAGE = fr"""{cursor.CLEAR}
+{cursor.GREEN}
                 /^\/^ \
               _|__|  O| \
       \/     /~     \_/  \
@@ -19,12 +19,12 @@ WELCOME_MESSAGE = fr"""{Cursor.CLEAR}
                 \      ~-____-~    _-~    ~-_    ~-_-~    /
                   ~-_           _-~          ~-_       _-~
                     ~--______-~                ~-___-~
-{Cursor.RESET}
+{cursor.RESET}
 
   - Use the following command for the best experience:
-  {Cursor.YELLOW}stty -icanon && nc <host> <port>{Cursor.RESET}
+  {cursor.YELLOW}stty -icanon && nc <host> <port>{cursor.RESET}
 
 
-  {Cursor.BLUE}Press enter when ready....{Cursor.RESET}
+  {cursor.BLUE}Press enter when ready....{cursor.RESET}
 
 """

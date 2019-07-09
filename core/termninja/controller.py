@@ -1,6 +1,5 @@
 import asyncio
-from termninja import db
-from .cursor import Cursor
+from termninja import db, cursor
 from .config import (GENERIC_QUIZ_INITIAL_QUESTION,
                      GENERIC_QUIZ_PROGRESS_UPDATE,
                      GENERIC_QUIZ_CLEAR_ENTRY,
@@ -82,12 +81,21 @@ class StoreGamesMixin:
             for p in self._players
         ])
 
-    async def add_round_played(self, player):
+    async def add_round_played(self, player, **kwargs):
         await db.rounds.add_round_played(
             self.server_friendly_name,
             player.identity['username'], # this gives us None for anonymous
             player.earned,
-            self.make_result_message_for(player)
+            **kwargs
+        )
+
+
+class StoreGamesWithResultMessageMixin(StoreGamesMixin):
+    async def add_round_played(self, player, **kwargs):
+        return await super().add_round_played(
+            player,
+            result_message=self.make_result_message_for(player),
+            **kwargs
         )
 
     def make_result_message_for(self, player):
@@ -97,12 +105,20 @@ class StoreGamesMixin:
              Averaged X% in Y quiz
              etc
         """
-        return None
+        raise NotImplementedError
 
 
 class StoreGamesWithSnapshotMixin(StoreGamesMixin):
-    async def add_round_played(self, player):
-        pass
+    async def add_round_played(self, *args, **kwargs):
+        return await super().add_round_played(
+            *args,
+            result_snapshot=self._get_snapshot(),
+            **kwargs
+        )
+
+    def _get_snapshot(self):
+        snapshot_ansi = self.make_final_snapshot()
+
 
     def make_final_snapshot(self):
         """
@@ -112,7 +128,7 @@ class StoreGamesWithSnapshotMixin(StoreGamesMixin):
             2. convert to html
             3. sanitize html
         """
-        return None
+        raise NotImplementedError
 
 
 class TermninjaController(StoreGamesMixin,
@@ -214,7 +230,7 @@ class GenericQuizController(Controller):
         percent_remaining = time_remaining / round_length
         count = int(percent_remaining * round_length)
         progress = f"{'#' * count} {time_remaining}"
-        return Cursor.color_by_percentage(percent_remaining, progress)
+        return cursor.color_by_percentage(percent_remaining, progress)
 
     async def update_progress(self, round_length, time_remaining):
         """
@@ -245,9 +261,9 @@ class GenericQuizController(Controller):
         """
         Send the user the results of that question and pause
         """
-        color = Cursor.red
+        color = cursor.red
         if earned > 0:
-            color = Cursor.green
+            color = cursor.green
         await self.player.send(GENERIC_QUIZ_INTERMISSION_REPORT.format(
             correct_answer=color(question.get_display_answer()),
             earned_points=color(earned)
