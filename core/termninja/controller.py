@@ -117,17 +117,10 @@ class StoreGamesWithSnapshotMixin(StoreGamesMixin):
         )
 
     def _get_snapshot(self):
-        snapshot_ansi = self.make_final_snapshot()
-
+        snapshot = self.make_final_snapshot()
+        return cursor.ansi_to_html(snapshot)
 
     def make_final_snapshot(self):
-        """
-        TODO: render a final snapshot of the game (e.g. the board)
-        to store in database. Will need to:
-            1. call subclass (returns ANSI string)
-            2. convert to html
-            3. sanitize html
-        """
         raise NotImplementedError
 
 

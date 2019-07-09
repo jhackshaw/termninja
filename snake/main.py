@@ -3,7 +3,8 @@ import itertools
 import random
 from termninja import cursor
 from termninja.server import TermninjaServer
-from termninja.controller import TermninjaController
+from termninja.controller import (TermninjaController,
+                                  StoreGamesWithSnapshotMixin)
 from config import WELCOME_MESSAGE
 
 
@@ -153,7 +154,8 @@ class SnakeBoard:
         return self.board.format(*itertools.chain(*self.fills))
 
 
-class SnakeController(TermninjaController):
+class SnakeController(StoreGamesWithSnapshotMixin,
+                      TermninjaController):
     DELAY = 0.17 # this seems to be the sweet spot
 
     def setUp(self, player):
@@ -216,6 +218,9 @@ class SnakeController(TermninjaController):
 
     def make_result_message_for(self, player):
         return f'Ate {player.earned} pieces of snake food'
+
+    def make_final_snapshot(self):
+        return self.board.render()
 
 
 class SnakeServer(TermninjaServer):
