@@ -14,6 +14,6 @@ async def add_round_played(friendly_name, username, score,
         'score': score,
         'played_at': datetime.datetime.now(),
         'result_message': result_message,
-        'result_snapshot': snapshot
+        'result_snapshot': result_snapshot
     }
     await conn.execute(query=query, values=values)

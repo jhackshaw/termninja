@@ -1,27 +1,26 @@
-from .cursor import Cursor
-
+from . import cursor
 
 #
 #   clears screen and prompts the next question
 #
-GENERIC_QUIZ_INITIAL_QUESTION = f"""{Cursor.CLEAR}
+GENERIC_QUIZ_INITIAL_QUESTION = f"""{cursor.CLEAR}
 
-TOTAL SCORE:   {Cursor.GREEN}{{total_score}}{Cursor.RESET}
-POINTS EARNED: {Cursor.GREEN}{{earned}}{Cursor.RESET}
+TOTAL SCORE:   {cursor.GREEN}{{total_score}}{cursor.RESET}
+POINTS EARNED: {cursor.GREEN}{{earned}}{cursor.RESET}
 
-{Cursor.BLUE}{{prompt}}{Cursor.RESET}
-{{progress}}{Cursor.RESET}
+{cursor.BLUE}{{prompt}}{cursor.RESET}
+{{progress}}{cursor.RESET}
 
-{Cursor.YELLOW}# {Cursor.RESET}"""
+{cursor.YELLOW}# {cursor.RESET}"""
 
 
 #
 #   gets sent every second or so to countdown time remaining
 #
 GENERIC_QUIZ_PROGRESS_UPDATE = (
-    f"{Cursor.SAVE}{Cursor.up(2)}{Cursor.HOME}"
-    f"{Cursor.ERASE_TO_LINE_END}{{progress}} "
-    f"{Cursor.RESTORE}"
+    f"{cursor.SAVE}{cursor.up(2)}{cursor.HOME}"
+    f"{cursor.ERASE_TO_LINE_END}{{progress}} "
+    f"{cursor.RESTORE}"
 )
 
 
@@ -29,12 +28,12 @@ GENERIC_QUIZ_PROGRESS_UPDATE = (
 #   gets send on user input to clear said input from the terminal
 #
 GENERIC_QUIZ_CLEAR_ENTRY = (
-    f"{Cursor.ERASE_LINE}{Cursor.up(1)}{Cursor.ERASE_LINE}"
-    f"{Cursor.YELLOW}# {Cursor.RESET}"
+    f"{cursor.ERASE_LINE}{cursor.up(1)}{cursor.ERASE_LINE}"
+    f"{cursor.YELLOW}# {cursor.RESET}"
 )
 
 GENERIC_QUIZ_INTERMISSION_REPORT = (
     f"\n\nCorrect answer: {{correct_answer}}\n"
     f"Points earned:  {{earned_points}}\n\n"
-    f"{Cursor.blue('Press enter to continue...')}"
+    f"{cursor.blue('Press enter to continue...')}"
 )
