@@ -66,7 +66,7 @@ class Controller:
 
 
 class StoreGamesMixin:
-    async def on_disconnect(self):
+    async def teardown(self):
         await asyncio.gather(
             super().teardown(),
             self.store_round_played()
