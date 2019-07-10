@@ -74,8 +74,8 @@ def make_span(match):
     return f'<span style="color: {get_color_for(color)}">'
 
 def ansi_to_html(ansi):
-    # make newlines into <br /> tags
-    ret = ansi.replace('\n', '<br />')
+    # make newlines into <br/> tags
+    ret = ansi.replace('\n', '<br/>')
 
     # make RESET into </span>
     ret = ret.replace('\x1b[0m', '</span>')
@@ -90,8 +90,8 @@ def ansi_to_html(ansi):
     # not necessary because we are explicitly definining
     # the tags that are allowed, but still, better safe.
     return bleach.clean(
-        f"<pre>{html}</pre>",
+        f'<pre style="background-color: lightgrey; padding: 5px;">{html}</pre>',
         tags=['span', 'br', 'pre'],
         attributes=['style'],
-        styles=['color']
+        styles=['color', 'background-color', 'padding', 'width']
     )

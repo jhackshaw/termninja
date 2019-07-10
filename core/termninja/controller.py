@@ -109,6 +109,7 @@ class StoreGamesWithResultMessageMixin(StoreGamesMixin):
 
 
 class StoreGamesWithSnapshotMixin(StoreGamesMixin):
+
     async def add_round_played(self, *args, **kwargs):
         return await super().add_round_played(
             *args,

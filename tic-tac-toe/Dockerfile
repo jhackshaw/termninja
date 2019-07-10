@@ -1,4 +1,4 @@
-FROM termninja_base_image
+FROM termninja_core
 
 WORKDIR /app
 

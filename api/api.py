@@ -4,6 +4,7 @@ from sanic.response import json
 from sanic.exceptions import InvalidUsage
 from user import bp as user_bp, authenticate, retrieve_user
 from game import bp as game_bp
+from rounds import bp as round_bp
 from termninja import db
 
 app = Sanic()
@@ -23,6 +24,7 @@ async def bad_request_handler(request, exception):
 
 app.blueprint(user_bp)
 app.blueprint(game_bp)
+app.blueprint(round_bp)
 
 sanic_jwt.initialize(
     app, 

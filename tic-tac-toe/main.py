@@ -1,6 +1,7 @@
 import asyncio
 from termninja.server import TermninjaServer
-from termninja.controller import TermninjaController
+from termninja.controller import (TermninjaController,
+                                  StoreGamesWithSnapshotMixin)
 from config import (YOUR_TURN_MESSAGE,
                     OTHER_PLAYER_TURN_MESSAGE,
                     PLAYER_TIMED_OUT_MESSAGE,
@@ -65,7 +66,8 @@ class TicTacToeBoard:
         return BOARD_FORMAT.format(*self.fills)
 
 
-class TicTacToeController(TermninjaController):
+class TicTacToeController(StoreGamesWithSnapshotMixin,
+                          TermninjaController):
     def setUp(self, player1, player2):
         self.players = [player1, player2]
         self.board = TicTacToeBoard()
@@ -85,7 +87,7 @@ class TicTacToeController(TermninjaController):
         for i in range(9):
             await self.do_round(i)
             if self.board.check_over():
-                return await self.handle_winner(i)
+                return await self.handle_winner(self.current_turn)
         await self.handle_tie()
 
     async def do_round(self, round_number):
@@ -131,15 +133,19 @@ class TicTacToeController(TermninjaController):
         ])
 
     async def handle_winner(self, winner):
-        self.players[winner].on_earned_points(WIN_VALUE)
+        await self.players[winner].on_earned_points(WIN_VALUE)
 
-    def make_result_message_for(self, player, other_player):
+    def make_result_message_for(self, player):
+        other_player = [p for p in self.players if p != player][0]
         if player.earned == TIE_VALUE:
             return f'Tied against {other_player.username}'
         elif player.earned == WIN_VALUE:
             return f'Won against {other_player.username}'
         else:
             return f'Lost against {other_player.username}'
+
+    def make_final_snapshot(self):
+        return self.board.render()
 
 
 class TicTacToeServer(TermninjaServer):

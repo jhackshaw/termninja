@@ -59,9 +59,17 @@ services:
       - ./snake/:/app/
     
     
-  # tic-tac-toe:
-  #   build: ./tic-tac-toe
-  #   ports:
-  #     - 3002:3000
-  #   depends_on:
-  #     - base_image
+  tic-tac-toe:
+    build: ./tic-tac-toe
+    command: -p 3003 -a
+    ports:
+      - 3003:3003
+    depends_on:
+      - core
+      - postgres
+    env_file:
+      - config.env
+      - config.dev.env
+    volumes:
+      - ./core/termninja/:/core/termninja/
+      - ./tic-tac-toe/:/app/
