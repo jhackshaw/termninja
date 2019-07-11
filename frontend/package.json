@@ -1,16 +1,14 @@
 {
-  "name": "nextjs",
-  "version": "4.0.0",
-  "private": true,
   "dependencies": {
-    "@material-ui/core": "latest",
-    "@material-ui/icons": "^4.2.1",
-    "@material-ui/styles": "latest",
-    "clsx": "latest",
-    "next": "latest",
-    "prop-types": "latest",
-    "react": "latest",
-    "react-dom": "latest"
+    "@zeit/next-css": "^1.0.1",
+    "autoprefixer": "^9.6.1",
+    "bootstrap": "^4.3.1",
+    "next": "^9.0.0",
+    "postcss-css-variables": "^0.13.0",
+    "postcss-modules": "^1.4.1",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "reactstrap": "^8.0.0"
   },
   "scripts": {
     "dev": "next",

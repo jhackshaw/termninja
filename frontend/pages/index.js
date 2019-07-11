@@ -1,42 +1,33 @@
 import React from 'react';
-import { Grid, Hidden } from '@material-ui/core';
-import GameTile from '../src/GameTile';
-import Layout from '../src/Layout';
-import Jumbotron from '../src/Jumbotron';
-import CssBaseline from '@material-ui/core/CssBaseline';
+import { Container } from 'reactstrap'
+import Layout from '../components/Layout';
+import Jumbo from '../components/Jumbo';
+import GamesTable from '../components/GamesTable';
 
-const games = [
-  { name: "Subnet Racer", image: "subnet_racer.jpg", description: "How fast can you calculate basic subnets?" },
-  { name: "Tic Tac Toe", image: "tic_tac_toe.jpg", description: "Play against a random player in tic-tac-toe, winner take all!" },
-  { name: "Snake", image: "snake.jpg", description: "The classic game of snake!" }
+
+const games_data = [
+  { id: 1, lastPlayed: '25m ago', name: 'Subnet Racer', port: 3001 },
+  { id: 2, lastPlayed: '1day ago', name: 'Snake', port: 3002 },
+  { id: 3, lastPlayed: '2m ago', name: 'Tic-Tac-Toe', port: 3003 }
 ]
 
 
-class Home extends React.Component {
-  static async getInitialProps({ req }) {
-    return { games }
-  }
+const Home = ({ games }) => {
+  return (
+    <Layout>
+      <Jumbo title="Termninja">
+        <p className="mb-1"><b>ter·mi·nal</b> <em>(adj)</em>: text-based interface for typing commands.</p>
+        <p><b>nin·ja</b> <em>(noun)</em>: a person skilled in ninjutsu.</p>
+      </Jumbo>
+      <Container>
+        <GamesTable games={games} />
+      </Container>
+    </Layout>
+  )
+}
 
-  render() {
-    const { games } = this.props; 
-    return (
-      <>
-      <CssBaseline />
-      <Layout>
-        <Jumbotron />
-          <Grid container justify="center" spacing={0}>
-
-            <Grid item container direction="column" wrap="nowrap" xs={12} sm={10} md={8}>
-              {games.map(game => (
-                <GameTile {...game} key={game.name} />
-              ))}  
-            </Grid>
-
-          </Grid>
-      </Layout>
-      </>
-    )
-  }
+Home.getInitialProps = () => {
+  return { games: games_data }
 }
 
 export default Home;
