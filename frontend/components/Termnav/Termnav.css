@@ -1,14 +1,22 @@
 
-.root {
+/* .root {
   height: 60px
-}
+} */
 
 .brand {
   text-decoration: none;
-  color: #1ca354
+  color: #1ca354;
+  font-weight: bold;
+  font-family: 'Roboto mono';
+  font-size: 1.3rem;
 }
 
 .brand:hover {
   text-decoration: none;
   color: #1ca354
+}
+
+.username {
+  font-family: 'Roboto mono';
+  cursor: pointer;
 }
