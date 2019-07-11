@@ -1,7 +1,4 @@
 
-/* .root {
-  height: 60px
-} */
 
 .brand {
   text-decoration: none;
@@ -14,9 +11,4 @@
 .brand:hover {
   text-decoration: none;
   color: #1ca354
-}
-
-.username {
-  font-family: 'Roboto mono';
-  cursor: pointer;
 }

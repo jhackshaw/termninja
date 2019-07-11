@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import { Table, Card } from 'reactstrap';
 import css from './GamesTable.css';
 
@@ -19,14 +20,16 @@ const GamesTable = ({games=[]}) => (
       </thead>
       <tbody>
         { games.map(game => (
-          <tr key={game.id}>
-            <td>
-              <i className={`fas fa-lg fa-circle ${isOnline(game) ? css.online : css.offline}`} />
-            </td>
-            <td className="text-left">{ game.name }</td>
-            <td>{ game.port }</td>
-            <td className="d-none d-sm-block">{ game.lastPlayed }</td>
-          </tr>
+          <Link key={game.id} href={`/game/${game.name}`}>
+            <tr key={game.id}>
+              <td>
+                <i className={`fas fa-lg fa-circle ${isOnline(game) ? css.online : css.offline}`} />
+              </td>
+              <td className="text-left">{ game.name }</td>
+              <td>{ game.port }</td>
+              <td className="d-none d-sm-block">{ game.lastPlayed }</td>
+            </tr>
+          </Link>
         ))}
       </tbody>
     </Table>

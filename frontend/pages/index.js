@@ -15,7 +15,8 @@ const games_data = [
 const Home = ({ games }) => {
   return (
     <Layout>
-      <Jumbo title="Termninja">
+      <Jumbo>
+        <h2 className="display-4">Termninja</h2>
         <p className="mb-1"><b>ter·mi·nal</b> <em>(adj)</em>: text-based interface for typing commands.</p>
         <p><b>nin·ja</b> <em>(noun)</em>: a person skilled in ninjutsu.</p>
       </Jumbo>

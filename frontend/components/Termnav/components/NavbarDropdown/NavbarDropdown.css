@@ -1,0 +1,18 @@
+
+
+.username {
+  font-family: 'Roboto mono';
+  cursor: pointer;
+}
+
+.menu {
+  min-width: 300px;
+}
+
+.ddItem {
+  cursor: pointer;
+}
+
+.ddItem > a:hover {
+  text-decoration: none;
+}
