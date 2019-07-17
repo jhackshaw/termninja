@@ -92,6 +92,7 @@ class SubnetRacerServer(TermninjaServer):
     friendly_name = "Subnet Racer"
     controller_class = SubnetRacerController
     player_count = 1
+    description = "Race against the clock while you calculate subnets in your head"
 
 
 if __name__ == "__main__":

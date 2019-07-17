@@ -5,7 +5,7 @@ from termninja import cursor
 from termninja.server import TermninjaServer
 from termninja.controller import (TermninjaController,
                                   StoreGamesWithSnapshotMixin)
-from config import WELCOME_MESSAGE
+from config import WELCOME_MESSAGE, DESCRIPTION
 
 
 class SnakeBoard:
@@ -227,6 +227,7 @@ class SnakeServer(TermninjaServer):
     friendly_name = "Snake"
     controller_class = SnakeController
     player_count = 1
+    description = DESCRIPTION
 
     async def on_player_connected(self, player):
         """

@@ -5,7 +5,7 @@ import classes from './Jumbo.css';
 
 const Jumbo = ({ children }) => (
   <Jumbotron className={`p-3 p-lg-4 text-white ${classes.root}`} fluid>
-    <Container>
+    <Container className={classes.container}>
       { children }
     </Container>
   </Jumbotron>

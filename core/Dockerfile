@@ -7,7 +7,7 @@ WORKDIR /core
 RUN \
   apk --update add --no-cache postgresql-libs && \
   apk --update add --no-cache --virtual build-deps build-base wget musl-dev gcc postgresql-dev && \
-  pip install setuptools wheel databases sqlalchemy asyncpg sanic sanic-jwt alembic psycopg2 passlib bleach && \
+  pip install setuptools wheel databases sqlalchemy asyncpg sanic sanic-jwt alembic psycopg2 passlib bleach sanic-cors python-slugify && \
   apk --purge del build-deps
 
 COPY . /core

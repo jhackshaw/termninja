@@ -1,41 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import Link from 'next/link';
 import { DropdownMenu,
          DropdownItem,
          Dropdown,
          DropdownToggle } from 'reactstrap';
+import UserContext from '../../../../ctx/UserContext';
+import ProfileItem from './ProfileItem';
+import AuthLinks from './AuthLinks';
 import classes from './NavbarDropdown.css';
 
 
-const NavbarDropdown = ({ user }) => {
+const NavbarUserDropdown = props => {
+  const { user, logoutUser} = useContext(UserContext)
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <Dropdown isOpen={isOpen} 
               toggle={() => setIsOpen(!isOpen)}
-              className={`${classes.username} ml-auto pr-1 pr-lg-5 text-muted`}>
-      <DropdownToggle tag="span" caret>
-        { user.username }
+              className={`${classes.root} ml-auto pr-1 pr-lg-5 text-muted`}>
+      <DropdownToggle tag="span" caret className={classes.toggle}>
+        { user ? user.username : <i className="fas fa-cog"></i> }
       </DropdownToggle>
 
       <DropdownMenu className={classes.menu} right>
 
-        <Link href="/me">
-          <DropdownItem className={`d-flex align-items-center ${classes.ddItem}`}>
-            <img src={`https://www.gravatar.com/avatar/${user.gravHash}?d=retro&size=30`}
-                  alt="hackshaw termninja profile"
-                  className="rounded-circle mr-3"
-                  width="30"
-                  height="30" />
-            <div className="d-flex flex-column">
-              <span>{ user.username }</span>
-              <small>Ninja Score: { user.score }</small>
-            </div>
-          </DropdownItem>
-        </Link>
+        { user ? 
+            <ProfileItem user={user} /> :
+            <AuthLinks />
+        }
 
         <DropdownItem divider />
-
 
         <DropdownItem className={classes.ddItem}>
           <Link href="/leaderboard">
@@ -57,13 +51,19 @@ const NavbarDropdown = ({ user }) => {
 
 
         <DropdownItem className={classes.ddItem}>
-          <Link href="/about">
-            <a className="text-muted">
-              <i className="fab fa-github" />{' '}
-              Contribute
-            </a>
-          </Link>
+          <a href="https://github.com/jhackshaw/termninja" className="text-muted">
+            <i className="fab fa-github" />{' '}
+            Contribute
+          </a>
         </DropdownItem>
+
+        { user &&
+          <DropdownItem className={`${classes.ddItem} text-muted`}
+                        onClick={logoutUser}>
+            <i className="fas fa-sign-out-alt" />{' '}
+            Logout
+          </DropdownItem>
+        }
 
 
       </DropdownMenu>
@@ -71,4 +71,4 @@ const NavbarDropdown = ({ user }) => {
   )
 }
 
-export default NavbarDropdown;
+export default NavbarUserDropdown;

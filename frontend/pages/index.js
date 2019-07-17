@@ -1,15 +1,10 @@
 import React from 'react';
-import { Container } from 'reactstrap'
+import { Container } from 'reactstrap';
 import Layout from '../components/Layout';
 import Jumbo from '../components/Jumbo';
 import GamesTable from '../components/GamesTable';
+import api from '../api';
 
-
-const games_data = [
-  { id: 1, lastPlayed: '25m ago', name: 'Subnet Racer', port: 3001 },
-  { id: 2, lastPlayed: '1day ago', name: 'Snake', port: 3002 },
-  { id: 3, lastPlayed: '2m ago', name: 'Tic-Tac-Toe', port: 3003 }
-]
 
 
 const Home = ({ games }) => {
@@ -27,8 +22,9 @@ const Home = ({ games }) => {
   )
 }
 
-Home.getInitialProps = () => {
-  return { games: games_data }
+Home.getInitialProps = async () => {
+  const games = await api.game.listGames();
+  return { games }
 }
 
 export default Home;

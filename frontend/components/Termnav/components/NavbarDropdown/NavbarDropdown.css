@@ -1,7 +1,9 @@
 
+.root {
+  font-family: 'Roboto Mono';
+}
 
-.username {
-  font-family: 'Roboto mono';
+.toggle {
   cursor: pointer;
 }
 

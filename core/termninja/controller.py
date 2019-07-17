@@ -29,9 +29,8 @@ class Controller:
         try:
             await self.run()
         except (BrokenPipeError, ConnectionResetError):
-            pass
-        finally:
             await self.on_disconnect()
+        finally:
             await self.teardown()
 
     async def run(self):

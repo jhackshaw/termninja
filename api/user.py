@@ -35,6 +35,17 @@ async def retrieve_user(request, payload):
     return None
 
 
+async def extend_jwt_payload(payload, user):
+    """
+    Add additional user information to the jwt
+    """
+    score = user['score']
+    payload.update({
+        'score': score,
+    })
+    return payload
+
+
 @bp.route('/', methods=['POST'])
 async def create_user(request):
     """

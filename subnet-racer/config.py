@@ -59,3 +59,6 @@ PROGRESS_UPDATE = f"{cursor.SAVE}{cursor.up(2)}{cursor.HOME}" + \
 #       gets send on user input to clear said input from the terminal
 #
 CLEAR_ENTRY = f"{cursor.ERASE_LINE}{cursor.up(1)}{cursor.ERASE_LINE}{cursor.GREEN}# {cursor.RESET}"
+
+
+DESCRIPTION = "Race against the clock while you calculate subnets in your head"

@@ -15,19 +15,17 @@ const GamesTable = ({games=[]}) => (
           <th>Online</th>
           <th className="text-left">Game</th>
           <th>Port</th>
-          <th className="d-none d-sm-block">Last Played</th>
         </tr>
       </thead>
       <tbody>
         { games.map(game => (
-          <Link key={game.id} href={`/game/${game.name}`}>
-            <tr key={game.id}>
+          <Link key={game.id} href={`/game/${game.slug}`}>
+            <tr>
               <td>
                 <i className={`fas fa-lg fa-circle ${isOnline(game) ? css.online : css.offline}`} />
               </td>
-              <td className="text-left">{ game.name }</td>
+              <td className="text-left">{ game.server_name }</td>
               <td>{ game.port }</td>
-              <td className="d-none d-sm-block">{ game.lastPlayed }</td>
             </tr>
           </Link>
         ))}

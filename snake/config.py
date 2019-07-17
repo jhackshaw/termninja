@@ -28,3 +28,5 @@ WELCOME_MESSAGE = fr"""{cursor.CLEAR}
   {cursor.BLUE}Press enter when ready....{cursor.RESET}
 
 """
+
+DESCRIPTION = "An all ascii take on the classic game of snake."

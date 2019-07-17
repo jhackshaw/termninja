@@ -10,7 +10,7 @@ PAGE_SIZE = 20
 list_columns = [
     rounds_table.c.id,
     rounds_table.c.played_at,
-    rounds_table.c.game_friendlyname,
+    rounds_table.c.game_slug,
     rounds_table.c.user_username,
     rounds_table.c.score,
     rounds_table.c.result_message
@@ -25,7 +25,7 @@ async def add_round_played(friendly_name, username, score,
                            result_message='', result_snapshot=''):
     query = insert(rounds_table)
     values = {
-        'game_friendlyname': friendly_name,
+        'game_slug': friendly_name,
         'user_username': username,
         'score': score,
         'played_at': datetime.datetime.now(),

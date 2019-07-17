@@ -1,1 +1,1 @@
-export { default } from './GamesTable';
+export { default } from './GamesList';

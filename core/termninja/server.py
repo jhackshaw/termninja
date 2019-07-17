@@ -4,6 +4,7 @@ import functools
 import datetime
 import argparse
 import os
+from slugify import slugify
 from .reloader import watchdog
 from .player import Player
 from .controller import Controller
@@ -36,6 +37,7 @@ class Server:
     continuation_message = cursor.blue("Press enter to get started...")
     controller_class = Controller
     player_count = 1
+    description = ''
     
     def start(self):
         """
@@ -57,7 +59,7 @@ class Server:
         """
         return self.controller_class
     
-    def get_friendly_name(self):
+    def get_server_name(self):
         """
         This is the SERVER friendly name (used as a key in database)
         """
@@ -261,21 +263,26 @@ class OptionalAuthenticationMixin:
 
 
 class PingDatabaseMixin:
-    interval_seconds = 2 * 60 # every 2 minutes
+    ping_database_interval = 2 * 60 # every 2 minutes
 
     async def on_server_started(self):
         asyncio.create_task(self._update_database_task())
         return await super().on_server_started()
     
     async def _update_database_task(self):
-        friendly_name = self.get_friendly_name()
-        await db.games.register_server(friendly_name, self.port)
+        server_name = self.get_server_name()
+        slug = slugify(server_name)
+        await db.games.create_or_update_game(slug, {
+            'server_name': server_name,
+            'description': self.description, 
+            'port': self.port
+        })
         while True:
-            await self.update_database(friendly_name, self.port)
-            await asyncio.sleep(self.interval_seconds)
+            await self.ping_database(slug)
+            await asyncio.sleep(self.ping_database_interval)
 
-    async def update_database(self, friendly_name, port):
-        await db.games.ping(friendly_name, port)
+    async def ping_database(self, slug):
+        await db.games.update_game(slug)
 
 
 class TermninjaServer(PingDatabaseMixin,

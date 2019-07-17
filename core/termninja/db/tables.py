@@ -26,7 +26,9 @@ games_table = Table(
     'games',
     metadata,
     Column('id', Integer, primary_key=True),
-    Column('friendlyname', String(64), nullable=False, unique=True, index=True),
+    Column('server_name', String(64), nullable=False),
+    Column('slug', String(64), nullable=False, unique=True, index=True),
+    Column('description', Text(), server_default=''),
     Column('port', Integer),
     Column('last_active', DateTime, nullable=False)
 )
@@ -39,7 +41,7 @@ rounds_table = Table(
     metadata,
     Column('id', Integer, primary_key=True),
     Column('played_at', DateTime, nullable=False),
-    Column('game_friendlyname', ForeignKey('games.friendlyname'), nullable=False),
+    Column('game_slug', ForeignKey('games.slug'), nullable=False),
     Column('user_username', ForeignKey('users.username'), nullable=True), # null user = anonymous user
     Column('score', Integer, server_default='0'),
     Column('result_message', String(128), server_default=''),
