@@ -7,10 +7,10 @@ from .config import (GENERIC_QUIZ_INITIAL_QUESTION,
 
 
 class Controller:
-    def __init__(self, *players, server_friendly_name=None):
+    def __init__(self, *players, server=None):
         self._players = players
         self._loop = asyncio.get_running_loop()
-        self.server_friendly_name = server_friendly_name
+        self.server = server
         self.setUp(*players)
     
     def setUp(self, *players):
@@ -82,7 +82,7 @@ class StoreGamesMixin:
 
     async def add_round_played(self, player, **kwargs):
         await db.rounds.add_round_played(
-            self.server_friendly_name,
+            self.server.slug,
             player.identity['username'], # this gives us None for anonymous
             player.earned,
             **kwargs

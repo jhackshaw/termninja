@@ -18,7 +18,17 @@ const getGame = async gameSlug => {
   }
 }
 
+const listRounds = async (gameSlug, page=0) => {
+  try {
+    return root.get(`/game/${gameSlug}/round?page=${page}`)
+  } catch (e) {
+    console.log(e)
+    return []
+  }
+}
+
 export default {
   listGames,
+  listRounds,
   getGame
 }

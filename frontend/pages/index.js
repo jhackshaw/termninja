@@ -1,8 +1,8 @@
 import React from 'react';
 import { Container } from 'reactstrap';
+import { IndexJumbo } from '../components/Jumbo';
 import Layout from '../components/Layout';
-import Jumbo from '../components/Jumbo';
-import GamesTable from '../components/GamesTable';
+import GamesList from '../components/GamesList/GamesList';
 import api from '../api';
 
 
@@ -10,13 +10,9 @@ import api from '../api';
 const Home = ({ games }) => {
   return (
     <Layout>
-      <Jumbo>
-        <h2 className="display-4">Termninja</h2>
-        <p className="mb-1"><b>ter·mi·nal</b> <em>(adj)</em>: text-based interface for typing commands.</p>
-        <p><b>nin·ja</b> <em>(noun)</em>: a person skilled in ninjutsu.</p>
-      </Jumbo>
+      <IndexJumbo />
       <Container>
-        <GamesTable games={games} />
+        <GamesList games={games} />
       </Container>
     </Layout>
   )

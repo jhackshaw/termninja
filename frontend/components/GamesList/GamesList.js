@@ -12,7 +12,7 @@ const GamesList = ({ games }) => {
     <ListGroup>
       { games.map(game => (
         <ListGroupItem key={game.slug} className={classes.item}>
-            <Link href="/game/[gameSlug]" as={`/game/${game.slug}`}>
+            <Link href="/g/[gameSlug]" as={`/g/${game.slug}`}>
             <a className="d-flex text-secondary">
               <div className={classes.column}>
                   <i className={`fas fa-lg fa-circle ${isOnline(game) ? classes.online : classes.offline}`} />

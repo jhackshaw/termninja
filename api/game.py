@@ -2,6 +2,7 @@ from sanic import Blueprint
 from sanic.response import json
 from sanic.exceptions import abort
 from termninja import db
+from validators import validate_page
 
 
 bp = Blueprint('game_views', url_prefix='/game')
@@ -19,3 +20,11 @@ async def get_game(request, slug):
     if game is None:
         abort(404)
     return json(game)
+
+
+@bp.route('/<slug>/round')
+async def list_rounds_for_game(request, slug):
+    request_page = request.args.get('page', '0')
+    page = validate_page(request_page)
+    rounds = await db.rounds.list_rounds_played(page=page, game_slug=slug)
+    return json(rounds)

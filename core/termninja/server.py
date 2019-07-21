@@ -45,6 +45,8 @@ class Server:
         """
         args = parser.parse_args()
         self.port = args.port
+        self.name = self.get_server_name()
+        self.slug = slugify(self.name)
 
         if (args.auto_reload and 
             os.environ.get('TERMNINJA_SERVER_RUNNING') != "true"
@@ -210,7 +212,7 @@ class Server:
         method
         """
         controller_class = self.get_controller_class()
-        controller = controller_class(*players, server_friendly_name=self.get_friendly_name())
+        controller = controller_class(*players, server=self)
         asyncio.create_task(controller.start()) 
 
 
@@ -270,19 +272,17 @@ class PingDatabaseMixin:
         return await super().on_server_started()
     
     async def _update_database_task(self):
-        server_name = self.get_server_name()
-        slug = slugify(server_name)
-        await db.games.create_or_update_game(slug, {
-            'server_name': server_name,
+        await db.games.create_or_update_game(self.slug, {
+            'server_name': self.name,
             'description': self.description, 
             'port': self.port
         })
         while True:
-            await self.ping_database(slug)
+            await self.ping_database()
             await asyncio.sleep(self.ping_database_interval)
 
-    async def ping_database(self, slug):
-        await db.games.update_game(slug)
+    async def ping_database(self):
+        await db.games.update_game(self.slug)
 
 
 class TermninjaServer(PingDatabaseMixin,
