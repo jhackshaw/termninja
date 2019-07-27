@@ -6,10 +6,11 @@ services:
     restart: always
     env_file:
       - config.env
+      - config.dev.env
 
-  core:
+  base:
     build:
-      context: ./core
+      context: ./base
       args:
         editable: sure
     depends_on:
@@ -18,58 +19,30 @@ services:
   api:
     build: ./api
     ports:
-      - 80:3000
+      - 80:3000 
     depends_on:
       - postgres
+      - base
     env_file:
       - config.env
       - config.dev.env
     volumes:
       - ./api/:/api/
-      - ./core/termninja/:/core/termninja/
+      - ./base/termninja_db/:/base/termninja_db/
 
-  subnet-racer:
-    build: ./subnet-racer
-    command: -p 3001 -a
+  games:
+    build: ./games
     ports:
-      - 3001:3001
+      - 3000:3000
+    command: --debug
     depends_on:
-      - core
       - postgres
+      - api
+      - base
     env_file:
       - config.env
       - config.dev.env
     volumes:
-        - ./core/termninja/:/core/termninja/
-        - ./subnet-racer/:/app/
-    
-  snake:
-    build: ./snake
-    command: -p 3002 -a
-    ports:
-      - 3002:3002
-    depends_on:
-      - core
-      - postgres
-    env_file:
-      - config.env
-      - config.dev.env
-    volumes:
-      - ./core/termninja/:/core/termninja/
-      - ./snake/:/app/
-    
-    
-  tic-tac-toe:
-    build: ./tic-tac-toe
-    command: -p 3003 -a
-    ports:
-      - 3003:3003
-    depends_on:
-      - core
-      - postgres
-    env_file:
-      - config.env
-      - config.dev.env
-    volumes:
-      - ./core/termninja/:/core/termninja/
-      - ./tic-tac-toe/:/app/
+      - ./games/:/app/
+      - ./base/termninja_db/:/base/termninja_db/
+  
