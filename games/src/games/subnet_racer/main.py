@@ -1,7 +1,7 @@
 import random
 import ipaddress
 import itertools
-from src.core.manager import BaseManager
+from src.core import Manager
 from src.core.game import GenericQuizGame, GenericQuestion
 
 # use np.random.choice(..., p=WEIGHTS) instead?
@@ -93,7 +93,7 @@ class SubnetRacer(GenericQuizGame):
             yield GenericQuestion(prompt, answer)
 
 
-class SubnetRacerManager(BaseManager):
+class SubnetRacerManager(Manager):
     name = "Subnet Racer"
     game_class = SubnetRacer
     player_count = 1

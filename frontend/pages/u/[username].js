@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 import { Container } from 'reactstrap';
-import { GameJumbo } from '../../components/Jumbo';
+import { UserJumbo } from '../../components/Jumbo';
 import Layout from '../../components/Layout';
 import RoundList from '../../components/RoundList';
 import api from '../../api';
 
 
-const Game = ({ game, rounds }) => {  
+const Game = ({ user, rounds }) => {  
   return (
     <Layout>
-      <GameJumbo {...game} />
+      <UserJumbo {...user} />
 
       <Container>      
         <RoundList rounds={rounds} />
@@ -18,12 +18,12 @@ const Game = ({ game, rounds }) => {
   )
 }
 
-Game.getInitialProps = async ({req, query: { gameSlug }}) => {
-  const [rounds, game] = await Promise.all([
-    api.game.listRounds(gameSlug),
-    api.game.getGame(gameSlug)
+Game.getInitialProps = async ({req, query: { username, page=0 }}) => {
+  const [rounds, user] = await Promise.all([
+    api.user.listRounds(username, page),
+    api.user.getUser(username)
   ])
-  return { rounds, game }
+  return { rounds, user }
 }
 
 

@@ -10,4 +10,4 @@ COPY . /api
 
 EXPOSE 8080
 
-CMD ["python", "-m", "sanic", "app.app", "--port=3000", "--host=0.0.0.0", "--debug"]
+CMD ["python", "run.py"]

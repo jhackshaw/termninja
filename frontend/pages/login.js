@@ -19,7 +19,6 @@ import UserContext from '../ctx/UserContext';
 
 const Login = props => {
   const router = useRouter();
-  const { loginUser } = useContext(UserContext);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null)
   const { values, onChange } = useForm({
@@ -35,9 +34,9 @@ const Login = props => {
     setError(null)
 
     try {
-      await loginUser(username, password);
+      await api.user.login(username, password);
       setLoading(false);
-      router.push('/')
+      window.location.replace('/')
     }
     catch (e) {
       setError(e.toString())

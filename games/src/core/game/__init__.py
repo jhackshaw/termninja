@@ -16,4 +16,9 @@ class Game(StoreGamesWithResultMessageMixin,
 
 class GenericQuizGame(StoreGamesWithResultMessageMixin,
                       GenericQuizGameBase):
-    pass
+    def make_result_message_for(self, player):
+        return (
+            f'Answered {(self.correct_count / self.question_count)*100:.2f}% '
+            f'({self.correct_count}/{self.question_count}) '
+            f'correctly'
+        )

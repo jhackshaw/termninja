@@ -1,0 +1,10 @@
+
+.item {
+  padding: 25px;
+  display: flex;
+  align-items: center
+}
+
+.column {
+  flex-basis: 20%;
+}

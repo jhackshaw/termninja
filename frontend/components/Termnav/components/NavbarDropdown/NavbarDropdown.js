@@ -15,7 +15,7 @@ const NavbarUserDropdown = props => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <Dropdown isOpen={isOpen} 
+    <Dropdown isOpen={isOpen}
               toggle={() => setIsOpen(!isOpen)}
               className={`${classes.root} ml-auto pr-1 pr-lg-5 text-muted`}>
       <DropdownToggle tag="span" caret className={classes.toggle}>
@@ -58,10 +58,11 @@ const NavbarUserDropdown = props => {
         </DropdownItem>
 
         { user &&
-          <DropdownItem className={`${classes.ddItem} text-muted`}
-                        onClick={logoutUser}>
-            <i className="fas fa-sign-out-alt" />{' '}
-            Logout
+          <DropdownItem className={`${classes.ddItem} text-muted`}>
+            <a href="/logout">
+              <i className="fas fa-sign-out-alt" />{' '}
+              Logout
+            </a>
           </DropdownItem>
         }
 

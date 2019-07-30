@@ -5,6 +5,7 @@ from sanic.exceptions import abort
 from sanic_jwt.exceptions import AuthenticationFailed
 from sanic_jwt.decorators import protected, inject_user
 from asyncpg.exceptions import UniqueViolationError
+from .validators import validate_page
 
 
 bp = Blueprint('user_views', url_prefix="/user")
@@ -69,6 +70,23 @@ async def list_users(request):
     List users
     """
     return json({'users': 'come back later'})
+
+
+@bp.route('/<username>', methods=['GET'])
+async def get_user_details(request, username):
+    user = await db.users.select_by_username(username)
+    if not user:
+        abort(404)
+    return json(user)
+
+
+@bp.route('/<username>/rounds', methods=['GET'])
+async def list_rounds_by_user(request, username):
+    request_page = request.args.get('page', '0')
+    page = validate_page(request_page)
+    rounds = await db.rounds.list_rounds_played(page=page,
+                                                user_username=username)
+    return json(rounds)
 
 
 @bp.route('/refresh_play_token', methods=['POST'])

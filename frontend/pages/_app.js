@@ -1,8 +1,8 @@
 import React from 'react';
-import App, { Container } from 'next/app';
+import App from 'next/app';
 import UserContext from '../ctx/UserContext';
 import nookies from 'nookies';
-import api from '../api';
+import jwtDecode from 'jwt-decode';
 
 
 class MyApp extends App {
@@ -11,39 +11,25 @@ class MyApp extends App {
     this.state = {
       user: null
     }
-    this.loginUser = this.loginUser.bind(this);
-    this.logoutUser = this.logoutUser.bind(this);
   }
 
   static async getInitialProps({ Component, ctx }) {
     let pageProps = {};
+    let user = null
+
+    if (ctx.req) {
+      // on the server, decode jwt from cookie
+      const { token } = nookies.get(ctx);
+      if (token) {
+        user = jwtDecode(token);
+      }
+    }
 
     if (Component.getInitialProps) {
-      pageProps = await Component.getInitialProps(ctx);
+      pageProps = await Component.getInitialProps(ctx, user);
     }
-
-    if (!ctx.req) {
-      // on the client
-      return { pageProps }
-    }
-
-    // on the server
-    const user = await this.getUser(ctx);
 
     return { pageProps, user };
-  }
-
-  static async getUser(ctx) {
-    const { token } = nookies.get(ctx);
-    if (!token) {
-      return null
-    }
-    try {
-      return await api.user.getMe(ctx);
-    } catch (e) {
-      nookies.destroy(ctx, 'token')
-      return null
-    }
   }
 
   componentDidMount() {
@@ -52,33 +38,10 @@ class MyApp extends App {
     })
   }
 
-  async loginUser(username, password) { 
-    const { access_token } = await api.user.login(
-      username,
-      password
-    );
-    nookies.set(undefined, 'token', access_token);
-    await this.refreshUser();
-  }
-    
-  async logoutUser() {
-    nookies.destroy(undefined, 'token');
-    this.setState({
-      user: null
-    })
-  }
-    
-  async refreshUser() {
-    const user = await MyApp.getUser();
-    this.setState({ user })
-  }
-
   render() {
     const { Component, pageProps } = this.props;
     const userCtx = {
-      user: this.state.user,
-      loginUser: this.loginUser,
-      logoutUser: this.logoutUser
+      user: this.state.user
     }
 
     return (

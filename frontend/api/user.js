@@ -14,7 +14,17 @@ const getMe = async ctx => {
   return me;
 }
 
+const getUser = async username => {
+  return root.get(`/user/${username}`)
+}
+
+const listRounds = async (username, page=0) => {
+  return root.get(`/user/${username}/rounds?page=${page}`)
+}
+
 export default {
   getMe,
-  login
+  login,
+  getUser,
+  listRounds
 }

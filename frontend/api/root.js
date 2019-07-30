@@ -1,14 +1,17 @@
 import fetch from 'isomorphic-unfetch';
 import nookies from 'nookies';
 
-const baseUrl = "http://localhost"
+const baseUrl = "http://localhost:8080"
 
 
 const authHeader = ctx => {
   const { token } = nookies.get(ctx);
-  return {
-    'Authorization': `Bearer ${token}`
+  if (token) {
+    return {
+      'Authorization': `Bearer ${token}`
+    }
   }
+  return {}
 }
 
 const request = async (url, params) => {
@@ -27,6 +30,7 @@ const request = async (url, params) => {
 export const get = (url, ctx) => (
   request(url, {
     method: 'GET',
+    credentials: 'include',
     headers: {
       ...authHeader(ctx),
       'Content-Type': 'application/json'
@@ -37,6 +41,7 @@ export const get = (url, ctx) => (
 export const post = (url, data, ctx) => (
   request(url, {
     method: 'POST',
+    credentials: 'include',
     headers: {
       ...authHeader(ctx),
       'Content-Type': 'application/json'

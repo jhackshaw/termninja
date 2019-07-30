@@ -91,7 +91,7 @@ class GenericQuizGameBase(BaseGame):
     def setUp(self, player):
         self.player = player
         self.correct_count = 0   # number of questions with > 0 points earned
-        self.question_count = 0  # total number of questions played
+        self.question_count = 1  # total number of questions played
 
     async def iter_questions(self):
         """
@@ -197,10 +197,3 @@ class GenericQuizGameBase(BaseGame):
             earned_points=color(earned)
         ))
         await self.player.readline()
-
-    def make_result_message_for(self, player):
-        return (
-            f'Answered {(self.correct_count / self.question_count)*100:.2f}% '
-            f'({self.correct_count}/{self.question_count}) '
-            f'correctly'
-        )

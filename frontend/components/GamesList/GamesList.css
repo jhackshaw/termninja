@@ -22,10 +22,15 @@
 }
 
 .item > a {
-  padding: 25px 0px;
+  padding: 25px;
 }
 
 .item > a:hover {
   text-decoration: none;
   background-color: rgba(0,0,0,.075)
+}
+
+.header {
+  padding: 25px;
+  font-weight: bold;
 }

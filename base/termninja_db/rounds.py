@@ -2,7 +2,7 @@ import datetime
 from sqlalchemy import (insert,
                         select)
 from .conn import conn
-from .tables import rounds_table
+from .tables import rounds_table, games_table
 
 
 PAGE_SIZE = 20
@@ -10,10 +10,11 @@ PAGE_SIZE = 20
 list_columns = [
     rounds_table.c.id,
     rounds_table.c.played_at,
-    rounds_table.c.game_slug,
     rounds_table.c.user_username,
     rounds_table.c.score,
-    rounds_table.c.result_message
+    rounds_table.c.result_message,
+    games_table.c.server_name,
+    games_table.c.slug
 ]
 
 detail_columns = list_columns + [
@@ -40,7 +41,14 @@ async def list_rounds_played(page=0, **filters):
         getattr(rounds_table.c, k) == v
         for k, v in filters.items()
     ]
+    # join user?
     query = select(list_columns)\
+                .select_from(
+                    rounds_table.join(
+                        games_table,
+                        rounds_table.c.game_slug == games_table.c.slug
+                    ),
+                )\
                 .where(*where_clause)\
                 .order_by(rounds_table.c.played_at.desc())\
                 .limit(PAGE_SIZE)\
@@ -53,6 +61,12 @@ async def list_rounds_played(page=0, **filters):
 
 async def get_round_details(round_id):
     query = select(detail_columns)\
-                .where(rounds_table.c.id == round_id)
+                .select_from(
+                    rounds_table.join(
+                        games_table,
+                        rounds_table.c.game_slug == games_table.c.slug
+                    ),
+                )\
+                .where(rounds_table.c.id == round_id)  # noqa: E127
     result = await conn.fetch_one(query=query)
     return result and dict(result)

@@ -19,7 +19,7 @@ services:
   api:
     build: ./api
     ports:
-      - 80:3000 
+      - 8080:3000
     depends_on:
       - postgres
       - base
@@ -33,7 +33,7 @@ services:
   games:
     build: ./games
     ports:
-      - 3000:3000
+      - 3333:3000
     command: --debug
     depends_on:
       - postgres
