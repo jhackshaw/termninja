@@ -11,7 +11,7 @@ import classes from './NavbarDropdown.css';
 
 
 const NavbarUserDropdown = props => {
-  const { user, logoutUser} = useContext(UserContext)
+  const { user } = useContext(UserContext)
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -58,8 +58,8 @@ const NavbarUserDropdown = props => {
         </DropdownItem>
 
         { user &&
-          <DropdownItem className={`${classes.ddItem} text-muted`}>
-            <a href="/logout">
+          <DropdownItem className={classes.ddItem}>
+            <a href="/logout" className="text-muted">
               <i className="fas fa-sign-out-alt" />{' '}
               Logout
             </a>

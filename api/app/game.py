@@ -26,5 +26,5 @@ async def get_game(request, slug):
 async def list_rounds_for_game(request, slug):
     request_page = request.args.get('page', '0')
     page = validate_page(request_page)
-    rounds = await db.rounds.list_rounds_played(page=page, game_slug=slug)
-    return json(rounds)
+    results = await db.rounds.list_rounds_played(page=page, game_slug=slug)
+    return json(results)

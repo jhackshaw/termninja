@@ -11,10 +11,13 @@ import moment from 'moment';
 
 
 const PlayTokenDisplay = ({ play_token, play_token_expires_at }) => {
+  const tokenExpiration = moment.unix(play_token_expires_at);
+  const tokenExpired = tokenExpiration < moment();
 
+  
   return (
     <FormGroup row>
-      <Label for="playToken" sm={12}>Play Token</Label>
+      <Label for="playToken" sm={12}>your play token</Label>
       <Col sm={12}>
         <InputGroup>
           <Input value={play_token} disabled />
@@ -23,7 +26,7 @@ const PlayTokenDisplay = ({ play_token, play_token_expires_at }) => {
           </InputGroupAddon>
         </InputGroup>
           <FormText color="muted">
-            Expires { moment.unix(play_token_expires_at).toNow() }
+            expire{ tokenExpired ? 'd' : 's' } { moment().to(tokenExpiration) }
           </FormText>
       </Col>
     </FormGroup>

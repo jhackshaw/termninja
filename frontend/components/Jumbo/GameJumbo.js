@@ -13,9 +13,9 @@ export const GameJumbo = ({ server_name, description, slug }) => {
           <h2 className="display-4">{ server_name }</h2>
           <small>{ description }</small>
         </Col>
-        <Col className="d-none d-md-flex flex-row justify-content-center" md="6">
+        {/* <Col className="d-none d-md-flex flex-row justify-content-center" md="6">
           <img className="rounded" width="250" height="141" src={`/static/${slug}.jpg`} />
-        </Col>
+        </Col> */}
       </Row>
   </Jumbo>
   )

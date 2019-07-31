@@ -22,3 +22,6 @@ node_modules/
 .serverless
 .vscode/
 .next/
+
+
+travis_id_rsa

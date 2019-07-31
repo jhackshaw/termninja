@@ -3,10 +3,8 @@ import moment from 'moment';
 import Link from 'next/link';
 import { ListGroup,
          ListGroupItem,
-         Table,
-        Card,
-        CardBody,
-      Row, Col } from 'reactstrap';
+         Row,
+         Col } from 'reactstrap';
 import classes from './RoundList.css';
 
 
@@ -23,11 +21,18 @@ const GamesList = ({ rounds }) => {
                     className="rounded-circle mr-3"
                     width="30"
                     height="30" />
-                <Link href="/u/[username]" as={`/u/${round.user_username}`}>
-                  <a className="text-dark text-truncate">
-                    { round.user_username || 'anonymous' }
-                  </a>
-                </Link>
+                { round.user_username ? 
+                    <Link href="/u/[username]" as={`/u/${round.user_username}`}>
+                      <a className="text-dark text-truncate">
+                        { round.user_username || 'anonymous' }
+                      </a>
+                    </Link>
+                  :
+                  <span className="text-dark text-truncate">
+                    anonymous
+                  </span>
+                }
+                
             </Row>
           </Col>
           <Col xs={5} lg={3} xl={2} className="text-truncate">

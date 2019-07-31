@@ -15,33 +15,33 @@ class MyApp extends App {
 
   static async getInitialProps({ Component, ctx }) {
     let pageProps = {};
-    let user = null
+    let currentUser = null;
 
     if (ctx.req) {
       // on the server, decode jwt from cookie
       const { token } = nookies.get(ctx);
       if (token) {
-        user = jwtDecode(token);
+        currentUser = jwtDecode(token);
       }
     }
 
     if (Component.getInitialProps) {
-      pageProps = await Component.getInitialProps(ctx, user);
+      pageProps = await Component.getInitialProps(ctx, currentUser);
     }
 
-    return { pageProps, user };
+    return { pageProps, currentUser };
   }
 
   componentDidMount() {
     this.setState({
-      user: this.props.user
+      currentUser: this.props.currentUser
     })
   }
 
   render() {
     const { Component, pageProps } = this.props;
     const userCtx = {
-      user: this.state.user
+      user: this.state.currentUser
     }
 
     return (

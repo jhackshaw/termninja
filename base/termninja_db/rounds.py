@@ -5,7 +5,7 @@ from .conn import conn
 from .tables import rounds_table, games_table
 
 
-PAGE_SIZE = 20
+PAGE_SIZE = 8
 
 list_columns = [
     rounds_table.c.id,
@@ -54,9 +54,23 @@ async def list_rounds_played(page=0, **filters):
                 .limit(PAGE_SIZE)\
                 .offset(page * PAGE_SIZE)  # noqa: E127
     result = await conn.fetch_all(query=query)
-    return result and [
+    rounds = result and [
         dict(r) for r in result
     ]
+
+    next_page = None
+    if len(result) == PAGE_SIZE:
+        next_page = page+1
+    
+    prev_page = None
+    if page > 0:
+        prev_page = page-1
+    
+    return {
+        'rounds': rounds,
+        'next_page': next_page,
+        'prev_page': prev_page
+    }
 
 
 async def get_round_details(round_id):

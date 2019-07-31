@@ -7,8 +7,8 @@ import classes from './NavbarDropdown.css';
 const ProfileItem = ({ user }) => {
 
   return (
-    <Link href="/me">
-      <a>
+    <Link href="/u/[username]" as={`/u/${user.username}`}>
+      <a className={classes.noHover}>
         <DropdownItem className={`d-flex align-items-center ${classes.ddItem}`}>
           <img src={`https://www.gravatar.com/avatar/${user.gravHash}?d=retro&size=30`}
                 alt="hackshaw termninja profile"

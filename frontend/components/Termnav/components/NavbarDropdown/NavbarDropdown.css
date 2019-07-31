@@ -18,3 +18,7 @@
 .ddItem > a:hover {
   text-decoration: none;
 }
+
+.noHover:hover {
+  text-decoration: none;
+}

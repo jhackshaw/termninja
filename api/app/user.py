@@ -84,9 +84,9 @@ async def get_user_details(request, username):
 async def list_rounds_by_user(request, username):
     request_page = request.args.get('page', '0')
     page = validate_page(request_page)
-    rounds = await db.rounds.list_rounds_played(page=page,
+    results = await db.rounds.list_rounds_played(page=page,
                                                 user_username=username)
-    return json(rounds)
+    return json(results)
 
 
 @bp.route('/refresh_play_token', methods=['POST'])
