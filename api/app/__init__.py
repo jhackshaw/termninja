@@ -15,7 +15,7 @@ from .rounds import bp as round_bp
 app = Sanic()
 
 frontend_host = os.environ.get('TERMNINJA_FRONTEND_HOST',
-                               'http://localhost:3000'
+                               'http://localhost:3000')
 
 @app.listener('after_server_start')
 async def setup_db(app, loop):
