@@ -18,6 +18,3 @@ jobs:
       script: ssh -o "StrictHostKeyChecking no" root@play.term.ninja < ./deploy.sh
       on:
         branch: master
-before_install:
-- openssl aes-256-cbc -K $encrypted_8a486bdb9bb9_key -iv $encrypted_8a486bdb9bb9_iv
-  -in travis_id_rsa.enc -out ./travis_id_rsa -d

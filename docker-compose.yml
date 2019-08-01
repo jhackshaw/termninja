@@ -18,12 +18,14 @@ services:
   api:
     build: ./api
     ports:
-      - 80:3000
+      - 443:3000
     depends_on:
       - postgres
       - base
     env_file:
       - config.env
+    volumes:
+      - /etc/letsencrypt/live/play.term.ninja/:/certs
 
   games:
     build: ./games
@@ -35,4 +37,5 @@ services:
       - base
     env_file:
       - config.env
-  
+    volumes:
+      - /etc/letsencrypt/live/play.term.ninja/:/certs
