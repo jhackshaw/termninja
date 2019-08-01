@@ -25,7 +25,7 @@ services:
     env_file:
       - config.env
     volumes:
-      - /etc/letsencrypt/live/play.term.ninja:/certs
+      - /etc/letsencrypt:/etc/letsencrypt
 
   games:
     build: ./games
@@ -38,4 +38,4 @@ services:
     env_file:
       - config.env
     volumes:
-      - /etc/letsencrypt/live/play.term.ninja:/certs
+      - /etc/letsencrypt:/etc/letsencrypt
