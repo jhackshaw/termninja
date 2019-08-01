@@ -18,5 +18,3 @@ jobs:
       script: ssh -o "StrictHostKeyChecking no" root@play.term.ninja < ./deploy.sh
       on:
         branch: master
-
-
