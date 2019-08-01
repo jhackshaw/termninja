@@ -10,6 +10,4 @@ COPY . /api
 
 EXPOSE 8080
 
-RUN alembic upgrade head
-
 CMD ["python", "run.py"]
