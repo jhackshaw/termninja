@@ -1,7 +1,8 @@
 import fetch from 'isomorphic-unfetch';
 import nookies from 'nookies';
 
-const baseUrl = process.env.TERMNINJA_API || "http://play.term.ninja";
+
+const baseUrl = process.env.TERMNINJA_API_URL || "https://play.term.ninja";
 
 
 const authHeader = ctx => {

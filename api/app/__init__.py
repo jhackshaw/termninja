@@ -1,5 +1,6 @@
 import termninja_db as db
 import sanic_jwt
+import os
 from sanic import Sanic
 from sanic.response import json, text
 from sanic.exceptions import InvalidUsage
@@ -13,6 +14,8 @@ from .rounds import bp as round_bp
 
 app = Sanic()
 
+frontend_host = os.environ.get('TERMNINJA_FRONTEND_HOST',
+                               'http://localhost:3000'
 
 @app.listener('after_server_start')
 async def setup_db(app, loop):
@@ -49,7 +52,7 @@ def options(request):
 @app.middleware('response')
 def add_cors_headers(request, response):
     response.headers.update({
-        'Access-Control-Allow-Origin': 'http://localhost:3000',
+        'Access-Control-Allow-Origin': frontend_host,
         'Access-Control-Allow-Headers': 'Content-Type,Authorization',
         'Access-Control-Allow-Credentials': 'true'
     })
