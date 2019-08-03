@@ -28,6 +28,6 @@ jobs:
     deploy:
       provider: script
       skip_cleanup: true
-      script: deploy_frontend.sh
+      script: ./deploy_frontend.sh
       on:
         branch: master
