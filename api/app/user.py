@@ -51,7 +51,8 @@ async def retrieve_user(request, payload):
     """
     if payload:
         user = await db.users.select_by_username(
-            payload.get('username', None)
+            payload.get('username', None),
+            authenticated=True
         )
         return user and dict(user)
     return None

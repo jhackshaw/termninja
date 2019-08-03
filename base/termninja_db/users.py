@@ -11,9 +11,13 @@ from .tables import users_table
 default_columns = [
     users_table.c.id,
     users_table.c.username,
-    users_table.c.play_token,
-    users_table.c.play_token_expires_at,
     users_table.c.score
+]
+
+authenticated_columns = [
+    *default_columns,
+    users_table.c.play_token,
+    users_table.c.play_token_expires_at
 ]
 
 
@@ -61,11 +65,14 @@ async def verify_login(username, password):
     return None
 
 
-async def select_by_username(username):
+async def select_by_username(username, authenticated=False):
     """
     Get a user by username
     """
-    query = select(default_columns)\
+    columns = default_columns
+    if authenticated:
+        columns = authenticated_columns
+    query = select(columns)\
               .where(users_table.c.username == username)  # noqa:E127
     user = await conn.fetch_one(query=query)
     return user and dict(user)

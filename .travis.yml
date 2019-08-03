@@ -1,9 +1,8 @@
-language: python
-python: 3.6
+language: node_js
 install: skip
 jobs:
   include:
-  - stage: deploy to digital ocean
+  - stage: deploy api and games to digital ocean
     install: skip
     script: skip
     before_deploy:
@@ -15,6 +14,18 @@ jobs:
     deploy:
       provider: script
       skip_cleanup: true
-      script: ssh -o "StrictHostKeyChecking no" root@play.term.ninja < ./deploy.sh
+      script: ssh -o "StrictHostKeyChecking no" root@play.term.ninja < ./deploy_api.sh
+      on:
+        branch: master
+
+  - stage: deploy frontend to zeit
+    install: skip
+    script: skip
+    before_deploy:
+      - npm i -g now
+    deploy:
+      provider: script
+      skip_cleanup: true
+      script: deploy_frontend.sh
       on:
         branch: master
