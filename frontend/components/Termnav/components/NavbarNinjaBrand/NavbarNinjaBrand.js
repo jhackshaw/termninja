@@ -1,6 +1,5 @@
 import React from 'react';
 import Link from 'next/link';
-import { NavbarBrand } from 'reactstrap';
 import classes from './NavbarNinjaBrand.css';
 
 

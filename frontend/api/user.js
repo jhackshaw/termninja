@@ -6,6 +6,10 @@ const login = (username, password) => {
   return root.post('/auth', { username, password })
 }
 
+const logout = () => {
+  return root.get('/auth/logout');
+}
+
 const getMe = async ctx => {
   const { me } = await root.get('/auth/me', ctx);
   if (!me) {
@@ -25,6 +29,7 @@ const listRounds = async (username, page=0) => {
 export default {
   getMe,
   login,
+  logout,
   getUser,
   listRounds
 }

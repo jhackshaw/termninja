@@ -15,7 +15,7 @@ Logout.getInitialProps = ctx => {
   if (!ctx.res) {
     Router.push('/')
   }
-  nookies.destroy(ctx, 'token');
+  nookies.set(ctx, 'token', 'deleted');
   ctx.res.writeHead(302, {
     Location: '/'
   })

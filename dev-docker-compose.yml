@@ -14,7 +14,19 @@ services:
         editable: sure
     depends_on:
       - postgres
-    
+
+  frontend:
+    build: ./frontend
+    ports:
+      - 80:3000
+    depends_on:
+      - api
+    env_file:
+      - config.dev.env
+    volumes:
+      - ./frontend/:/app/
+    network_mode: host
+
   api:
     build: ./api
     ports:

@@ -2,6 +2,7 @@ import termninja_db as db
 from sanic import Blueprint
 from sanic.response import json
 from sanic.exceptions import abort
+from sanic_jwt import BaseEndpoint
 from sanic_jwt.exceptions import AuthenticationFailed
 from sanic_jwt.decorators import protected, inject_user
 from asyncpg.exceptions import UniqueViolationError
@@ -9,6 +10,25 @@ from .validators import validate_page
 
 
 bp = Blueprint('user_views', url_prefix="/user")
+
+
+class LogoutEndpoint(BaseEndpoint):
+    async def get(self, request, *args, **kwargs):
+        """
+        Delete authentication cookie to effectively log user out
+        """
+        response = json({})
+        config = request.app.config
+        domain = config['SANIC_JWT_COOKIE_DOMAIN']
+        token_name = config['SANIC_JWT_COOKIE_ACCESS_TOKEN_NAME']
+        http_only = config['SANIC_JWT_COOKIE_HTTPONLY']
+
+        response.cookies[token_name] = 'deleted'
+        response.cookies[token_name]['max-age'] = 0
+        response.cookies[token_name]['domain'] = domain
+        response.cookies[token_name]['httponly'] = http_only
+
+        return response
 
 
 async def authenticate(request):
@@ -85,7 +105,7 @@ async def list_rounds_by_user(request, username):
     request_page = request.args.get('page', '0')
     page = validate_page(request_page)
     results = await db.rounds.list_rounds_played(page=page,
-                                                user_username=username)
+                                                 user_username=username)
     return json(results)
 
 

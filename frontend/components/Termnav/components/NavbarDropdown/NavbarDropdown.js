@@ -1,5 +1,6 @@
 import React, { useState, useContext } from 'react';
 import Link from 'next/link';
+import Router from 'next/router';
 import { DropdownMenu,
          DropdownItem,
          Dropdown,
@@ -11,8 +12,9 @@ import classes from './NavbarDropdown.css';
 
 
 const NavbarUserDropdown = props => {
-  const { user } = useContext(UserContext)
+  const { user, logout } = useContext(UserContext)
   const [isOpen, setIsOpen] = useState(false);
+
 
   return (
     <Dropdown isOpen={isOpen}
@@ -58,11 +60,9 @@ const NavbarUserDropdown = props => {
         </DropdownItem>
 
         { user &&
-          <DropdownItem className={classes.ddItem}>
-            <a href="/logout" className="text-muted">
-              <i className="fas fa-sign-out-alt" />{' '}
-              Logout
-            </a>
+          <DropdownItem className={classes.ddItem} onClick={() => logout()} className="text-muted">
+            <i className="fas fa-sign-out-alt" />{' '}
+            Logout
           </DropdownItem>
         }
 

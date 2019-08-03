@@ -7,7 +7,8 @@ from sanic.exceptions import InvalidUsage
 from .user import (bp as user_bp,
                    authenticate,
                    retrieve_user,
-                   extend_jwt_payload)
+                   extend_jwt_payload,
+                   LogoutEndpoint)
 from .game import bp as game_bp
 from .rounds import bp as round_bp
 
@@ -16,6 +17,7 @@ app = Sanic()
 
 frontend_host = os.environ.get('TERMNINJA_FRONTEND_HOST',
                                'http://localhost:3000')
+
 
 @app.listener('after_server_start')
 async def setup_db(app, loop):
@@ -45,7 +47,6 @@ app.blueprint(round_bp)
 @app.middleware('request')
 def options(request):
     if request.method == "OPTIONS":
-        print('returning options')
         return text('')
 
 
@@ -62,5 +63,8 @@ sanic_jwt.initialize(
     app,
     authenticate=authenticate,
     retrieve_user=retrieve_user,
-    extend_payload=extend_jwt_payload
+    extend_payload=extend_jwt_payload,
+    class_views=(
+        ('/logout', LogoutEndpoint),
+    )
 )

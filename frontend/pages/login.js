@@ -13,13 +13,12 @@ import { Container,
 import Layout from '../components/Layout';
 import ThemeButton from '../components/ThemeButton';
 import useForm from '../hooks/useForm';
-import api from '../api';
 import UserContext from '../ctx/UserContext';
 
 
 const Login = props => {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const { user, login } = useContext(UserContext)
   const [error, setError] = useState(null)
   const { values, onChange } = useForm({
     username: '',
@@ -30,18 +29,15 @@ const Login = props => {
 
   const onSubmit = async e => {
     if (e) e.preventDefault();
-    setLoading(true);
-    setError(null)
 
     try {
-      await api.user.login(username, password);
-      setLoading(false);
-      window.location.replace('/')
-    }
-    catch (e) {
+      await login(username, password);
+      router.push('/')
+    } catch (e) {
+      console.log(e)
       setError(e.toString())
-      setLoading(false)
     }
+    
   }
 
   return (
@@ -76,7 +72,6 @@ const Login = props => {
                     { error &&
                       <div className="text-error">{ error }</div>
                     }
-                    <ThemeButton type="submit" outline disabled={loading}>Login</ThemeButton>
                     <ThemeButton color="link">Register</ThemeButton>
                   </div>
                 </Form>
