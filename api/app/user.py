@@ -96,6 +96,10 @@ async def list_users(request):
 @bp.route('/<username>', methods=['GET'])
 @inject_user()
 async def get_user_details(request, username, user):
+    """
+    Depending on whether or not the user is authenticated
+    as <username> return all user columns
+    """
     authenticated = user and user.get('username') == username
     user = await db.users.select_by_username(username,
                                              authenticated=authenticated)
