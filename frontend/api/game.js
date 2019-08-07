@@ -18,6 +18,10 @@ const getGame = async gameSlug => {
   }
 }
 
+const getLeaderboard = async gameSlug => {
+  return root.get(`/game/${gameSlug}/leaderboard`)
+}
+
 const listRounds = async (gameSlug, page=0) => {
   try {
     return root.get(`/game/${gameSlug}/round?page=${page}`)
@@ -30,5 +34,6 @@ const listRounds = async (gameSlug, page=0) => {
 export default {
   listGames,
   listRounds,
-  getGame
+  getGame,
+  getLeaderboard
 }

@@ -7,6 +7,7 @@ import Layout from '../../components/Layout';
 import RoundList from '../../components/RoundList';
 import PageButtons from '../../components/PageButtons';
 import PlayTokenDisplay from '../../components/PlayTokenDisplay';
+import SectionHeader from '../../components/SectionHeader';
 import api from '../../api';
 
 
@@ -17,13 +18,15 @@ const User = ({ user, rounds, prev_page, next_page }) => {
 
       <Container>
         { user.play_token &&
-          <Row className=" mb-3">
-            <Col xs={12} lg={6}>
-              <PlayTokenDisplay {...user} />
-            </Col>
-          </Row>
+          <>
+          <SectionHeader title="play token" />
+          <PlayTokenDisplay {...user} />
+          </>
         }
-        <RoundList rounds={rounds} />
+
+        <SectionHeader title="recently played" />
+        <RoundList rounds={rounds}
+                   show_game />
 
         <PageButtons href='/u/[username]'
                      as={`/u/${user.username}`}
@@ -34,28 +37,14 @@ const User = ({ user, rounds, prev_page, next_page }) => {
   )
 }
 
-User.getInitialProps = async (ctx, currentUser=null) => {
-  const { res, query: { username, page=0 }} = ctx;
-  console.log(ctx.query);
+User.getInitialProps = async ctx => {
+  const { query: { username, page=0 }} = ctx;
 
   const [result, user] = await Promise.all([
     api.user.listRounds(username, page),
-    username == currentUser ?
-      api.user.getMe(ctx) :
-      api.user.getUser(username)
-  ]).catch(() => {
-    if (res) {
-      nookies.destroy(ctx, 'token');
-      res.writeHead(302, {
-        Location: '/login'
-      })
-      res.end()
-    } else {
-      Router.push('/login')
-    }
-  })
-  const { prev_page, rounds, next_page } = result;
-  return { prev_page, rounds, next_page, user }
+    api.user.getUser(username, ctx)
+  ])
+  return { ...result, user }
 }
 
 

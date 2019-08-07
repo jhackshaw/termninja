@@ -1,0 +1,18 @@
+
+
+.root {
+  box-sizing: border-box;
+}
+
+.link {
+  color: #1ca354
+}
+
+.link:hover {
+  text-decoration: none;
+  color: #1ca354;
+}
+
+.active {
+  border-bottom: 2px solid #1ca354;
+}

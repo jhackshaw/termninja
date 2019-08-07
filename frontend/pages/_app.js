@@ -14,6 +14,7 @@ class MyApp extends App {
     }
     this.loginUser = this.loginUser.bind(this)
     this.logoutUser = this.logoutUser.bind(this)
+    this.refreshPlayToken = this.refreshPlayToken.bind(this)
   }
 
   static async getInitialProps({ Component, ctx }) {
@@ -46,6 +47,18 @@ class MyApp extends App {
     }
   }
 
+  async refreshPlayToken() {
+    const { play_token, play_token_expires } = await api.user.refreshPlayToken();
+    this.setState(prevState => ({
+      ...prevState,
+      currentUser: { 
+        ...prevState.currentUser,
+        play_token,
+        play_token_expires
+      }
+    }))
+  }
+
   componentDidMount() {
     this.setState({
       currentUser: this.props.currentUser
@@ -57,7 +70,8 @@ class MyApp extends App {
     const userCtx = {
       user: this.state.currentUser,
       logout: this.logoutUser,
-      login: this.loginUser
+      login: this.loginUser,
+      refreshPlayToken: this.refreshPlayToken
     }
 
     return (

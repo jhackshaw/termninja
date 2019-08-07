@@ -28,3 +28,9 @@ async def list_rounds_for_game(request, slug):
     page = validate_page(request_page)
     results = await db.rounds.list_rounds_played(page=page, game_slug=slug)
     return json(results)
+
+
+@bp.route('/<slug>/leaderboard')
+async def leaderboard(request, slug):
+    results = await db.rounds.list_high_scores(game_slug=slug)
+    return json(results)

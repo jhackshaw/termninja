@@ -94,8 +94,11 @@ async def list_users(request):
 
 
 @bp.route('/<username>', methods=['GET'])
-async def get_user_details(request, username):
-    user = await db.users.select_by_username(username)
+@inject_user()
+async def get_user_details(request, username, user):
+    authenticated = user and user.get('username') == username
+    user = await db.users.select_by_username(username,
+                                             authenticated=authenticated)
     if not user:
         abort(404)
     return json(user)
@@ -114,10 +117,7 @@ async def list_rounds_by_user(request, username):
 @inject_user()
 @protected()
 async def refresh_token(request, user):
-    days = request.json.get('days', 5)
-    if not isinstance(days, int) or not 0 < days <= 5:
-        abort(400, "invalid delta")
-    res = await db.users.refresh_play_token(user['username'], days=days)
+    res = await db.users.refresh_play_token(user['username'])
     return json({
         'play_token': res['play_token'],
         'play_token_expires_at': res['play_token_expires_at']

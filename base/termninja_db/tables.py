@@ -14,6 +14,7 @@ users_table = Table(
     Column('id', Integer, primary_key=True),
     Column('username', String(64), nullable=False, unique=True, index=True),
     Column('password_hash', String(128), nullable=False),
+    Column('gravatar_hash', String(128), nullable=True),
     Column('play_token', String(36), nullable=False),
     Column('play_token_expires_at', DateTime, nullable=False),
     Column('score', Integer, server_default='0')

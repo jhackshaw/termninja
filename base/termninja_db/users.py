@@ -1,4 +1,5 @@
 import datetime
+import hashlib
 from uuid import uuid4
 from passlib.hash import pbkdf2_sha256
 from sqlalchemy import (insert,
@@ -11,6 +12,7 @@ from .tables import users_table
 default_columns = [
     users_table.c.id,
     users_table.c.username,
+    users_table.c.gravatar_hash,
     users_table.c.score
 ]
 
@@ -28,6 +30,10 @@ def make_token():
 def make_token_expires_at(days):
     now = datetime.datetime.now()
     return now + datetime.timedelta(days=days)
+
+
+def create_gravatar_hash(username):
+    return hashlib.md5(username.encode()).hexdigest()
 
 
 def create_password_hash(password):
@@ -82,13 +88,13 @@ async def select_by_play_token(token):
     """
     Get a user by their play token
     """
-    query = select(default_columns)\
+    query = select(authenticated_columns)\
                 .where(users_table.c.play_token == token)  # noqa:E127
     user = await conn.fetch_one(query=query)
     return user and dict(user)
 
 
-async def refresh_play_token(username, days=1):
+async def refresh_play_token(username, days=7):
     """
     Give a user a new play token with more time
         username is expected to exist.
@@ -100,7 +106,7 @@ async def refresh_play_token(username, days=1):
         'play_token_expires_at': make_token_expires_at(days=days)
     }
     await conn.execute(query=query, values=values)
-    return await select_by_username(username)
+    return await select_by_username(username, authenticated=True)
 
 
 async def increment_score(username, earned):
