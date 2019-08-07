@@ -28,7 +28,7 @@ select_from_default = \
             games_table,
             rounds_table.c.game_slug == games_table.c.slug
         )\
-        .join(
+        .outerjoin(
             users_table,
             rounds_table.c.user_username == users_table.c.username
         )  # noqa: E127
