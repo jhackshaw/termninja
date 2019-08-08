@@ -13,19 +13,20 @@ stages:
 
 install:
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-  - docker-compose pull
 
 jobs:
   include:
   - stage: build_base
     name: build and push base image
     script:
+      - docker-compose pull base
       - docker-compose build base
       - docker-compose push base
   
   - stage: build
     name: build and push api and games images
-    script: 
+    script:
+      - docker-compose pull api games
       - docker-compose build api games
       - docker-compose push api games
 
