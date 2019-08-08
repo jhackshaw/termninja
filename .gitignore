@@ -23,5 +23,6 @@ node_modules/
 .vscode/
 .next/
 
+venv/
 
 travis_id_rsa

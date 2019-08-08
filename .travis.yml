@@ -7,23 +7,24 @@ services:
   - docker
 
 stages:
-  - build_base
+  - build Base
   - build
   - deploy
 
 install:
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  - docker-compose pull
 
 jobs:
   include:
   - stage: build_base
-    name: "build and push base image"
+    name: build and push base image
     script:
       - docker-compose build base
       - docker-compose push base
   
   - stage: build
-    name: "build and push api and games images"
+    name: build and push api and games images
     script: 
       - docker-compose build api games
       - docker-compose push api games
@@ -36,10 +37,10 @@ jobs:
         -in travis_id_rsa.enc -out ./travis_id_rsa -d
       - chmod 600 ./travis_id_rsa
       - ssh-add ./travis_id_rsa
-      - ssh -o "StrictHostKeyChecking no" root@play.term.ninja 'cd termninja; ./redeploy.sh'
+      - ssh -o "StrictHostKeyChecking no" root@play.term.ninja 'cd termninja-docker; git pull; ./redeploy.sh'
 
   - stage: deploy
-    name: "deploy frontend to zeit"
+    name: deploy frontend to zeit
     script:
       - npm i -g now
       - cd frontend
