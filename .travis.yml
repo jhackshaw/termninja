@@ -1,33 +1,47 @@
 language: node_js
+
 node_js:
   - "10.13.0"
-install: skip
+
+services:
+  - docker
+
+stages:
+  - build_base
+  - build
+  - deploy
+
+install:
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+
 jobs:
   include:
-  - stage: deploy api and games to digital ocean
-    install: skip
-    script: skip
-    before_deploy:
-    - openssl aes-256-cbc -K $encrypted_8a486bdb9bb9_key -iv $encrypted_8a486bdb9bb9_iv
-      -in travis_id_rsa.enc -out ./travis_id_rsa -d
-    - eval "$(ssh-agent -s)"
-    - chmod 600 ./travis_id_rsa
-    - ssh-add ./travis_id_rsa
-    deploy:
-      provider: script
-      skip_cleanup: true
-      script: ssh -o "StrictHostKeyChecking no" root@play.term.ninja < ./deploy_api.sh
-      on:
-        branch: master
+  - stage: build_base
+    name: "build and push base image"
+    script:
+      - docker-compose build base
+      - docker-compose push base
+  
+  - stage: build
+    name: "build and push api and games images"
+    script: 
+      - docker-compose build api games
+      - docker-compose push api games
 
-  - stage: deploy frontend to zeit
-    install: skip
-    script: skip
-    before_deploy:
+  - stage: deploy
+    name: "deploy backend to digital ocean"
+    script:
+      - eval "$(ssh-agent -s)"
+      - openssl aes-256-cbc -K $encrypted_8a486bdb9bb9_key -iv $encrypted_8a486bdb9bb9_iv
+        -in travis_id_rsa.enc -out ./travis_id_rsa -d
+      - chmod 600 ./travis_id_rsa
+      - ssh-add ./travis_id_rsa
+      - ssh -o "StrictHostKeyChecking no" root@play.term.ninja 'cd termninja; ./redeploy.sh'
+
+  - stage: deploy
+    name: "deploy frontend to zeit"
+    script:
       - npm i -g now
-    deploy:
-      provider: script
-      skip_cleanup: true
-      script: ./deploy_frontend.sh
-      on:
-        branch: master
+      - cd frontend
+      - npm install
+      - now -t $now_deploy_token --target production

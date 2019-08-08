@@ -6,8 +6,6 @@ services:
     restart: always
     env_file:
       - config.env
-    volumes:
-      - /mnt/volume_nyc1_03/postgres_data:/var/lib/postgresql/data
 
   base:
     image: jhackshaw/termninja-base
@@ -15,30 +13,44 @@ services:
       context: ./base
     depends_on:
       - postgres
-    
+
+  frontend:
+    build: ./frontend
+    ports:
+      - 80:3000
+    depends_on:
+      - api
+    volumes:
+      - ./frontend/:/app/
+    env_file:
+      - config.env
+    network_mode: host
+
   api:
     image: jhackshaw/termninja-api
     build: ./api
     ports:
-      - 443:3000
+      - 8080:3000
     depends_on:
       - postgres
-      - base
+    volumes:
+      - ./api/:/api/
+      - ./base/termninja_db/:/base/termninja_db/
     env_file:
       - config.env
-    volumes:
-      - /etc/letsencrypt:/etc/letsencrypt
 
   games:
     image: jhackshaw/termninja-games
     build: ./games
     ports:
       - 3333:3000
+    command: --debug
     depends_on:
       - postgres
       - api
-      - base
+    volumes:
+      - ./games/:/app/
+      - ./base/termninja_db/:/base/termninja_db/
     env_file:
       - config.env
-    volumes:
-      - /etc/letsencrypt:/etc/letsencrypt
+  
