@@ -22,10 +22,16 @@ jobs:
       - docker-compose push base
   
   - stage: build
-    name: build and push api and games images
+    name: build and push api image
     script:
-      - docker-compose build api games --parallel
-      - docker-compose push api games
+      - docker-compose build api
+      - docker-compose push api
+  
+  - stage: build
+    name: build and push games image
+    script:
+      - docker-compose build games
+      - docker-compose push games
 
   - stage: deploy
     name: deploy backend to digital ocean
