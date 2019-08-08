@@ -10,12 +10,14 @@ services:
       - /mnt/volume_nyc1_03/postgres_data:/var/lib/postgresql/data
 
   base:
+    image: jhackshaw/termninja-base
     build:
       context: ./base
     depends_on:
       - postgres
     
   api:
+    image: jhackshaw/termninja-api
     build: ./api
     ports:
       - 443:3000
@@ -28,6 +30,7 @@ services:
       - /etc/letsencrypt:/etc/letsencrypt
 
   games:
+    image: jhackshaw/termninja-games
     build: ./games
     ports:
       - 3333:3000
