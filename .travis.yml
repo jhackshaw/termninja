@@ -1,7 +1,6 @@
-language: node_js
+language: minimal
 
-node_js:
-  - "10.13.0"
+sudo: required
 
 services:
   - docker
