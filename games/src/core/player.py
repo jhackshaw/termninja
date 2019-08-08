@@ -183,7 +183,7 @@ class Player:
         try:
             self.writer.write_eof()
             await self.writer.drain()
-        except (ConnectionResetError, BrokenPipeError):
+        except (ConnectionResetError, BrokenPipeError, NotImplementedError):
             pass
         self.writer.close()
         await self.writer.wait_closed()

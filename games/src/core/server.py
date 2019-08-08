@@ -21,7 +21,7 @@ class Server:
         instance = manager_class(idx=len(self.managers)+1)
         self.managers.append(instance)
 
-    def start(self, host="0.0.0.0", port=3000, debug=True):
+    def start(self, host="0.0.0.0", port=3000, ssl_ctx=None, debug=True):
         """
         Run dis
         """
@@ -29,7 +29,7 @@ class Server:
                 os.environ.get('TERMNINJA_SERVER_RUNNING') != "true"):
             watchdog(2)
         else:
-            asyncio.run(self._start_serving(host, port), debug=debug)
+            asyncio.run(self._start_serving(host, port, ssl_ctx), debug=debug)
 
     def _make_game_prompt(self):
         game_choices = "\n".join([
@@ -65,7 +65,7 @@ class Server:
         except ValueError:
             return None
 
-    async def _start_serving(self, host, port):
+    async def _start_serving(self, host, port, ssl_ctx):
         """
         connect to db
         """
@@ -74,7 +74,9 @@ class Server:
             self._on_connection,
             host=host,
             port=port,
-            reuse_port=True
+            reuse_port=True,
+            ssl=ssl_ctx,
+            ssl_handshake_timeout=10
         )
         async with server:
             try:
