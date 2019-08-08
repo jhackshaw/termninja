@@ -10,6 +10,10 @@ const logout = () => {
   return root.get('/auth/logout');
 }
 
+const register = data => {
+  return root.post('/user', data)
+}
+
 const getUser = async (username, ctx) => {
   return root.get(`/user/${username}`, ctx)
 }
@@ -29,6 +33,7 @@ const refreshPlayToken = async () => {
 export default {
   login,
   logout,
+  register,
   getUser,
   getLeaders,
   listRounds,

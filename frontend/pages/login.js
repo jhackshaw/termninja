@@ -1,5 +1,4 @@
 import React, { useState, useContext } from 'react';
-import nookies from 'nookies';
 import { useRouter } from 'next/router';
 import { Container,
          Card,
@@ -14,6 +13,7 @@ import Layout from '../components/Layout';
 import ThemeButton from '../components/ThemeButton';
 import useForm from '../hooks/useForm';
 import UserContext from '../ctx/UserContext';
+import Link from 'next/link';
 
 
 const Login = props => {
@@ -69,10 +69,12 @@ const Login = props => {
                            onChange={onChange} />
                   </FormGroup>
                   <div className="mt-4">
-                    { error &&
-                      <div className="text-error">{ error }</div>
-                    }
-                    <ThemeButton color="link">Register</ThemeButton>
+                    <ThemeButton outline>Login</ThemeButton>
+                    <Link href="/register">
+                      <a>
+                        <ThemeButton color="link">Register</ThemeButton>
+                      </a>
+                    </Link>
                   </div>
                 </Form>
               </CardBody>

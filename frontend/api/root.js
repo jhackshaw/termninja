@@ -21,11 +21,13 @@ const request = async (url, params) => {
     return res.json()
   }
 
-  let data;
+  let data = {};
   if (res.headers.get('Content-Type') == 'application/json') {
     data = await res.json();
   }
-  throw new Error(data['message'] || 'Something went wrong.')
+  const err = new Error(data['message'] || 'Something went wrong');
+  err.status = res.status;
+  throw err;
 }
 
 export const get = (url, ctx) => (
