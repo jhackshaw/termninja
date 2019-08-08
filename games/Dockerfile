@@ -1,4 +1,4 @@
-FROM termninja_base
+FROM jhackshaw/termninja-base:latest
 
 
 RUN rm -rf /var/cache/apk/* && \
