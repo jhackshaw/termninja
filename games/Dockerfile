@@ -1,17 +1,12 @@
 FROM jhackshaw/termninja-base:latest
 
-
-RUN rm -rf /var/cache/apk/* && \
-    rm -rf /tmp/*
-
-RUN apk update
-
-WORKDIR /uvloop
+WORKDIR /app
 
 RUN \
-  pip install bleach python-slugify uvloop==0.13.0rc1
+  apk --update add --no-cache --virtual build-deps build-base gcc && \
+  pip install bleach python-slugify uvloop==0.13.0rc1 && \
+  apk --purge del build-deps
 
-WORKDIR /app
 COPY . .
 
 ENTRYPOINT [ "python", "app.py" ]
