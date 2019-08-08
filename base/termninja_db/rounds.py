@@ -1,6 +1,7 @@
 import datetime
 from sqlalchemy import (insert,
-                        select)
+                        select,
+                        update)
 from .conn import conn
 from .tables import rounds_table, games_table, users_table
 
@@ -25,18 +26,16 @@ detail_columns = list_columns + [
 select_from_default = \
     rounds_table\
         .join(
-            games_table,
-            rounds_table.c.game_slug == games_table.c.slug
+            games_table
         )\
         .outerjoin(
-            users_table,
-            rounds_table.c.user_username == users_table.c.username
+            users_table
         )  # noqa: E127
 
 
 async def add_round_played(friendly_name, username, score,
                            result_message='', result_snapshot=''):
-    query = insert(rounds_table)
+    insert_query = insert(rounds_table)
     values = {
         'game_slug': friendly_name,
         'user_username': username,
@@ -45,7 +44,12 @@ async def add_round_played(friendly_name, username, score,
         'result_message': result_message,
         'result_snapshot': result_snapshot
     }
-    await conn.execute(query=query, values=values)
+    await conn.execute(query=insert_query, values=values)
+    if username:
+        update_query = update(users_table)\
+                         .where(users_table.c.username == username)\
+                         .values(score=users_table.c.score + score)
+        await conn.execute(query=update_query)
 
 
 async def list_rounds_played(page=0, **filters):
@@ -57,7 +61,6 @@ async def list_rounds_played(page=0, **filters):
         getattr(rounds_table.c, k) == v
         for k, v in filters.items()
     ]
-    # join user?
     query = select(list_columns)\
                 .select_from(select_from_default)\
                 .where(*where_clause)\

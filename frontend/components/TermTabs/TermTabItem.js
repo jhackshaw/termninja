@@ -12,8 +12,9 @@ const TermTabItem = ({ active, children, ...rest }) => {
       <a className={classNames({ 
         [classes.active]: active,
         [classes.link]: true,
-        ['px-4']: true,
-        ['py-2']: true
+        ['px-2']: true,
+        ['py-2']: true,
+        ['mx-2']: true
       })}>
         { children }
       </a>

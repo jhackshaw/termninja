@@ -14,7 +14,6 @@ class MyApp extends App {
     }
     this.loginUser = this.loginUser.bind(this)
     this.logoutUser = this.logoutUser.bind(this)
-    this.refreshPlayToken = this.refreshPlayToken.bind(this)
   }
 
   static async getInitialProps({ Component, ctx }) {
@@ -45,18 +44,6 @@ class MyApp extends App {
     if (access_token) {
       this.setState({ currentUser: jwtDecode(access_token) })
     }
-  }
-
-  async refreshPlayToken() {
-    const { play_token, play_token_expires } = await api.user.refreshPlayToken();
-    this.setState(prevState => ({
-      ...prevState,
-      currentUser: { 
-        ...prevState.currentUser,
-        play_token,
-        play_token_expires
-      }
-    }))
   }
 
   componentDidMount() {

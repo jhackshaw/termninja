@@ -4,14 +4,13 @@ import { Row,
 import Jumbo from '.';
 
 
-export const GameJumbo = ({ server_name, description }) => {
+export const LeaderboardJumbo = props => {
 
   return (
     <Jumbo>
       <Row className="align-items-center">
         <Col xs="12" sm="10" md="6">
-          <h2 className="display-4">{ server_name }</h2>
-          <small>{ description }</small>
+          <h2 className="display-4">Leaderboard</h2>
         </Col>
       </Row>
   </Jumbo>

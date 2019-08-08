@@ -24,7 +24,7 @@ const Leaderboard = ({ leaders }) => {
                 <i className={`fas fa-trophy ${classes.silver}`} /> :
               idx == 2 ?
                 <i className={`fas fa-trophy ${classes.bronze}`} /> :
-              { idx }
+              <span>{ idx+1 }</span>
             }
           </Col>
           <Col xs={8}>

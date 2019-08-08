@@ -55,7 +55,7 @@ const GamesList = ({ rounds, show_user=false, show_game=false }) => {
             { moment.unix(round.played_at).fromNow() }
           </Col>
           <Col xs={3} className="text-center">
-            <span className="text-secondary">+</span>{ round.score }
+            { round.score }
           </Col>
         </ListGroupItem>
       ))}

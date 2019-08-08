@@ -15,9 +15,8 @@ const ProfileItem = ({ user }) => {
                 className="rounded-circle mr-3"
                 width="30"
                 height="30" />
-          <div className="d-flex flex-column">
+          <div className="d-flex flex-column py-3">
             <span>{ user.username }</span>
-            <small>Ninja Score: { user.score }</small>
           </div>
         </DropdownItem>
       </a>

@@ -1,5 +1,6 @@
 import datetime
 import hashlib
+import os
 from uuid import uuid4
 from passlib.hash import pbkdf2_sha256
 from sqlalchemy import (insert,
@@ -8,6 +9,10 @@ from sqlalchemy import (insert,
 from .conn import conn
 from .tables import users_table
 
+
+GLOBAL_LEADERBOARD_SIZE = os.environ.get(
+    'TERMNINJA_GLOBAL_LEADERBOARD_SIZE', 25
+)
 
 default_columns = [
     users_table.c.id,
@@ -117,3 +122,16 @@ async def increment_score(username, earned):
                 .where(users_table.c.username == username)\
                 .values(users_table.c.score + earned)  # noqa:E127
     await conn.execute(query=query)
+
+
+async def list_global_leaderboard():
+    """
+    Users with the highest combined score of all games
+    """
+    query = select([users_table])\
+                .limit(GLOBAL_LEADERBOARD_SIZE)\
+                .order_by(users_table.c.score.desc())  # noqa:E127
+    leaders = await conn.fetch_all(query=query)
+    return leaders and [
+        dict(l) for l in leaders
+    ]

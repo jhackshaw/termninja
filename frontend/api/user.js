@@ -14,6 +14,10 @@ const getUser = async (username, ctx) => {
   return root.get(`/user/${username}`, ctx)
 }
 
+const getLeaders = async () => {
+  return root.get('/user')
+}
+
 const listRounds = async (username, page=0) => {
   return root.get(`/user/${username}/rounds?page=${page}`)
 }
@@ -26,6 +30,7 @@ export default {
   login,
   logout,
   getUser,
+  getLeaders,
   listRounds,
   refreshPlayToken
 }

@@ -86,11 +86,12 @@ async def create_user(request):
 
 
 @bp.route('/', methods=['GET'])
-async def list_users(request):
+async def list_leaderboard(request):
     """
-    List users
+    List top users by score
     """
-    return json({'users': 'come back later'})
+    leaders = await db.users.list_global_leaderboard()
+    return json(leaders)
 
 
 @bp.route('/<username>', methods=['GET'])
