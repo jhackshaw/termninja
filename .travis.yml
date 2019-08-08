@@ -7,7 +7,7 @@ services:
   - docker
 
 stages:
-  - build Base
+  - build base
   - build
   - deploy
 
@@ -16,7 +16,7 @@ install:
 
 jobs:
   include:
-  - stage: build_base
+  - stage: build base
     name: build and push base image
     script:
       - docker-compose pull base
