@@ -19,15 +19,13 @@ jobs:
   - stage: build base
     name: build and push base image
     script:
-      - docker-compose pull base
       - docker-compose build base
       - docker-compose push base
   
   - stage: build
     name: build and push api and games images
     script:
-      - docker-compose pull api games
-      - docker-compose build api games
+      - docker-compose build api games --parallel
       - docker-compose push api games
 
   - stage: deploy
