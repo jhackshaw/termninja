@@ -1,4 +1,4 @@
-from . import cursor
+from src.core import cursor
 
 
 TERMNINJA_PROMPT = fr"""

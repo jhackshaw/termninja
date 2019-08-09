@@ -29,5 +29,6 @@ if __name__ == "__main__":
         host="0.0.0.0",
         port=3000,
         debug=debug,
-        ssl_ctx=ssl_ctx
+        ssl=ssl_ctx,
+        ssl_handshake_timeout=10 if use_ssl else None
     )

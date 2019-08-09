@@ -1,0 +1,3 @@
+import uvloop
+
+uvloop.install()

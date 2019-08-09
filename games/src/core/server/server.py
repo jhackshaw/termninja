@@ -1,18 +1,14 @@
-import termninja_db as db
 import asyncio
 import functools
 import signal
 import os
-import uvloop
+import termninja_db as db
+from src.core.player import Player
 from .reloader import watchdog
-from .player import Player
 from .messages import TERMNINJA_PROMPT
 
 
-uvloop.install()
-
-
-class Server:
+class BaseServer:
     def __init__(self):
         self.managers = []
         self._prompt = None
@@ -21,7 +17,7 @@ class Server:
         instance = manager_class(idx=len(self.managers)+1)
         self.managers.append(instance)
 
-    def start(self, host="0.0.0.0", port=3000, ssl_ctx=None, debug=True):
+    def start(self, debug=True, **kwargs):
         """
         Run dis
         """
@@ -29,9 +25,15 @@ class Server:
                 os.environ.get('TERMNINJA_SERVER_RUNNING') != "true"):
             watchdog(2)
         else:
-            asyncio.run(self._start_serving(host, port, ssl_ctx), debug=debug)
+            asyncio.run(self._start_serving(**kwargs), debug=debug)
 
     def _make_game_prompt(self):
+        """
+        E.g.
+            1) Snake
+            2) Subnet Racer
+            ....
+        """
         game_choices = "\n".join([
             f"{idx+1}) {manager.get_name()}"
             for idx, manager in enumerate(self.managers)
@@ -57,6 +59,9 @@ class Server:
             task.cancel()
 
     def _validate_choice(self, raw_choice):
+        """
+        It's an integer and there's a game at the index specified
+        """
         try:
             choice = int(raw_choice.strip())
             if 0 < choice <= len(self.managers):
@@ -65,18 +70,33 @@ class Server:
         except ValueError:
             return None
 
-    async def _start_serving(self, host, port, ssl_ctx):
+    async def on_player_connected(self, player):
+        """
+        First hook opportunity for a connection to the server
+        """
+        print(f'[+] connection from {player.address}')
+
+    async def should_accept_player(self, player):
+        """
+        Hook to determine if this connection/player should be allowed to play
+        """
+        return True
+
+    async def on_player_accepted(self, player):
+        """
+        Hook called when player is allowed to play
+        """
+        pass
+
+    async def _start_serving(self, **kwargs):
         """
         connect to db
         """
         await self._initialize()
         server = await asyncio.start_server(
             self._on_connection,
-            host=host,
-            port=port,
             reuse_port=True,
-            ssl=ssl_ctx,
-            ssl_handshake_timeout=10
+            **kwargs
         )
         async with server:
             try:
@@ -103,14 +123,23 @@ class Server:
         Queue a newly connected player after calling appropriate hooks.
         """
         player = Player(reader, writer)
-        print('[+] connection: ', player.address)
         try:
-            choice = await self._get_game_choice(player)
+            await self._accept_player(player)
+            choice = await self.get_game_choice(player)
             await self.managers[choice]._player_connected(player)
-        except ConnectionResetError:
+        except (ConnectionResetError, ConnectionRefusedError):
             await player.close()
 
-    async def _get_game_choice(self, player):
+    async def _accept_player(self, player):
+        """
+        This is where available server hooks are called for mixins
+        """
+        await self.on_player_connected(player)
+        if not await self.should_accept_player(player):
+            raise ConnectionRefusedError
+        await self.on_player_accepted(player)
+
+    async def get_game_choice(self, player):
         while True:
             await player.send(self._prompt)
             raw_choice = await player.readline()

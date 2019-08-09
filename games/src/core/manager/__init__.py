@@ -1,13 +1,10 @@
 from .manager import BaseManager
-from .mixins import (OptionalAuthenticationMixin,
-                     ConnectDatabaseMixin)
+from .mixins import ConnectDatabaseMixin
 
 
-__all__ = ['BaseManager', 'Manager', 'OptionalAuthenticationMixin',
-           'ConnectDatabaseMixin']
+__all__ = ['BaseManager', 'Manager', 'ConnectDatabaseMixin']
 
 
 class Manager(ConnectDatabaseMixin,
-              OptionalAuthenticationMixin,
               BaseManager):
     pass
