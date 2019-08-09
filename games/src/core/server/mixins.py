@@ -27,8 +27,10 @@ class OptionalAuthenticationMixin:
 
     async def should_accept_player(self, player):
         await player.send(self.enter_token_prompt)
-        await player.clear_input_buffer()
         token = await player.readline()
+        if not token:
+            await player.clear_input_buffer()
+            token = await player.readline()
 
         # play anonymously
         if token == "":
