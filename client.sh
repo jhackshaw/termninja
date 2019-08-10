@@ -19,17 +19,17 @@ data=""
 if [ "$1" = "--help" ]
 then
   echo
-  echo "termninja:  client scripts to connect to a termninja host"
-  echo "\t-h HOST\t\ttermninja host to connect to (default play.term.ninja)"
-  echo "\t-p PORT\t\ttermninja port to connect to (default 3333)"
-  echo "\t-t TOKEN\tplay token to connect with (default anonymous)"
-  echo "\t-g GAME\t\tindex of game to start automatically"
-  echo "\t-e ENDPOINT\thttp(s) endpoint to log in to with -l"
-  echo "\t-l\t\tlogin to termninja server using https api at endpoint provided by -e"
-  echo "\t-a\t\tplay anonymously"
-  echo "\t-i\t\twhether to play 'interactively' (e.g. snake game)"
-  echo "\t-u\t\tuse an unencrypted connection (for development)"
-  echo "\t-d\t\tdebug command - only show the command that will run don't execute\n"
+  echo -e "termninja:  client scripts to connect to a termninja host\n"
+  echo -e "\t-h HOST\t\ttermninja host to connect to (default play.term.ninja)"
+  echo -e "\t-p PORT\t\ttermninja port to connect to (default 3333)"
+  echo -e "\t-t TOKEN\tplay token to connect with (default anonymous)"
+  echo -e "\t-g GAME\t\tindex of game to start automatically"
+  echo -e "\t-e ENDPOINT\thttp(s) endpoint to log in to with -l"
+  echo -e "\t-l\t\tlogin to termninja server using https api at endpoint provided by -e"
+  echo -e "\t-a\t\tplay anonymously"
+  echo -e "\t-i\t\twhether to play 'interactively' (e.g. snake game)"
+  echo -e "\t-u\t\tuse an unencrypted connection (for development)"
+  echo -e "\t-d\t\tdebug command - only show the command that will run don't execute\n"
   exit 0;
 fi
 
