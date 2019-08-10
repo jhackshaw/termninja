@@ -1,4 +1,5 @@
 import datetime
+import asyncio
 import termninja_db as db
 from src.core import cursor
 
@@ -26,10 +27,15 @@ class OptionalAuthenticationMixin:
         return expiration_datetime < datetime.datetime.now()
 
     async def should_accept_player(self, player):
-        await player.send(self.enter_token_prompt)
-        token = await player.readline()
-        if not token:
-            await player.clear_input_buffer()
+        try:
+            # this allows the token to be piped to stdin on ncat call
+            # e.g. with termninja client script -t
+            token = await player.readline(timeout=0.5)
+            print("<", token, ">")
+            await player.send(f'{self.enter_token_prompt}\n')
+        except asyncio.TimeoutError:
+            # user must enter the token interactively
+            await player.send(self.enter_token_prompt)
             token = await player.readline()
 
         # play anonymously
