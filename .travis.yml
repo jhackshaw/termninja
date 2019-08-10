@@ -50,6 +50,6 @@ jobs:
     name: deploy frontend to zeit
     script:
       - npm i -g now
-      - cp ./client.sh ./frontend/public/client
+      - cp ./termninja ./frontend/public/
       - npm install
       - now -t $now_deploy_token --target production ./frontend/
