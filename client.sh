@@ -5,6 +5,7 @@ token=""
 unencrypted=false
 realtime=false
 anonymous=false
+debug_output=false
 
 
 if [ "$1" = "--help" ]
@@ -17,13 +18,14 @@ then
   echo "\t-g GAME\t\tindex of game to start automatically"
   echo "\t-a\t\tplay anonymously"
   echo "\t-i\t\twhether to play 'interactively' (e.g. snake game)"
-  echo "\t-u\t\tuse an unencrypted connection (for development)\n"
+  echo "\t-u\t\tuse an unencrypted connection (for development)"
+  echo "\t-d\t\tdebug command - only show the command that will run don't execute\n"
   exit 0;
 fi
   
 
 
-while getopts ":h:p:t:aui" opt; do
+while getopts ":h:p:t:g:auid" opt; do
   case "$opt" in
     h)
       host=${OPTARG}
@@ -34,6 +36,9 @@ while getopts ":h:p:t:aui" opt; do
     t)
       token=${OPTARG}
       ;;
+    g)
+      game=${OPTARG}
+      ;;
     a)
       anonymous=true
       ;;
@@ -43,8 +48,8 @@ while getopts ":h:p:t:aui" opt; do
     i)
       realtime=true
       ;;
-    \?)
-      echo "Invalid option: $OPTARG" 1>&2
+    d)
+      debug_output=true
       ;;
     :)
       echo "Invalid option: $OPTARG requires an argument" 1>&2
@@ -66,7 +71,7 @@ fi
 if [ -n "$token" ] || [ $anonymous = true ]
 then
   # token=${<~/.termninja/token.txt}
-  data="$token\n"
+  data="$token\n\n"
 fi
 
 
@@ -74,6 +79,7 @@ fi
 if [ -n "$game" ]
 then
   data="$data$game\n"
+  echo -e "\n"
 fi
 
 if [ -n "$data" ]
@@ -83,10 +89,15 @@ fi
 
 if [ $unencrypted = true ]
 then
-  command="$command nc $host $port"
+  command="$command ncat $host $port"
 else
-  command="$command openssl s_client -quiet $host:$port 2>/dev/null"
+  command="$command openssl s_client -async -quiet -connect $host:$port 2>/dev/null"
 fi
 
 
-eval $command
+if [ $debug_output = true ]
+then
+  echo $command
+else
+  eval $command
+fi

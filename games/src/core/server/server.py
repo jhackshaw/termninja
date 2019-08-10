@@ -140,6 +140,16 @@ class BaseServer:
         await self.on_player_accepted(player)
 
     async def get_game_choice(self, player):
+        try:
+            # for scripted environments to pipe from stdin
+            # e.g. termninja client
+            raw_choice = await player.readline(timeout=0.1)
+            choice = self._validate_choice(raw_choice)
+            if choice is not None:
+                await player.clear_input_buffer()
+                return choice
+        except asyncio.TimeoutError:
+            pass
         while True:
             await player.send(self._prompt)
             raw_choice = await player.readline()

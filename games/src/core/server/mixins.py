@@ -10,7 +10,7 @@ class OptionalAuthenticationMixin:
     otherwise play anonymously
     """
     enter_token_prompt = (
-        "Enter a play token or press enter "
+        f"{cursor.CLEAR}Enter a play token or press enter "
         "to play anonymously: "
     )
     erase_input = (
@@ -30,8 +30,7 @@ class OptionalAuthenticationMixin:
         try:
             # this allows the token to be piped to stdin on ncat call
             # e.g. with termninja client script -t
-            token = await player.readline(timeout=0.5)
-            print("<", token, ">")
+            token = await player.readline(timeout=0.1)
             await player.send(f'{self.enter_token_prompt}\n')
         except asyncio.TimeoutError:
             # user must enter the token interactively

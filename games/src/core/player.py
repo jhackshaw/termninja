@@ -70,7 +70,6 @@ class Player:
         Args:
             msg (str): non-encoded message to be sent
         """
-
         self.writer.write(msg.encode())
         await self.writer.drain()
 
