@@ -8,7 +8,8 @@ from .user import (bp as user_bp,
                    authenticate,
                    retrieve_user,
                    extend_jwt_payload,
-                   LogoutEndpoint)
+                   LogoutEndpoint,
+                   RetrievePlayTokenEndpoint)
 from .game import bp as game_bp
 from .rounds import bp as round_bp
 
@@ -65,5 +66,6 @@ sanic_jwt.initialize(
     extend_payload=extend_jwt_payload,
     class_views=(
         ('/logout', LogoutEndpoint),
+        ('/retrieve_play_token', RetrievePlayTokenEndpoint)
     )
 )

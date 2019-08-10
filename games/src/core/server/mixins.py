@@ -10,7 +10,7 @@ class OptionalAuthenticationMixin:
     otherwise play anonymously
     """
     enter_token_prompt = (
-        f"{cursor.CLEAR}Enter a play token or press enter "
+        f"Enter a play token or press enter "
         "to play anonymously: "
     )
     erase_input = (

@@ -1,6 +1,6 @@
 import termninja_db as db
 from sanic import Blueprint
-from sanic.response import json
+from sanic.response import json, text
 from sanic.exceptions import abort
 from sanic_jwt import BaseEndpoint
 from sanic_jwt.exceptions import AuthenticationFailed
@@ -10,6 +10,17 @@ from .validators import validate_page
 
 
 bp = Blueprint('user_views', url_prefix="/user")
+
+
+async def get_user_from_creds(request):
+    username = request.json.get('username')
+    password = request.json.get('password')
+    if not (username and password):
+        abort(400)
+    user = await db.users.verify_login(username, password)
+    if user is None:
+        raise AuthenticationFailed
+    return user
 
 
 class LogoutEndpoint(BaseEndpoint):
@@ -27,21 +38,24 @@ class LogoutEndpoint(BaseEndpoint):
         response.cookies[token_name]['max-age'] = 0
         response.cookies[token_name]['domain'] = domain
         response.cookies[token_name]['httponly'] = http_only
-
         return response
+
+
+class RetrievePlayTokenEndpoint(BaseEndpoint):
+    async def post(self, request, *args, **kwargs):
+        """
+        used by client script to send username/pass and get play token
+        """
+        user = await get_user_from_creds(request)
+        refreshed = await db.users.refresh_play_token(user['username'])
+        return text(refreshed['play_token'])
 
 
 async def authenticate(request):
     """
     Used by sanic-jwt for the auth/login endpoint.
     """
-    username = request.json.get('username')
-    password = request.json.get('password')
-    if not (username and password):
-        abort(400)
-    user = await db.users.verify_login(username, password)
-    if user is None:
-        raise AuthenticationFailed
+    user = await get_user_from_creds(request)
     return dict(user)
 
 
