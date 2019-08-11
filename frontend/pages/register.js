@@ -44,7 +44,7 @@ const Login = props => {
                        lg={{size: 6, offset: 3}}>
             <Card className="p-4 mt-5">
               <CardBody>
-                <h3 className="mb-2">Register</h3>
+                <h3 className="mb-4">Register</h3>
                 <Form onSubmit={handleSubmit(onSubmit)}>
                   <FormGroup>
                     <Label for="username">Username</Label>

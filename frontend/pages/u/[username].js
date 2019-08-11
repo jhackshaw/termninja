@@ -1,30 +1,31 @@
-import React, { useState } from 'react';
-import Router from 'next/router';
-import nookies from 'nookies';
-import { Container, Col, Row } from 'reactstrap';
+import React, { useContext, useState } from 'react';
+import { Container } from 'reactstrap';
 import { UserJumbo } from '../../components/Jumbo';
 import Layout from '../../components/Layout';
 import RoundList from '../../components/RoundList';
 import PageButtons from '../../components/PageButtons';
-import PlayTokenDisplay from '../../components/PlayTokenDisplay';
-import SectionHeader from '../../components/SectionHeader';
 import api from '../../api';
+import UserContext from '../../ctx/UserContext';
 
 
 const User = ({ user, rounds, prev_page, next_page }) => {  
+  const { logout } = useContext(UserContext);
+  const [localUser, setLocalUser] = useState(user);
+
+  const onLogout = () => {
+    setLocalUser(user => {
+      const { play_token, play_token_expires_at, ...rest } = user;
+      return rest;
+    })
+    logout()
+  }
+
   return (
     <Layout>
-      <UserJumbo {...user} />
+      <UserJumbo {...localUser}
+                 onLogout={onLogout} />
 
       <Container>
-        { user.play_token &&
-          <>
-          <SectionHeader title="play token" />
-          <PlayTokenDisplay {...user} />
-          </>
-        }
-
-        <SectionHeader title="recently played" />
         <RoundList rounds={rounds}
                    show_game />
 

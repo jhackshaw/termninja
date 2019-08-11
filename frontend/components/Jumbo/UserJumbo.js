@@ -1,10 +1,12 @@
 import React from 'react';
 import { Row,
-         Col } from 'reactstrap';
+         Col,
+         Button } from 'reactstrap';
 import Jumbo from '.';
+import classes from './Jumbo.css';
 
 
-export const UserJumbo = ({ username, score }) => {
+export const UserJumbo = ({ username, score, play_token, onLogout }) => {
 
   return (
     <Jumbo>
@@ -17,6 +19,11 @@ export const UserJumbo = ({ username, score }) => {
         <Col xs="12" sm="9" lg="10" className="text-center text-sm-left">
           <h2 className="display-4">{ username }</h2>
           <p>Ninja Score: { score }</p> 
+          { play_token &&
+            <Button outline size="sm" className={`${classes.logoutBtn}`} onClick={onLogout}>
+              logout
+            </Button>
+          }
         </Col>
       </Row>
   </Jumbo>

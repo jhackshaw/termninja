@@ -21,9 +21,7 @@ const Login = props => {
   const { user, login } = useContext(UserContext)
   const { register, handleSubmit, errors } = useForm();  
 
-  const onSubmit = async e => {
-    if (e) e.preventDefault();
-
+  const onSubmit = async ({ username, password }) => {
     try {
       await login(username, password);
       router.push('/')
@@ -43,7 +41,7 @@ const Login = props => {
                        lg={{size: 6, offset: 3}}>
             <Card className="p-4 mt-5">
               <CardBody>
-              <h3 className="mb-2">Login</h3>
+              <h3 className="mb-4">Login</h3>
                 <Form onSubmit={handleSubmit(onSubmit)}>
                   <FormGroup>
                     <Label for="username">Username</Label>

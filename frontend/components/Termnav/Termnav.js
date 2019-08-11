@@ -1,16 +1,16 @@
 import React from 'react';
 import { Navbar } from 'reactstrap';
 import NavbarNinjaBrand from './components/NavbarNinjaBrand';
-import NavbarDropdown from './components/NavbarDropdown';
+import NavbarCollapse from './components/NavbarCollapse';
 
 
 
 const Termnav = props => {
 
   return (
-    <Navbar color="faded" expand="md" light>
+    <Navbar color="faded" expand="sm" light>
       <NavbarNinjaBrand />
-      <NavbarDropdown />
+      <NavbarCollapse />
     </Navbar>
   )
 }

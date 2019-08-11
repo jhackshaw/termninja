@@ -9,3 +9,12 @@
 .container {
   font-family: 'Roboto mono';
 }
+
+.logoutBtn {
+  border-color: white;
+  color: white
+}
+.logoutBtn:hover {
+  background-color: white;
+  color: black;
+}
