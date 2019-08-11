@@ -11,7 +11,7 @@ import { Container,
          Row } from 'reactstrap';
 import Layout from '../components/Layout';
 import ThemeButton from '../components/ThemeButton';
-import useForm from '../hooks/useForm';
+import useForm from 'react-hook-form';
 import UserContext from '../ctx/UserContext';
 import Link from 'next/link';
 
@@ -19,13 +19,7 @@ import Link from 'next/link';
 const Login = props => {
   const router = useRouter();
   const { user, login } = useContext(UserContext)
-  const [error, setError] = useState(null)
-  const { values, onChange } = useForm({
-    username: '',
-    password: ''
-  })
-  const { username, password } = values;
-
+  const { register, handleSubmit, errors } = useForm();  
 
   const onSubmit = async e => {
     if (e) e.preventDefault();
@@ -49,15 +43,16 @@ const Login = props => {
                        lg={{size: 6, offset: 3}}>
             <Card className="p-4 mt-5">
               <CardBody>
-                <Form onSubmit={onSubmit}>
+              <h3 className="mb-2">Login</h3>
+                <Form onSubmit={handleSubmit(onSubmit)}>
                   <FormGroup>
                     <Label for="username">Username</Label>
                     <Input type="text" 
                            id="username"
                            name="username"
                            placeholder="Username"
-                           value={username}
-                           onChange={onChange} />
+                           invalid={Boolean(errors.username)}
+                           innerRef={register({ required: true })} />
                   </FormGroup>
                   <FormGroup>
                     <Label for="password">Password</Label>
@@ -65,8 +60,8 @@ const Login = props => {
                            id="password"
                            name="password"
                            placeholder="Password"
-                           value={password}
-                           onChange={onChange} />
+                           invalid={Boolean(errors.password)}
+                           innerRef={register({ required: true })} />
                   </FormGroup>
                   <div className="mt-4">
                     <ThemeButton outline>Login</ThemeButton>

@@ -12,9 +12,7 @@ from .validators import validate_page
 bp = Blueprint('user_views', url_prefix="/user")
 
 
-async def get_user_from_creds(request):
-    username = request.json.get('username')
-    password = request.json.get('password')
+async def get_user_from_creds(username, password):
     if not (username and password):
         abort(400)
     user = await db.users.verify_login(username, password)
@@ -46,7 +44,10 @@ class RetrievePlayTokenEndpoint(BaseEndpoint):
         """
         used by client script to send username/pass and get play token
         """
-        user = await get_user_from_creds(request)
+        username = request.form.get('username')
+        password = request.form.get('password')
+        print(username, password)
+        user = await get_user_from_creds(username, password)
         refreshed = await db.users.refresh_play_token(user['username'])
         return text(refreshed['play_token'])
 
@@ -55,7 +56,8 @@ async def authenticate(request):
     """
     Used by sanic-jwt for the auth/login endpoint.
     """
-    user = await get_user_from_creds(request)
+    user = await get_user_from_creds(request.json.get('username'),
+                                     request.json.get('password'))
     return dict(user)
 
 

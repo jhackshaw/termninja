@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React from 'react';
 import { useRouter } from 'next/router';
 import { Container,
          Card,
@@ -44,6 +44,7 @@ const Login = props => {
                        lg={{size: 6, offset: 3}}>
             <Card className="p-4 mt-5">
               <CardBody>
+                <h3 className="mb-2">Register</h3>
                 <Form onSubmit={handleSubmit(onSubmit)}>
                   <FormGroup>
                     <Label for="username">Username</Label>
