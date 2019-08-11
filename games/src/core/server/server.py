@@ -88,16 +88,23 @@ class BaseServer:
         """
         pass
 
+    async def start_async_server(self, **kwargs):
+        """
+        Call to asyncio start_server can be overriden to
+        customize parameters passed 
+        """
+        return await asyncio.start_server(
+            self._on_connection,
+            reuse_port=True,
+            **kwargs
+        )
+
     async def _start_serving(self, **kwargs):
         """
         connect to db
         """
         await self._initialize()
-        server = await asyncio.start_server(
-            self._on_connection,
-            reuse_port=True,
-            **kwargs
-        )
+        server = await self.start_async_server(**kwargs)
         async with server:
             try:
                 await server.serve_forever()

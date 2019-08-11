@@ -1,7 +1,39 @@
 import datetime
 import asyncio
+import os
 import termninja_db as db
 from src.core import cursor
+
+
+
+class SSLMixin:
+    """
+    Tell asyncio to wrap the server in ssl when specified  in
+    environment variables
+    """
+    async def start_async_server(self, **kwargs):
+        use_ssl = os.environ.get('TERMNINJA_API_SSL', None)
+        cert_path = os.environ.get('TERMNINJA_CERT_PATH', '/etc/letsencrypt')
+
+        ssl_ctx = None
+        if use_ssl and os.path.exists(cert_path):
+            ssl_ctx = self.make_ssl_context(cert_path)
+
+        return await super().start_async_server(
+            ssl=ssl_ctx,
+            ssl_handshake_timeout=10 if use_ssl else None,
+            **kwargs
+        )
+
+    def make_ssl_context(self, cert_path):
+        ssl_ctx = ssl.create_default_context(
+            purpose=ssl.Purpose.CLIENT_AUTH
+        )
+        ssl_ctx.load_cert_chain(
+            f'{cert_path}/live/play.term.ninja/fullchain.pem',
+            f'{cert_path}/live/play.term.ninja/privkey.pem'
+        )
+        return ssl_ctx
 
 
 class OptionalAuthenticationMixin:
