@@ -1,5 +1,4 @@
 import os
-import ssl
 from src.core import Server
 from src.games import SnakeManager, SubnetRacerManager, TicTacToeManager
 

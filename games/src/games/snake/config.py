@@ -21,11 +21,10 @@ WELCOME_MESSAGE = fr"""{cursor.CLEAR}
                     ~--______-~                ~-___-~
 {cursor.RESET}
 
-  - Use the following command for the best experience:
-  {cursor.YELLOW}stty -icanon && nc <host> <port>{cursor.RESET}
+{cursor.YELLOW}Make sure to run this game "real-time" (-i)
+See website for details{cursor.RESET}
 
-
-  {cursor.BLUE}Press enter when ready....{cursor.RESET}
+{cursor.BLUE}Press enter when ready....{cursor.RESET}
 
 """
 

@@ -91,7 +91,7 @@ class BaseServer:
     async def start_async_server(self, **kwargs):
         """
         Call to asyncio start_server can be overriden to
-        customize parameters passed 
+        customize parameters passed
         """
         return await asyncio.start_server(
             self._on_connection,

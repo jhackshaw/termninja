@@ -1,9 +1,9 @@
 import datetime
 import asyncio
 import os
+import ssl
 import termninja_db as db
 from src.core import cursor
-
 
 
 class SSLMixin:

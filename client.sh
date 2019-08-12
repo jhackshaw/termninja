@@ -82,8 +82,8 @@ then
   echo -n "password: "
   read -r -s password
   echo
-  curl -d '{"username":"'$username'", "password":"'$password'"}'\
-       -H "Content-Type: application/json"\
+  curl -d "username=$username"\
+       -d "password=$password"\
        -X POST "$endpoint/auth/retrieve_play_token"\
        -o ~/.termninja/token.txt\
        -s
@@ -127,7 +127,7 @@ if [ $unencrypted = true ]
 then
   command="$command ncat $host $port"
 else
-  command="$command openssl s_client -async -quiet -connect $host:$port 2>/dev/null"
+  command="$command openssl s_client -async -quiet -verify 3 -verify_return_error --tls1_2 -connect $host:$port 2>/dev/null"
 fi
 
 
