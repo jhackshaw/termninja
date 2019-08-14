@@ -46,7 +46,6 @@ class RetrievePlayTokenEndpoint(BaseEndpoint):
         """
         username = request.form.get('username')
         password = request.form.get('password')
-        print(username, password)
         user = await get_user_from_creds(username, password)
         refreshed = await db.users.refresh_play_token(user['username'])
         return text(refreshed['play_token'])

@@ -1,8 +1,8 @@
 import React from 'react';
 import { Container } from 'reactstrap';
 import { GameJumbo } from '../../components/Jumbo';
+import { RoundListForGame } from '../../components/RoundList';
 import Layout from '../../components/Layout';
-import RoundList from '../../components/RoundList';
 import PageButtons from '../../components/PageButtons';
 import TermTabs, { TermTabItem } from '../../components/TermTabs';
 import api from '../../api';
@@ -17,15 +17,15 @@ const Game = ({ game, rounds, next_page, prev_page }) => {
       <Container>
         <TermTabs>
           <TermTabItem active href="/g/[gameSlug]" as={`/g/${game.slug}`}>
-            Recent
+            <i className="fas fa-clock" />{' '}Recent
           </TermTabItem>
           <TermTabItem href="/g/[gameSlug]/leaderboard" as={`/g/${game.slug}/leaderboard`}>
-            Leaderboard
+            <i className="fas fa-trophy" />{' '}Leaderboard
           </TermTabItem>
         </TermTabs>
 
-        <RoundList rounds={rounds}
-                   show_user />
+        <RoundListForGame rounds={rounds} onRoundClick={roundId => console.log(roundId)} />
+            
         <PageButtons href='/g/[gameSlug]'
                      as={`/g/${game.slug}`}
                      next_page={next_page}

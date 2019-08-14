@@ -18,7 +18,7 @@ default_columns = [
     users_table.c.id,
     users_table.c.username,
     users_table.c.gravatar_hash,
-    users_table.c.score
+    users_table.c.total_score
 ]
 
 authenticated_columns = [
@@ -56,6 +56,7 @@ async def create_user(username, password):
     values = {
         'username': username,
         'password_hash': create_password_hash(password),
+        'gravatar_hash': create_gravatar_hash(username),
         'play_token': make_token(),
         'play_token_expires_at': make_token_expires_at(1)
     }
@@ -80,9 +81,7 @@ async def select_by_username(username, authenticated=False):
     """
     Get a user by username
     """
-    columns = default_columns
-    if authenticated:
-        columns = authenticated_columns
+    columns = authenticated_columns if authenticated else default_columns
     query = select(columns)\
               .where(users_table.c.username == username)  # noqa:E127
     user = await conn.fetch_one(query=query)
@@ -130,7 +129,7 @@ async def list_global_leaderboard():
     """
     query = select([users_table])\
                 .limit(GLOBAL_LEADERBOARD_SIZE)\
-                .order_by(users_table.c.score.desc())  # noqa:E127
+                .order_by(users_table.c.total_score.desc())  # noqa:E127
     leaders = await conn.fetch_all(query=query)
     return leaders and [
         dict(l) for l in leaders

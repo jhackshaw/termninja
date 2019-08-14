@@ -1,14 +1,13 @@
 import React from 'react';
 import { Container } from 'reactstrap';
 import { GameJumbo } from '../../../components/Jumbo';
+import { RoundListForGameLeaderboard } from '../../../components/RoundList';
 import Layout from '../../../components/Layout';
-import Leaderboard from '../../../components/Leaderboard';
-import PageButtons from '../../../components/PageButtons';
 import TermTabs, { TermTabItem } from '../../../components/TermTabs';
 import api from '../../../api';
 
 
-const GameLeaderboard = ({ game, leaderboard, next_page, prev_page }) => {  
+const GameLeaderboard = ({ game, top_rounds }) => {  
   return (
     <Layout>
       <GameJumbo {...game} />
@@ -23,18 +22,18 @@ const GameLeaderboard = ({ game, leaderboard, next_page, prev_page }) => {
           </TermTabItem>
         </TermTabs>
 
-        <Leaderboard leaders={leaderboard} />
+        <RoundListForGameLeaderboard top_rounds={top_rounds} />
       </Container>
     </Layout>
   )
 }
 
 GameLeaderboard.getInitialProps = async ({query: { gameSlug }}) => {
-  const [leaderboard, game] = await Promise.all([
+  const [top_rounds, game] = await Promise.all([
     api.game.getLeaderboard(gameSlug),
     api.game.getGame(gameSlug)
   ])
-  return { leaderboard, game }
+  return { top_rounds, game }
 }
 
 

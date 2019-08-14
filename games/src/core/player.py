@@ -4,7 +4,7 @@ import datetime
 
 anonymous_identity = {
     "username": None,
-    "score": 0,
+    "total_score": 0,
     "play_token_expires_at": None
 }
 
@@ -34,7 +34,7 @@ class Player:
         self.reader = reader
         self.writer = writer
         self.identity = anonymous_identity
-        self.score = 0
+        self.total_score = 0
         self.earned = 0
         self._play_token_expires_at = None
 
@@ -59,7 +59,7 @@ class Player:
         return addr[0]
 
     def assign_db_user(self, user):
-        self.score = user['score']
+        self.total_score = user['total_score']
         self.identity = user
 
     async def send(self, msg: str):

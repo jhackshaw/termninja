@@ -12,15 +12,16 @@ list_columns = [
     rounds_table.c.id,
     rounds_table.c.played_at,
     rounds_table.c.score,
-    rounds_table.c.result_message,
-    games_table.c.server_name,
+    rounds_table.c.message,
+    games_table.c.name,
     games_table.c.slug,
+    games_table.c.icon,
     users_table.c.username,
     users_table.c.gravatar_hash
 ]
 
 detail_columns = list_columns + [
-    rounds_table.c.result_snapshot
+    rounds_table.c.snapshot
 ]
 
 select_from_default = \
@@ -33,22 +34,20 @@ select_from_default = \
         )  # noqa: E127
 
 
-async def add_round_played(friendly_name, username, score,
-                           result_message='', result_snapshot=''):
+async def add_round_played(slug, username, score, **kwargs):
     insert_query = insert(rounds_table)
     values = {
-        'game_slug': friendly_name,
+        'game_slug': slug,
         'user_username': username,
         'score': score,
         'played_at': datetime.datetime.now(),
-        'result_message': result_message,
-        'result_snapshot': result_snapshot
+        **kwargs
     }
     await conn.execute(query=insert_query, values=values)
     if username:
         update_query = update(users_table)\
                          .where(users_table.c.username == username)\
-                         .values(score=users_table.c.score + score)
+                         .values(score=users_table.c.total_score + score)
         await conn.execute(query=update_query)
 
 
@@ -98,9 +97,10 @@ async def list_high_scores(**filters):
     ]
     query = select(list_columns)\
                 .select_from(select_from_default)\
+                .where(rounds_table.c.user_username != None)\
                 .where(*where_clause)\
                 .order_by(rounds_table.c.score.desc())\
-                .limit(10)   # noqa: E127
+                .limit(20)   # noqa: E127
     result = await conn.fetch_all(query=query)
     return result and [
         dict(r) for r in result

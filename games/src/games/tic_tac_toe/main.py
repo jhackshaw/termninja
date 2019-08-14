@@ -150,6 +150,7 @@ class TicTacToeManager(Manager):
     name = "Tic-Tac-Toe"
     game_class = TicTacToe
     player_count = 2
+    icon = "th"
 
     # do you want to play a game
     description = "A strange game. The only winning move is not to play"

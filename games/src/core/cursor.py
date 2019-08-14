@@ -4,9 +4,9 @@ import bleach
 
 color_codes_to_style = {
     '31': 'red',
-    '32': 'green',
+    '32': 'lime',
     '33': 'yellow',
-    '36': 'blue'
+    '36': 'cyan'
 }
 OPEN_SEQUENCE_RE = re.compile(
     r'\x1b\[(?P<sequence>.*?)(?P<terminator>[msuJKHABG]{1})'
@@ -103,7 +103,7 @@ def ansi_to_html(ansi):
     # not necessary because we are explicitly definining
     # the tags that are allowed, but still, better safe.
     return bleach.clean(
-        f'<pre style="background-color:lightgrey; padding:5px;">{html}</pre>',
+        f'<pre padding:5px;">{html}</pre>',
         tags=['span', 'br', 'pre'],
         attributes=['style'],
         styles=['color', 'background-color', 'padding', 'width']

@@ -1,0 +1,12 @@
+
+.snapshot {
+  background-color: rgba(46, 52, 54, 0.7)
+}
+
+.root {
+  font-family: 'Roboto Mono';
+}
+
+.message {
+  font-size: 1.5rem
+}

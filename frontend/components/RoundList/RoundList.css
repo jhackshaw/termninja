@@ -1,0 +1,21 @@
+.textAvatar {
+  width: 30px;
+  height: 30px;
+}
+
+.gold {
+  color: #d4af37;
+}
+
+.silver {
+  color: #C0C0C0;
+}
+
+.bronze {
+  color: #cd7f32;
+}
+
+.clickable:hover {
+  cursor: pointer;
+  background-color: rgba(0,0,0,.075)
+}

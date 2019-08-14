@@ -7,11 +7,11 @@ from .messages import (GENERIC_QUIZ_INITIAL_QUESTION,
 
 
 class BaseGame:
-    def __init__(self, *players, **kwargs):
+    def __init__(self, *players, game_slug=None, **kwargs):
         self._players = players
         self._loop = asyncio.get_running_loop()
-        for k, v in kwargs.items():
-            setattr(self, k, v)
+        self.game_slug = game_slug
+        self.kwargs = kwargs
         self.setUp(*players)
 
     def setUp(self, *players):
@@ -147,7 +147,7 @@ class GenericQuizGameBase(BaseGame):
             prompt=question.prompt,
             progress=progress,
             earned=self.player.earned,
-            total_score=self.player.score
+            total_score=self.player.total_score
         )
         await self.player.send(msg)
 

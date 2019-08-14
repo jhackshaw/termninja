@@ -9,7 +9,7 @@ from .config import WELCOME_MESSAGE, DESCRIPTION
 class SnakeBoard:
     WIDTH = 45
     HEIGHT = 15
-    PADDING = 10
+    PADDING = 1
     DIRECTIONS = {
         "w": (-1, 0),
         "a": (0, -1),
@@ -152,7 +152,7 @@ class SnakeBoard:
 
 
 class Snake(StoreGamesWithSnapshotMixin, Game):
-    DELAY = 0.19  # this seems to be the sweet spot
+    DELAY = 0.17  # this seems to be the sweet spot
 
     def setUp(self, player):
         self.board = SnakeBoard()
@@ -161,7 +161,7 @@ class Snake(StoreGamesWithSnapshotMixin, Game):
 
     def make_header(self):
         return (
-            f"\tTOTAL SCORE: {cursor.green(self.player.score)}\n"
+            f"\tTOTAL SCORE: {cursor.green(self.player.total_score)}\n"
             f"\tEARNED: {cursor.green(self.player.earned)}\n\n"
         )
 
@@ -180,6 +180,7 @@ class Snake(StoreGamesWithSnapshotMixin, Game):
                 asyncio.create_task(self.earned_point())
             await self.send_board()
             await asyncio.sleep(self.DELAY - time_spent)
+        await self.player.send('\nGAME OVER..\n')
 
     async def handle_input(self):
         """
@@ -213,7 +214,7 @@ class Snake(StoreGamesWithSnapshotMixin, Game):
         asyncio.create_task(self.player.on_earned_points(1))
 
     def make_result_message_for(self, player):
-        return f'Ate {player.earned} pieces of snake food'
+        return f'Ate {player.earned} mice'
 
     def make_final_snapshot(self):
         return self.board.render()
@@ -223,6 +224,7 @@ class SnakeManager(Manager):
     name = "Snake"
     game_class = Snake
     player_count = 1
+    icon = "dragon"
     description = DESCRIPTION
 
     async def on_player_connected(self, player):

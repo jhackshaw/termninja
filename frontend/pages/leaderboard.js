@@ -1,8 +1,8 @@
 import React from 'react';
 import { Container } from 'reactstrap';
 import { LeaderboardJumbo } from '../components/Jumbo';
+import { GlobalLeaderboardList } from '../components/RoundList';
 import Layout from '../components/Layout';
-import Leaderboard from '../components/Leaderboard';
 import api from '../api';
 
 
@@ -13,7 +13,7 @@ const GlobalLeaderboard = ({ leaders }) => {
       <LeaderboardJumbo />
 
       <Container>
-        <Leaderboard leaders={leaders} />
+        <GlobalLeaderboardList leaders={leaders} />
       </Container>
     </Layout>
   )

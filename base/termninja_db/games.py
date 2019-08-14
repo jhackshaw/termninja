@@ -1,9 +1,20 @@
+import asyncio
 import datetime
 from sqlalchemy import (select,
                         insert,
                         update)
 from .conn import conn
 from .tables import games_table
+
+
+async def register_games(all_games):
+    """
+    all_games should be a dict of slug -> values
+    """
+    await asyncio.gather(*[
+        create_or_update_game(slug, values)
+        for slug, values in all_games.items()
+    ])
 
 
 async def create_or_update_game(slug, values):

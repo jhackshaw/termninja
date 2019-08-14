@@ -11,6 +11,8 @@ services:
     image: jhackshaw/termninja-base
     build:
       context: ./base
+      args:
+        editable: ${TERMNINJA_DEVELOP}
     depends_on:
       - postgres
 

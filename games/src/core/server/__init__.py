@@ -1,9 +1,11 @@
 from .server import BaseServer
 from .mixins import (OptionalAuthenticationMixin,
-                     SSLMixin)
+                     SSLMixin,
+                     RegisterGamesMixin)
 
 
-class Server(OptionalAuthenticationMixin,
+class Server(RegisterGamesMixin,
+             OptionalAuthenticationMixin,
              SSLMixin,
              BaseServer):
     pass

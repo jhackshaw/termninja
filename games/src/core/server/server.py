@@ -9,12 +9,15 @@ from .messages import TERMNINJA_PROMPT
 
 
 class BaseServer:
+    #
+    # public api
+    #
     def __init__(self):
         self.managers = []
         self._prompt = None
 
     def add_game_manager(self, manager_class):
-        instance = manager_class(idx=len(self.managers)+1)
+        instance = manager_class()
         self.managers.append(instance)
 
     def start(self, debug=True, **kwargs):
@@ -27,7 +30,60 @@ class BaseServer:
         else:
             asyncio.run(self._start_serving(**kwargs), debug=debug)
 
-    def _make_game_prompt(self):
+    async def on_player_connected(self, player):
+        """
+        First hook opportunity for a connection to the server
+        """
+        print(f'[+] connection from {player.address}')
+
+    async def should_accept_player(self, player):
+        """
+        Hook to determine if this connection/player should be allowed to play
+        """
+        return True
+
+    async def on_player_accepted(self, player):
+        """
+        Hook called when player is allowed to play
+        """
+        pass
+
+    async def on_server_ready(self):
+        """
+        Called just before the server is ready to begin accepting connections
+        """
+        pass
+
+    async def start_async_server(self, **kwargs):
+        """
+        Call to asyncio start_server can be overriden to
+        customize parameters passed
+        """
+        return await asyncio.start_server(
+            self._on_connection,
+            reuse_port=True,
+            **kwargs
+        )
+
+    async def get_game_choice(self, player):
+        try:
+            # for scripted environments to pipe from stdin
+            # e.g. termninja client
+            raw_choice = await player.readline(timeout=0.1)
+            choice = self._validate_choice(raw_choice)
+            if choice is not None:
+                await player.clear_input_buffer()
+                return choice
+        except asyncio.TimeoutError:
+            pass
+        while True:
+            await player.send(self._prompt)
+            raw_choice = await player.readline()
+            choice = self._validate_choice(raw_choice)
+            if choice is not None:
+                return choice
+
+    def make_game_prompt(self):
         """
         E.g.
             1) Snake
@@ -40,6 +96,9 @@ class BaseServer:
         ])
         return TERMNINJA_PROMPT.format(game_choices)
 
+    #
+    # private api
+    #
     def _register_signal_handlers(self):
         """
         Register handlers in the event loop for stop signals
@@ -70,40 +129,12 @@ class BaseServer:
         except ValueError:
             return None
 
-    async def on_player_connected(self, player):
-        """
-        First hook opportunity for a connection to the server
-        """
-        print(f'[+] connection from {player.address}')
-
-    async def should_accept_player(self, player):
-        """
-        Hook to determine if this connection/player should be allowed to play
-        """
-        return True
-
-    async def on_player_accepted(self, player):
-        """
-        Hook called when player is allowed to play
-        """
-        pass
-
-    async def start_async_server(self, **kwargs):
-        """
-        Call to asyncio start_server can be overriden to
-        customize parameters passed
-        """
-        return await asyncio.start_server(
-            self._on_connection,
-            reuse_port=True,
-            **kwargs
-        )
-
     async def _start_serving(self, **kwargs):
         """
         connect to db
         """
         await self._initialize()
+        await self.on_server_ready()
         server = await self.start_async_server(**kwargs)
         async with server:
             try:
@@ -112,7 +143,7 @@ class BaseServer:
                 await self._teardown()
 
     async def _initialize(self):
-        self._prompt = self._make_game_prompt()
+        self._prompt = self.make_game_prompt()
         self._register_signal_handlers()
         await db.conn.connect()
         await self._initialize_managers()
@@ -122,7 +153,7 @@ class BaseServer:
 
     async def _initialize_managers(self):
         await asyncio.gather(*[
-            m._initialize() for m in self.managers
+            m.initialize() for m in self.managers
         ])
 
     async def _on_connection(self, reader, writer):
@@ -133,7 +164,7 @@ class BaseServer:
         try:
             await self._accept_player(player)
             choice = await self.get_game_choice(player)
-            await self.managers[choice]._player_connected(player)
+            await self.managers[choice].player_connected(player)
         except (ConnectionResetError, ConnectionRefusedError):
             await player.close()
 
@@ -145,21 +176,3 @@ class BaseServer:
         if not await self.should_accept_player(player):
             raise ConnectionRefusedError
         await self.on_player_accepted(player)
-
-    async def get_game_choice(self, player):
-        try:
-            # for scripted environments to pipe from stdin
-            # e.g. termninja client
-            raw_choice = await player.readline(timeout=0.1)
-            choice = self._validate_choice(raw_choice)
-            if choice is not None:
-                await player.clear_input_buffer()
-                return choice
-        except asyncio.TimeoutError:
-            pass
-        while True:
-            await player.send(self._prompt)
-            raw_choice = await player.readline()
-            choice = self._validate_choice(raw_choice)
-            if choice is not None:
-                return choice

@@ -24,7 +24,7 @@ const GamesList = ({ games }) => {
               <Col xs={2} className="text-center">
                   <i className={`fas fa-lg fa-circle ${isOnline(game) ? classes.online : classes.offline}`} />
               </Col>
-              <Col xs={8}>{ game.server_name }</Col>
+              <Col xs={8}>{ game.name }</Col>
               <Col xs={2} className="text-center">
                 { game.idx }
               </Col>

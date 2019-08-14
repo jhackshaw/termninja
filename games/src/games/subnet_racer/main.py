@@ -97,6 +97,7 @@ class SubnetRacerManager(Manager):
     name = "Subnet Racer"
     game_class = SubnetRacer
     player_count = 1
+    icon = "car"
     description = (
         "Race against the clock while you "
         "calculate subnets in your head"

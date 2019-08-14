@@ -6,6 +6,26 @@ import termninja_db as db
 from src.core import cursor
 
 
+class RegisterGamesMixin:
+    """
+    When the server starts update the available games in the database
+    """
+    ping_database_interval = 2 * 60  # every 2 minutes
+
+    async def on_server_ready(self):
+        all_games = {
+            m.slug: {
+                'name': m.name,
+                'description': m.description,
+                'icon': getattr(m, 'icon', None),
+                'idx': idx+1
+            }
+            for idx, m in enumerate(self.managers)
+        }
+        await db.games.register_games(all_games)
+        return await super().on_server_ready()
+
+
 class SSLMixin:
     """
     Tell asyncio to wrap the server in ssl when specified  in
@@ -106,7 +126,7 @@ class OptionalAuthenticationMixin:
         await player.send(
             f"\n"
             f"username:         {cursor.green(player.username)}\n"
-            f"score:            {cursor.green(player.score)}\n"
+            f"score:            {cursor.green(player.total_score)}\n"
             f"token expires in: {cursor.green(player.play_token_expires_at)}\n"
             f"\n{cursor.yellow('Press enter to continue...')}"
         )
