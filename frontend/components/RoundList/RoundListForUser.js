@@ -18,7 +18,7 @@ const RoundListForUser = ({ rounds }) => {
                      }
                      avatar={
                         <div style={{ width: 30, height: 30 }}>
-                          <i className={`fas fa-2x fa-fw fa-${r.game_icon || 'dragon'}`} />
+                          <i className={`fas fa-2x fa-fw fa-${r.icon || 'dragon'}`} />
                         </div>
                      }
                      displayName={
@@ -37,7 +37,7 @@ const RoundListForUser = ({ rounds }) => {
 
 
     <RoundDetailsModal roundId={displayedRound}
-                      onClose={() => setDisplayedRound(null)} />
+                       onClose={() => setDisplayedRound(null)} />
     </>
   )
 }
