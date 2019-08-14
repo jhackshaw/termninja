@@ -10,8 +10,8 @@ import { Container,
          Input,
          Col,
          Row } from 'reactstrap';
-import useForm from 'react-hook-form';
 import Layout from '../components/Layout';
+import useForm from 'react-hook-form';
 import ThemeButton from '../components/ThemeButton';
 import Link from 'next/link';
 import api from '../api';

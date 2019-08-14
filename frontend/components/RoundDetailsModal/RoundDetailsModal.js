@@ -17,18 +17,13 @@ const emptyRound = {
 
 const RoundDetailsModal = ({ roundId, onClose }) => {
   const [round, setRound] = useState(emptyRound);
-  const [loading, setLoading] = useState(false);
-
-  console.log(round);
 
   useEffect(() => {
     const updateRound = async () => {
-      setLoading(true);
       let round = emptyRound;
       if (roundId) {
         round = await api.round.getDetails(roundId);
       }
-      setLoading(false);
       setRound(round)
     }
     updateRound();

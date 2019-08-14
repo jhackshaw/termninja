@@ -1,7 +1,7 @@
 import React from 'react';
 import { Container } from 'reactstrap';
-import { IndexJumbo } from '../components/Jumbo';
 import Layout from '../components/Layout';
+import { IndexJumbo } from '../components/Jumbo';
 import GamesList from '../components/GamesList/GamesList';
 import api from '../api';
 

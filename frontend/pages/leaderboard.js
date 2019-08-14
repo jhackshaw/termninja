@@ -1,8 +1,8 @@
 import React from 'react';
 import { Container } from 'reactstrap';
+import Layout from '../components/Layout';
 import { LeaderboardJumbo } from '../components/Jumbo';
 import { GlobalLeaderboardList } from '../components/RoundList';
-import Layout from '../components/Layout';
 import api from '../api';
 
 

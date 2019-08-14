@@ -1,8 +1,8 @@
 import React from 'react';
 import { Container } from 'reactstrap';
+import Layout from '../../../components/Layout';
 import { GameJumbo } from '../../../components/Jumbo';
 import { RoundListForGameLeaderboard } from '../../../components/RoundList';
-import Layout from '../../../components/Layout';
 import TermTabs, { TermTabItem } from '../../../components/TermTabs';
 import api from '../../../api';
 

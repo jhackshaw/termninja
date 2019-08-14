@@ -47,7 +47,7 @@ async def add_round_played(slug, username, score, **kwargs):
     if username:
         update_query = update(users_table)\
                          .where(users_table.c.username == username)\
-                         .values(score=users_table.c.total_score + score)
+                         .values(total_score=users_table.c.total_score + score)
         await conn.execute(query=update_query)
 
 

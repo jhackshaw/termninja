@@ -1,7 +1,7 @@
 import React from 'react';
 import { Container, Col } from 'reactstrap';
-import { IndexJumbo } from '../components/Jumbo';
 import Layout from '../components/Layout';
+import { IndexJumbo } from '../components/Jumbo';
 
 
 const About = props => {
