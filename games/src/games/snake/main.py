@@ -32,6 +32,7 @@ class SnakeBoard:
         self.direction = random.choice(
             list(self.DIRECTIONS.keys())
         )
+        self.effective_height = self.HEIGHT + 3
 
     def init_board(self):
         """
@@ -180,7 +181,7 @@ class Snake(StoreGamesWithSnapshotMixin, Game):
                 asyncio.create_task(self.earned_point())
             await self.send_board()
             await asyncio.sleep(self.DELAY - time_spent)
-        await self.player.send('\nGAME OVER..\n')
+        await self.player.send(cursor.red('\nGAME OVER..\n'))
 
     async def handle_input(self):
         """
@@ -201,9 +202,12 @@ class Snake(StoreGamesWithSnapshotMixin, Game):
         Send one frame
         """
         await self.player.send(
-            f"{cursor.CLEAR}"
+            f"{cursor.HOME}{cursor.SAVE}"
+            f"{cursor.up(self.board.effective_height + 3)}"
+            f"{cursor.CLEAR_TO_END}"
             f"{self.make_header()}"
             f"{self.board.render()}"
+            f"{cursor.RESTORE}"
         )
 
     async def earned_point(self):

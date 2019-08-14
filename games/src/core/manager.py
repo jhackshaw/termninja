@@ -1,5 +1,6 @@
 import asyncio
 from slugify import slugify
+from . import cursor
 
 
 class Manager:
@@ -52,6 +53,11 @@ class Manager:
         is called. Responsible for  queuing the
         player.
         """
+        await player.send(
+            f"{cursor.PAGE_DOWN}"
+            f"{cursor.down(50)}"
+            f"{cursor.HOME}"
+        )
         await self._player_queue.put(player)
 
     #
