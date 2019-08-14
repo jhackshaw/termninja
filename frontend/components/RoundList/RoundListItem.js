@@ -14,11 +14,11 @@ const RoundListItem = ({ id, avatar, displayName, played_at, score, onClick }) =
       </Col>
       <Col xs={9}>
         <Row className="d-flex align-items-center pl-3">
-          <Col xs={12} md={8}>
+          <Col xs={12} md={6}>
             { displayName }
           </Col>
           { played_at &&
-            <Col xs={12} md={4}>
+            <Col xs={12} md={6}>
               { moment.unix(played_at).fromNow() }
             </Col>
           }

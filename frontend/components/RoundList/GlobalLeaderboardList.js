@@ -26,7 +26,7 @@ const GlobalLeaderboardList = ({ leaders }) => {
                           }
                         </div>
                      }
-                     name={
+                     displayName={
                        r.username ? 
                          <Link href="/u/[username]" as={`/u/${r.username}`}>
                            <a className="text-dark text-truncate">
@@ -38,7 +38,7 @@ const GlobalLeaderboardList = ({ leaders }) => {
                            anonymous
                          </span>
                      }
-                     { ...r }
+                     score={ r.total_score }
                      />
     ))}
     </ListGroup>
