@@ -3,7 +3,7 @@ import * as root from './root';
 
 
 const login = (username, password) => {
-  return root.post('/auth', { username, password })
+  return root.post('/auth', { username, password }, { auth: true })
 }
 
 const logout = () => {
@@ -15,7 +15,7 @@ const register = data => {
 }
 
 const getUser = async (username, ctx) => {
-  return root.get(`/user/${username}`, ctx)
+  return root.get(`/user/${username}`, { ctx, auth: true})
 }
 
 const getLeaders = async () => {
