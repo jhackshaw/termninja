@@ -77,9 +77,8 @@ async def extend_jwt_payload(payload, user):
     """
     Add additional user information to the jwt
     """
-    score = user['score']
     payload.update({
-        'score': score,
+        'total_score': user['total_score'],
     })
     return payload
 

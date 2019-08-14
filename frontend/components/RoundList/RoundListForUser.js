@@ -25,7 +25,7 @@ const RoundListForUser = ({ rounds }) => {
                         <span onClick={e => e.stopPropagation()}>
                           <Link href="/g/[gameSlug]" as={`/g/${r.slug}`}>
                             <a className="text-dark text-truncate">
-                              { r.server_name }
+                              { r.name }
                             </a>
                           </Link>
                         </span>

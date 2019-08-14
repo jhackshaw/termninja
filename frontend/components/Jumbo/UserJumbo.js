@@ -6,7 +6,7 @@ import Jumbo from '.';
 import classes from './Jumbo.css';
 
 
-export const UserJumbo = ({ username, score, play_token, onLogout }) => {
+export const UserJumbo = ({ username, total_score, play_token, onLogout }) => {
 
   return (
     <Jumbo>
@@ -18,7 +18,7 @@ export const UserJumbo = ({ username, score, play_token, onLogout }) => {
         </Col>
         <Col xs="12" sm="9" lg="10" className="text-center text-sm-left">
           <h2 className="display-4">{ username }</h2>
-          <p>Ninja Score: { score }</p> 
+          <p>Ninja Score: { total_score }</p> 
           { play_token &&
             <Button outline size="sm" className={`${classes.logoutBtn}`} onClick={onLogout}>
               logout
