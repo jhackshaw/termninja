@@ -159,7 +159,7 @@ class Player:
         and their earned points for this round
         """
         self.earned += earned
-        self.score += earned
+        self.total_score += earned
 
     async def _readlines_until_validates(self, coerce, validator):
         """

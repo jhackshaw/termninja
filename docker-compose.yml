@@ -7,6 +7,12 @@ services:
     env_file:
       - config.env
 
+  redis:
+    image: redis:5.0.5-alpine
+    restart: always
+    env_file:
+      - config.env
+
   base:
     image: jhackshaw/termninja-base
     build:

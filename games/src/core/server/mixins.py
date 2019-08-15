@@ -1,5 +1,6 @@
 import datetime
 import asyncio
+import aioredis
 import os
 import ssl
 import termninja_db as db
@@ -24,6 +25,45 @@ class RegisterGamesMixin:
         }
         await db.games.register_games(all_games)
         return await super().on_server_ready()
+
+
+class ThrottleConnectionsMixin:
+    """
+    Throttle connections to a set number per minute using
+    redis.
+    """
+    REDIS_HOST = os.environ.get('REDIS_HOST', 'redis')
+    THROTTLED_MESSAGE = cursor.red('\n\n\t\tTHROTTLED\n\n')
+    MAX_CONNECTIONS_PER_MINUTE = int(os.environ.get(
+        'MAX_CONNECTIONS_PER_MINUTE', 5
+    ))
+
+    async def initialize(self):
+        self.redis = await aioredis.create_redis_pool(
+            f'redis://{self.REDIS_HOST}',
+            maxsize=2
+        )
+        return await super().initialize()
+
+    def make_key_for(self, player):
+        now = datetime.datetime.now()
+        return f'{player.address}:{now.minute}'
+
+    async def should_accept_player(self, player):
+        key = self.make_key_for(player)
+        res = await self.redis.get(key)
+        if res and int(res) > self.MAX_CONNECTIONS_PER_MINUTE:
+            await player.send(self.THROTTLED_MESSAGE)
+            return False
+        trans = self.redis.multi_exec()
+        trans.incr(key)
+        trans.expire(key, 60)
+        await trans.execute()
+        return await super().should_accept_player(player)
+
+    async def teardown(self):
+        self.redis.close()
+        await self.redis.wait_closed()
 
 
 class SSLMixin:
@@ -107,12 +147,12 @@ class OptionalAuthenticationMixin:
         return await self.on_token_accepted(player, db_user)
 
     async def on_token_anonymous(self, player):
-        return True
+        return await super().should_accept_player(player)
 
     async def on_token_accepted(self, player, db_user):
         await player.send(self.token_accepted_message)
         player.assign_db_user(db_user)
-        return True
+        return await super().should_accept_player(player)
 
     async def on_token_rejected(self, player):
         await player.send(self.token_rejected_message)

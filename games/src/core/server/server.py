@@ -9,9 +9,6 @@ from .messages import TERMNINJA_PROMPT
 
 
 class BaseServer:
-    #
-    # public api
-    #
     def __init__(self):
         self.managers = []
         self._prompt = None
@@ -96,8 +93,17 @@ class BaseServer:
         ])
         return TERMNINJA_PROMPT.format(game_choices)
 
+    async def initialize(self):
+        self._prompt = self.make_game_prompt()
+        self._register_signal_handlers()
+        await db.conn.connect()
+        await self._initialize_managers()
+
+    async def teardown(self):
+        await db.conn.disconnect()
+
     #
-    # private api
+    # internal stuff
     #
     def _register_signal_handlers(self):
         """
@@ -133,23 +139,14 @@ class BaseServer:
         """
         connect to db
         """
-        await self._initialize()
+        await self.initialize()
         await self.on_server_ready()
         server = await self.start_async_server(**kwargs)
         async with server:
             try:
                 await server.serve_forever()
             except asyncio.CancelledError:
-                await self._teardown()
-
-    async def _initialize(self):
-        self._prompt = self.make_game_prompt()
-        self._register_signal_handlers()
-        await db.conn.connect()
-        await self._initialize_managers()
-
-    async def _teardown(self):
-        await db.conn.disconnect()
+                await self.teardown()
 
     async def _initialize_managers(self):
         await asyncio.gather(*[
@@ -158,7 +155,8 @@ class BaseServer:
 
     async def _on_connection(self, reader, writer):
         """
-        Queue a newly connected player after calling appropriate hooks.
+        Figure out what game they want to play and send them to the
+        appropriate manager for that game
         """
         player = Player(reader, writer)
         try:
