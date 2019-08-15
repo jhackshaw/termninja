@@ -7,6 +7,7 @@ from sanic_jwt.exceptions import AuthenticationFailed
 from sanic_jwt.decorators import protected, inject_user
 from asyncpg.exceptions import UniqueViolationError
 from .validators import validate_page
+from .decorators import cache
 
 
 bp = Blueprint('user_views', url_prefix="/user")
@@ -100,6 +101,7 @@ async def create_user(request):
 
 
 @bp.route('/', methods=['GET'])
+@cache()
 async def list_leaderboard(request):
     """
     List top users by score
@@ -124,6 +126,7 @@ async def get_user_details(request, username, user):
 
 
 @bp.route('/<username>/rounds', methods=['GET'])
+@cache()
 async def list_rounds_by_user(request, username):
     request_page = request.args.get('page', '0')
     page = validate_page(request_page)

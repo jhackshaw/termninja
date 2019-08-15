@@ -1,4 +1,5 @@
 import termninja_db as db
+import aioredis
 import sanic_jwt
 import os
 from sanic import Sanic
@@ -24,9 +25,22 @@ async def setup_db(app, loop):
     await db.conn.connect()
 
 
+@app.listener('after_server_start')
+async def setup_redis(app, loop):
+    app.redis = await aioredis.create_redis_pool(
+        f'redis://{os.environ.get("REDIS_HOST", "localhost")}'
+    )
+
+
 @app.listener('after_server_stop')
 async def close_db(app, loop):
     await db.conn.disconnect()
+
+
+@app.listener('after_server_stop')
+async def close_redis_conn(app, loop):
+    app.redis.close()
+    await app.redis.wait_closed()
 
 
 @app.exception(InvalidUsage)

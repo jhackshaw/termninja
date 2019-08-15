@@ -2,7 +2,7 @@ FROM jhackshaw/termninja-base:latest
 
 RUN \
   apk --update add --no-cache --virtual build-deps build-base gcc && \
-  pip install sanic sanic-jwt sanic-cors && \
+  pip install sanic sanic-jwt sanic-cors aioredis && \
   apk --purge del build-deps
 
 WORKDIR /api
