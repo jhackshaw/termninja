@@ -1,227 +1,157 @@
 import asyncio
-import itertools
 import random
 from src.core import cursor, Manager
 from src.core.game import Game, StoreGamesWithSnapshotMixin
-from .config import WELCOME_MESSAGE, DESCRIPTION
-
-
-class SnakeBoard:
-    WIDTH = 45
-    HEIGHT = 15
-    PADDING = 1
-    DIRECTIONS = {
-        "w": (-1, 0),
-        "a": (0, -1),
-        "s": (1, 0),
-        "d": (0, 1)
-    }
-    INVALID_TURNS = {
-        "a": "d",
-        "d": "a",
-        "w": "s",
-        "s": "w"
-    }
-
-    def __init__(self):
-        self.init_board()
-        self.init_fills()
-        self.init_snake()
-        self.init_food()
-        self.game_over = False
-        self.direction = random.choice(
-            list(self.DIRECTIONS.keys())
-        )
-        self.effective_height = self.HEIGHT + 3
-
-    def init_board(self):
-        """
-        self.board is a format string with WIDTH*HEIGHT number
-        of arguments expected
-        """
-        top = f"{' ' * (self.PADDING+1)}{cursor.blue('=' * self.WIDTH)}\n"
-        mid = (
-            f"{' ' * self.PADDING}{cursor.blue('|')}"
-            f"{'{}' * self.WIDTH}{cursor.blue('|')}\n"
-        )
-        self.board = top + mid*self.HEIGHT + top
-
-    def init_fills(self):
-        """
-        Fills contains the string representation of each cell
-        on the board to be used in the self.board format string
-        """
-        self.fills = [
-            [" " for _ in range(self.WIDTH)]
-            for _ in range(self.HEIGHT)
-        ]
-
-    def init_snake(self):
-        """
-        In the beginning, there was a snake with only a head
-        """
-        head = (self.HEIGHT // 2, self.WIDTH // 2)
-        self.snake = [head]
-        self.fills[head[0]][head[1]] = cursor.red("@")
-
-    def init_food(self):
-        """
-        Food options are the set of all cells in the board
-        """
-        self.food_options = set(
-            (r, c)
-            for r in range(self.HEIGHT)
-            for c in range(self.WIDTH)
-        )
-        self.spawn_food()
-
-    def spawn_food(self):
-        """
-        Pick a random spot for the next snake food. Options
-        are the set of all unoccupied cells.
-        """
-        choices = self.food_options - set(self.snake)
-        self.food = random.choice(list(choices))
-        self.fills[self.food[0]][self.food[1]] = cursor.green("*")
-
-    def turn(self, turn):
-        if self.is_valid_turn(turn):
-            self.direction = turn
-
-    def is_valid_turn(self, turn):
-        """
-        Turning the exact oposite direction is not allowed. Eg.
-        if you're going to the right you can't start going left
-        """
-        invalid = self.INVALID_TURNS.get(self.direction)
-        return turn in self.INVALID_TURNS and turn != invalid
-
-    def tick(self):
-        """
-        Each tick updates the board by one. Basically move the
-        snake one cell and check for collisions with the wall
-        or some food
-        """
-        delta_y, delta_x = self.DIRECTIONS[self.direction]
-        new_head = (self.snake[0][0] + delta_y, self.snake[0][1] + delta_x)
-        if self.check_game_over(new_head):
-            self.game_over = True
-        else:
-            return self.update_snake(new_head)
-
-    def check_game_over(self, new_head):
-        """
-        Game is over if they've run into a wall or themself
-        """
-        new_y, new_x = new_head
-        if new_x >= self.WIDTH or new_x < 0:
-            # hit side will
-            return True
-        if new_y >= self.HEIGHT or new_y < 0:
-            # hit top or bot wall
-            return True
-        for y, x in self.snake:
-            # hit themself
-            if new_y == y and new_x == x:
-                return True
-
-    def eats_food(self, new_head):
-        return self.food[0] == new_head[0] and self.food[1] == new_head[1]
-
-    def update_snake(self, new_head):
-        """
-        Move the head in the current direction and remove
-        the last cell from the tail unless food was eaten.
-        Return whether or not food was eaten.
-        """
-        self.fills[self.snake[0][0]][self.snake[0][1]] = cursor.yellow("#")
-        self.fills[new_head[0]][new_head[1]] = cursor.red("@")
-        self.snake.insert(0, new_head)
-        if self.eats_food(new_head):
-            self.spawn_food()
-            return True
-        else:
-            tail = self.snake.pop()
-            self.fills[tail[0]][tail[1]] = " "
-            return False
-
-    def render(self):
-        """
-        Fill self.board in with the contents of self.fills
-        """
-        return self.board.format(*itertools.chain(*self.fills))
+from . import config
 
 
 class Snake(StoreGamesWithSnapshotMixin, Game):
-    DELAY = 0.17  # this seems to be the sweet spot
+    directions = {
+        'a': (-1, 0),
+        's': (0, 1),
+        'd': (1, 0),
+        'w': (0, -1)
+    }
+    valid_directions = {
+        (-1, 0): 'ws',
+        (0, -1): 'ad',
+        (1, 0): 'ws',
+        (0, 1): 'ad'
+    }
+    all_cells = set([
+        (x, y)
+        for x in range(0, config.WIDTH)
+        for y in range(0, config.HEIGHT)
+    ])
 
     def setUp(self, player):
-        self.board = SnakeBoard()
         self.player = player
-        self.disconnected = False
-
-    def make_header(self):
-        return (
-            f"\tTOTAL SCORE: {cursor.green(self.player.total_score)}\n"
-            f"\tEARNED: {cursor.green(self.player.earned)}\n\n"
-        )
+        self.board = self.make_board()
+        self.snake = [(10, 10)]
+        self.direction = (1, 0)
+        self.food = None
+        self.loop = asyncio.get_running_loop()
+        self.spawn_food()
 
     async def run(self):
-        """
-        Loop through:
-            - attempt to get input
-            - tick() the board to update
-            - send a frame
-            - sleep
-        """
-        while not self.board.game_over:
-            time_spent = await self.handle_input()
-            got_food = self.board.tick()
-            if got_food:
-                asyncio.create_task(self.earned_point())
-            await self.send_board()
-            await asyncio.sleep(self.DELAY - time_spent)
-        await self.player.send(cursor.red('\nGAME OVER..\n'))
+        await self.player.send(self.initial_frame())
+        async for frame in self.iter_frames():
+            await self.player.send(frame)
+            waited = await self._input_opportunity()
+            await asyncio.sleep(config.DELAY - waited)
+        await self.player.send(config.GAME_OVER)
 
-    async def handle_input(self):
-        """
-        Read input if it's there and send to the board
-        The return is the amount of time that we waited
-        for input
-        """
+    async def _input_opportunity(self):
         try:
-            start = self.get_time()
-            data = await self.player.read(timeout=self.DELAY)
-            self.board.turn(data[-1])
-            return self.get_time() - start
+            start = self.loop.time()
+            inp = await self.player.read(8, timeout=config.DELAY)
+            self.change_direction(inp[0])
+            return self.loop.time() - start
         except asyncio.TimeoutError:
-            return self.DELAY
+            return config.DELAY
 
-    async def send_board(self):
-        """
-        Send one frame
-        """
-        await self.player.send(
-            f"{cursor.HOME}{cursor.SAVE}"
-            f"{cursor.up(self.board.effective_height + 3)}"
-            f"{cursor.CLEAR_TO_END}"
-            f"{self.make_header()}"
-            f"{self.board.render()}"
-            f"{cursor.RESTORE}"
+    async def iter_frames(self):
+        while True:
+            new_head = self.get_next_head()
+
+            if self.check_game_over(new_head):
+                return
+
+            frame = (
+                f'{self.term_replace_cell(*new_head, config.SNAKE_HEAD)}'
+                f'{self.term_replace_cell(*self.snake[0], config.SNAKE_BODY)}'
+            )
+
+            self.snake.insert(0, new_head)
+            eats_food = self.check_eats_food(new_head)
+
+            if eats_food:
+                self.spawn_food()
+                await self.player.on_earned_points(1)
+                frame += self.term_replace_cell(*self.food)
+                frame += self.term_replace_score(self.player.earned)
+            else:
+                old_tail = self.snake.pop()
+                frame += self.term_replace_cell(*old_tail, "  ")
+            yield frame
+
+    @staticmethod
+    def term_replace_cell(x, y, val):
+        return (
+            f'{cursor.HOME}{cursor.SAVE}'
+            f'{cursor.up(config.HEIGHT + 1 - y)}'
+            f'{cursor.move_to_column(x * 2 + config.PADDING + 3)}'
+            f'{val}{cursor.RESTORE}'
         )
 
-    async def earned_point(self):
-        """
-        Create the task but don't block while waiting for it
-        Allows player.on_earned_points to do some work
-        """
-        asyncio.create_task(self.player.on_earned_points(1))
+    def term_replace_score(self, score):
+        x = len(config.SCORE_MESSAGE)
+        y = -3
+        return self.term_replace_cell(x, y, score)
 
-    def make_result_message_for(self, player):
-        return f'Ate {player.earned} mice'
+    @staticmethod
+    def make_board():
+        return config.EMPTY_BOARD.format(random.choice(config.TREES))
+
+    def initial_frame(self):
+        return (
+            f'{cursor.CLEAR}{cursor.PAGE_DOWN}{cursor.HOME}'
+            f'{config.PADDING * " "}{config.SCORE_MESSAGE}  0\n\n'
+            f'{self.board}'
+            f'{self.term_replace_cell(*self.snake[0], config.SNAKE_HEAD)}'
+            f'{self.term_replace_cell(*self.food)}'
+        )
+
+    def get_next_head(self):
+        return (
+            self.snake[0][0] + self.direction[0],
+            self.snake[0][1] + self.direction[1]
+        )
+
+    def spawn_food(self):
+        cell = random.choice(list(self.all_cells - set(self.snake)))
+        self.food = (*cell, random.choice(config.FOODS))
+
+    def check_eats_food(self, new_head):
+        return new_head == self.food[:2]
+
+    def check_game_over(self, new_head):
+        x, y = new_head
+        if not 0 <= x <= config.WIDTH - 1:
+            return True
+        if not 0 <= y <= config.HEIGHT - 1:
+            return True
+        for cell in self.snake:
+            if cell == new_head:
+                return True
+        return False
+
+    def change_direction(self, inp):
+        if inp in self.valid_directions[self.direction]:
+            self.direction = self.directions[inp]
 
     def make_final_snapshot(self):
-        return self.board.render()
+        board = [list(line.strip()) for line in self.board.split('\n') if line]
+        head_x, head_y = self.snake[0]
+        board[head_y + 1][head_x*2 + 1] = config.SNAKE_HEAD
+        board[head_y + 1][head_x*2 + 2] = ''
+        for x, y in self.snake[1:]:
+            board[y + 1][x*2 + 1] = config.SNAKE_BODY
+            board[y + 1][x*2 + 2] = ''
+        food_x, food_y, food = self.food
+        board[food_y + 1][food_x*2 + 1] = food
+        board[food_y + 1][food_x*2 + 2] = ''
+        board[0].pop()
+        board[-1].pop()
+        board_str = "\n".join([''.join(row) for row in board])
+        return (
+            f'{" " * config.PADDING}{config.SCORE_MESSAGE}  '
+            f'{self.player.earned}\n\n'
+            f'{board_str}'
+        )
+
+    def make_result_message_for(self, player):
+        return f'Consumed {player.earned} critters'
 
 
 class SnakeManager(Manager):
@@ -229,14 +159,14 @@ class SnakeManager(Manager):
     game_class = Snake
     player_count = 1
     icon = "dragon"
-    description = DESCRIPTION
+    description = config.DESCRIPTION
 
     async def on_player_connected(self, player):
         """
         Let the player know the best way to play before
         queuing them for the game
         """
-        await player.send(WELCOME_MESSAGE)
+        await player.send(config.WELCOME_MESSAGE)
         await player.clear_input_buffer()
         await player.readline()
         await super().on_player_connected(player)

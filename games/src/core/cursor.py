@@ -107,7 +107,7 @@ def ansi_to_html(ansi):
     # not necessary because we are explicitly definining
     # the tags that are allowed, but still, better safe.
     return bleach.clean(
-        f'<pre padding:5px;">{html}</pre>',
+        f'<pre>{html}</pre>',
         tags=['span', 'br', 'pre'],
         attributes=['style'],
         styles=['color', 'background-color', 'padding', 'width']
