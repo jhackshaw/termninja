@@ -36,6 +36,7 @@ class Player:
         self.identity = anonymous_identity
         self.total_score = 0
         self.earned = 0
+        self.emoji_support = True
         self._play_token_expires_at = None
 
     @property

@@ -1,4 +1,34 @@
-from .. import cursor
+from . import cursor
+
+
+#
+#   cool art man
+#
+TERMNINJA_PROMPT = fr"""
+{cursor.CLEAR}{cursor.GREEN}
+          _____                   _   _ _       _
+         |_   _|                 | \ | (_)     (_)
+           | | ___ _ __ _ __ ___ |  \| |_ _ __  _  __ _
+           | |/ _ \ '__| '_ ` _ \| . ` | | '_ \| |/ _` |
+           | |  __/ |  | | | | | | |\  | | | | | | (_| |
+           \_/\___|_|  |_| |_| |_\_| \_/_|_| |_| |\__,_|
+                                               / |
+                                              |__/
+{cursor.RESET}
+
+{{}}
+
+{cursor.yellow('Choose a game...')}
+# """
+
+
+#
+#   Prompt for emoji support
+#
+SUPPORTS_EMOJIS_PROMPT = f"""
+Does your terminal support emojis \U00002753
+"""
+
 
 #
 #   clears screen and prompts the next question

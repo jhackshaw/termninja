@@ -1,8 +1,7 @@
 import random
 import ipaddress
 import itertools
-from src.core import Manager
-from src.core.game import GenericQuizGame, GenericQuestion
+from ..game import GenericQuizGame, GenericQuestion
 
 # use np.random.choice(..., p=WEIGHTS) instead?
 WEIGHTS = [0, 0, 0, 0, 1, 1, 1, 1,  # 1st octet
@@ -87,18 +86,15 @@ def get_question():
 
 
 class SubnetRacer(GenericQuizGame):
-    async def iter_questions(self):
-        for _ in range(25):
-            prompt, answer = get_question()
-            yield GenericQuestion(prompt, answer)
-
-
-class SubnetRacerManager(Manager):
     name = "Subnet Racer"
-    game_class = SubnetRacer
     player_count = 1
     icon = "car"
     description = (
         "Race against the clock while you "
         "calculate subnets in your head"
     )
+
+    async def iter_questions(self):
+        for _ in range(25):
+            prompt, answer = get_question()
+            yield GenericQuestion(prompt, answer)

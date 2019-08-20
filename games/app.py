@@ -1,13 +1,12 @@
 import os
-from src.core import Server
-from src.games import SnakeManager, SubnetRacerManager, TicTacToeManager
-
+from src.server import Server
+from src.snake import Snake
+from src.subnet_racer import SubnetRacer
 
 app = Server()
 
-app.add_game_manager(SnakeManager)
-app.add_game_manager(SubnetRacerManager)
-app.add_game_manager(TicTacToeManager)
+app.add_game(Snake)
+app.add_game(SubnetRacer)
 
 
 if __name__ == "__main__":

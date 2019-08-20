@@ -1,29 +1,128 @@
 import asyncio
-from .. import cursor
+import termninja_db as db
+from slugify import slugify
+from abc import ABCMeta, abstractmethod
+from . import cursor
 from .messages import (GENERIC_QUIZ_INITIAL_QUESTION,
                        GENERIC_QUIZ_PROGRESS_UPDATE,
                        GENERIC_QUIZ_CLEAR_ENTRY,
                        GENERIC_QUIZ_INTERMISSION_REPORT)
 
 
-class BaseGame:
-    def __init__(self, *players, game_slug=None, **kwargs):
+class StoreGamesMixin:
+    async def teardown(self):
+        await asyncio.gather(
+            super().teardown(),
+            self.store_round_played()
+        )
+
+    async def store_round_played(self):
+        """
+        For each player, record the fact that this player
+        played this game in the db
+        """
+        await asyncio.gather(*[
+            self.add_round_played(p)
+            for p in self._players
+        ])
+
+    async def add_round_played(self, player, **kwargs):
+        await db.rounds.add_round_played(
+            self.slug,
+            player.identity['username'],  # this gives us None for anonymous
+            player.earned,
+            **kwargs
+        )
+
+
+class StoreGamesWithResultMessageMixin(StoreGamesMixin):
+    async def add_round_played(self, player, **kwargs):
+        return await super().add_round_played(
+            player,
+            message=self.make_result_message_for(player),
+            **kwargs
+        )
+
+    def make_result_message_for(self, player):
+        """
+        Probably override this with something more discriptive,
+        e.g. Lost to opponent
+             Averaged X% in Y quiz
+             etc
+        """
+        raise NotImplementedError
+
+
+class StoreGamesWithSnapshotMixin(StoreGamesMixin):
+    async def add_round_played(self, *args, **kwargs):
+        return await super().add_round_played(
+            *args,
+            snapshot=self._get_snapshot(),
+            **kwargs
+        )
+
+    def _get_snapshot(self):
+        snapshot = self.make_final_snapshot()
+        return cursor.ansi_to_html(snapshot)
+
+    def make_final_snapshot(self):
+        raise NotImplementedError
+
+
+class SlugDescriptor:
+    def __get__(self, instance, owner):
+        if self._name not in owner.__dict__:
+            setattr(owner, self._name, slugify(owner.name))
+        return owner.__dict__[self._name]
+
+    def __set_name__(self, owner, name):
+        self._name = f'_{name}'
+
+
+class Game(metaclass=ABCMeta):
+    player_count = 1
+    name = None
+    slug = SlugDescriptor()
+
+    def __init__(self, *players):
         self._players = players
-        self._loop = asyncio.get_running_loop()
-        self.game_slug = game_slug
-        self.kwargs = kwargs
-        self.setUp(*players)
 
-    def setUp(self, *players):
-        """
-        Initialization for subclasses. don't override __init__()
-        """
-        pass
+    @property
+    def time(self):
+        return self.__loop.time()
 
-    def get_time(self):
-        return self._loop.time()
+    @classmethod
+    async def player_connected(cls, player):
+        if not hasattr(cls, '__queue'):
+            await cls._initialize()
+        await cls.on_player_connected(player)
+        await cls.__queue.put(player)
 
-    async def start(self):
+    @classmethod
+    async def on_player_connected(cls, player):
+        await player.send(
+            f'{cursor.CLEAR}'
+            f'{cursor.PAGE_DOWN}'
+            f'{cursor.down(50)}'
+        )
+
+    @classmethod
+    async def _initialize(cls):
+        cls.__loop = asyncio.get_running_loop()
+        cls.__queue = asyncio.Queue()
+        asyncio.create_task(cls._launcher())
+
+    @classmethod
+    async def _launcher(cls):
+        while True:
+            players = [
+                await cls.__queue.get()
+                for _ in range(cls.player_count)
+            ]
+            instance = cls(*players)
+            asyncio.create_task(instance._start())
+
+    async def _start(self):
         """
         Call run and handle any errors. should not be overriden.
         """
@@ -34,11 +133,12 @@ class BaseGame:
         finally:
             await self.teardown()
 
+    @abstractmethod
     async def run(self):
         """
         Subclass's logic for the controller
         """
-        raise NotImplementedError
+        pass
 
     async def on_disconnect(self):
         """
@@ -82,7 +182,7 @@ class GenericQuestion:
         return self.answer
 
 
-class GenericQuizGameBase(BaseGame):
+class GenericQuizGame(Game):
     INITIAL_QUESTION = GENERIC_QUIZ_INITIAL_QUESTION
     PROGRESS_UPDATE = GENERIC_QUIZ_PROGRESS_UPDATE
     CLEAR_ENTRY = GENERIC_QUIZ_CLEAR_ENTRY
@@ -117,12 +217,11 @@ class GenericQuizGameBase(BaseGame):
         Allow guesses until the answer is correct or time runs out
         """
         round_length = question.get_duration()
-        start = self.get_time()
+        start = self.time
         await self.prompt(question)
         while True:
             # calculate time remaining and update progress bar
-            cur_time = self.get_time()
-            remiaining_time = int(round_length - (cur_time - start))
+            remiaining_time = int(round_length - (self.time - start))
             await self.update_progress(round_length, remiaining_time)
 
             guess = await self.get_answer()
@@ -133,7 +232,7 @@ class GenericQuizGameBase(BaseGame):
             if question.check_answer(guess):
                 # you earned however much time was remiaining points
                 return remiaining_time
-            if cur_time - start > round_length:
+            if self.time - start > round_length:
                 # ran out of time, 0 points
                 return 0
 
