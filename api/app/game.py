@@ -13,7 +13,6 @@ bp = Blueprint('game_views', url_prefix='/game')
 @cache('games-list')
 async def list_games(request):
     all_games = await db.games.list_games()
-    print(all_games)
     return json(all_games)
 
 

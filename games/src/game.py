@@ -203,14 +203,14 @@ class GenericQuestion:
         return self.answer
 
 
-class GenericQuizGame(Game):
+class GenericQuizGameBase(Game):
     INITIAL_QUESTION = GENERIC_QUIZ_INITIAL_QUESTION
     PROGRESS_UPDATE = GENERIC_QUIZ_PROGRESS_UPDATE
     CLEAR_ENTRY = GENERIC_QUIZ_CLEAR_ENTRY
     INTERMISSION_REPORT = GENERIC_QUIZ_INTERMISSION_REPORT
 
-    def setUp(self, player):
-        self.player = player
+    def __init__(self, *args):
+        super().__init__(*args)
         self.correct_count = 0   # number of questions with > 0 points earned
         self.question_count = 1  # total number of questions played
 
@@ -317,3 +317,13 @@ class GenericQuizGame(Game):
             earned_points=color(earned)
         ))
         await self.player.readline()
+
+
+class GenericQuizGame(StoreGamesWithResultMessageMixin,
+                      GenericQuizGameBase):
+    def make_result_message_for(self, player):
+        return (
+            f'Answered {(self.correct_count / self.question_count)*100:.2f}% '
+            f'({self.correct_count}/{self.question_count}) '
+            f'correctly'
+        )

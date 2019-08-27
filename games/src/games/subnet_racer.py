@@ -97,4 +97,5 @@ class SubnetRacer(GenericQuizGame):
     async def iter_questions(self):
         for _ in range(25):
             prompt, answer = get_question()
+            print(answer)
             yield GenericQuestion(prompt, answer)

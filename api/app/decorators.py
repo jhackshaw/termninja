@@ -35,7 +35,7 @@ def cache(key=None, seconds_until_expire=30, max_age=15):
             else:
                 res = await f(request, *args, **kwargs)
                 if res.status != 200:
-                    return res
+                    print(res.status)
                 trans = request.app.redis.multi_exec()
                 trans.set(cache_key, res.body)
                 trans.expire(cache_key, seconds_until_expire)

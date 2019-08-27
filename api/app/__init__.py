@@ -3,8 +3,8 @@ import aioredis
 import sanic_jwt
 import os
 from sanic import Sanic
-from sanic.response import json, text
-from sanic.exceptions import InvalidUsage
+from sanic.response import json, text, HTTPResponse
+from sanic.exceptions import InvalidUsage, NotFound, ServerError
 from .user import (bp as user_bp,
                    authenticate,
                    retrieve_user,
@@ -46,6 +46,16 @@ async def close_redis_conn(app, loop):
 @app.exception(InvalidUsage)
 async def bad_request_handler(request, exception):
     return json({'message': str(exception)}, status=400)
+
+
+@app.exception(NotFound)
+async def not_found_handler(request, exception):
+    return HTTPResponse(status=404)
+
+
+@app.exception(ServerError)
+async def internal_error_handler(request, exception):
+    return HTTPResponse(status=500)
 
 
 @app.exception(sanic_jwt.exceptions.AuthenticationFailed)
