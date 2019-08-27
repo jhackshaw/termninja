@@ -35,7 +35,7 @@ const RoundDetailsModal = ({ roundId, onClose }) => {
         <RoundModalHeader { ...round } onClose={onClose} />
         <span className={`${classes.message} m-2`}>{ round.message }</span>
         { round.snapshot &&
-          <pre className={`${classes.snapshot} py-3 pr-2 font-weight-bold mt-3 text-center`} 
+          <pre className={`${classes.snapshot} py-3 pr-2 mt-3`} 
                dangerouslySetInnerHTML={{ __html: round.snapshot }} />
         }
       </ModalBody>

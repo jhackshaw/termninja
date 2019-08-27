@@ -6,7 +6,8 @@ color_codes_to_style = {
     '31': 'red',
     '32': 'lime',
     '33': 'yellow',
-    '36': 'cyan'
+    '36': 'cyan',
+    '35': 'magenta'
 }
 OPEN_SEQUENCE_RE = re.compile(
     r'\x1b\[(?P<sequence>.*?)(?P<terminator>[msuJKHABG]{1})'
@@ -30,22 +31,27 @@ RED = f"{ESCAPE}31;1m"
 GREEN = f"{ESCAPE}32;1m"
 YELLOW = f"{ESCAPE}33;1m"
 BLUE = f"{ESCAPE}36;1m"
-
-
-def blue(msg):
-    return f"{BLUE}{ msg }{RESET}"
-
-
-def green(msg):
-    return f"{GREEN}{ msg }{RESET}"
+MAGENTA = f"{ESCAPE}35;1m"
 
 
 def red(msg):
     return f"{RED}{ msg }{RESET}"
 
 
+def green(msg):
+    return f"{GREEN}{ msg }{RESET}"
+
+
 def yellow(msg):
     return f"{YELLOW}{ msg }{RESET}"
+
+
+def blue(msg):
+    return f"{BLUE}{ msg }{RESET}"
+
+
+def magenta(msg):
+    return f"{MAGENTA}{ msg }{RESET}"
 
 
 def move_to(y, x):
@@ -62,6 +68,15 @@ def down(n):
 
 def move_to_column(col):
     return f"{ESCAPE}{col}G"
+
+
+def replace_relative(x, y, val):
+    return (
+        f'{HOME}{SAVE}'
+        f'{up(x)}{move_to_column(y)}'
+        f'{val}'
+        f'{RESTORE}'
+    )
 
 
 def resize(h, w):
@@ -90,7 +105,7 @@ def make_span(match):
     return f'<span style="color: {get_color_for(color)}">'
 
 
-def ansi_to_html(ansi):
+def ansi_to_html(ansi, centered=True, bold=True):
     # make newlines into <br/> tags
     ret = ansi.replace('\n', '<br/>')
 
@@ -101,14 +116,17 @@ def ansi_to_html(ansi):
     # make_span
     html = re.sub(OPEN_SEQUENCE_RE, make_span, ret)
 
+    classes = 'text-center' if centered else ''
+    classes += ' font-weight-bold' if bold else ''
+
     # clean the resulting html just to be sure, there
     # is bound to be user input in the original ansi
     # depending on how it's being used. Probably still
     # not necessary because we are explicitly definining
     # the tags that are allowed, but still, better safe.
     return bleach.clean(
-        f'<pre>{html}</pre>',
+        f'<pre class="{classes}">{html}</pre>',
         tags=['span', 'br', 'pre'],
-        attributes=['style'],
+        attributes=['style', 'class'],
         styles=['color', 'background-color', 'padding', 'width']
     )

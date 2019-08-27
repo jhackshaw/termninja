@@ -6,7 +6,8 @@ from . import cursor
 from .messages import (GENERIC_QUIZ_INITIAL_QUESTION,
                        GENERIC_QUIZ_PROGRESS_UPDATE,
                        GENERIC_QUIZ_CLEAR_ENTRY,
-                       GENERIC_QUIZ_INTERMISSION_REPORT)
+                       GENERIC_QUIZ_INTERMISSION_REPORT,
+                       SUPPORTS_EMOJIS_PROMPT)
 
 
 class StoreGamesMixin:
@@ -63,10 +64,22 @@ class StoreGamesWithSnapshotMixin(StoreGamesMixin):
 
     def _get_snapshot(self):
         snapshot = self.make_final_snapshot()
-        return cursor.ansi_to_html(snapshot)
+        centered = getattr(self, 'center_snapshot', True)
+        bold = getattr(self, 'bold_snapshot', True)
+        return cursor.ansi_to_html(snapshot, centered=centered, bold=bold)
 
     def make_final_snapshot(self):
         raise NotImplementedError
+
+
+class PromptForEmojiSupportMixin:
+    @classmethod
+    async def on_player_connected(cls, player):
+        await player.send(SUPPORTS_EMOJIS_PROMPT)
+        response = await player.readline()
+        if response.lower().startswith('n'):
+            player.emoji_support = False
+        return await super().on_player_connected(player)
 
 
 class SlugDescriptor:
@@ -121,6 +134,14 @@ class Game(metaclass=ABCMeta):
             ]
             instance = cls(*players)
             asyncio.create_task(instance._start())
+
+    @property
+    def player(self):
+        return self._players[0]
+
+    @property
+    def players(self):
+        return self._players
 
     async def _start(self):
         """

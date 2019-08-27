@@ -23,28 +23,27 @@ def throttle(max_per_minute=5, prefix=''):
     return decorator
 
 
-def cache(key=None, seconds_until_expire=40, max_age=20):
-    """
-
-        seconds_until_expire: how long until response is recomputed
-        max_age: how long the broser can hold on to it
-
-        total potential cache time is seconds_until_expire + max_age
-
-    """
+def cache(key=None, seconds_until_expire=30, max_age=15):
     def decorator(f):
         @wraps(f)
         async def decorated(request, *args, **kwargs):
-            cache_key = key or f.__name__
+            cache_key = key or request.path
             cached = await request.app.redis.get(cache_key)
             if cached:
                 res = json('')
                 res.body = cached
-                res.headers.update({
-                    'Cache-Control': f'max-age={max_age}'
-                })
-            res = await f(request, *args, **kwargs)
-            await request.app.redis.set(cache_key, res.body)
+            else:
+                res = await f(request, *args, **kwargs)
+                if res.status != 200:
+                    return res
+                trans = request.app.redis.multi_exec()
+                trans.set(cache_key, res.body)
+                trans.expire(cache_key, seconds_until_expire)
+                asyncio.create_task(trans.execute())
+
+            res.headers.update({
+                'Cache-Control': f'max-age={max_age}'
+            })
             return res
         return decorated
     return decorator

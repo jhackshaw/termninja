@@ -26,8 +26,8 @@ TERMNINJA_PROMPT = fr"""
 #   Prompt for emoji support
 #
 SUPPORTS_EMOJIS_PROMPT = f"""
-Does your terminal support emojis \U00002753
-"""
+{cursor.blue('Does your terminal support emojis')}\U00002753
+Press enter for yes, enter 'n' for no\n# """
 
 
 #

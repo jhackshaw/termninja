@@ -74,6 +74,14 @@ class Player:
         self.writer.write(msg.encode())
         await self.writer.drain()
 
+    async def read_raw(self, size, timeout=None):
+        data = await asyncio.wait_for(
+            self.reader.read(size), timeout
+        )
+        if data == b'':
+            raise ConnectionResetError
+        return data.decode()
+
     async def read(self, size=8, timeout=None):
         """
         attempt to read size bytes in timeout time
@@ -89,12 +97,8 @@ class Player:
             TimoutError: if timeout exceed while reading
             ConnectionResetError: if EOF is received while reading
         """
-        data = await asyncio.wait_for(
-            self.reader.read(size), timeout
-        )
-        if data == b'':
-            raise ConnectionResetError
-        return data.strip().decode()
+        data = await self.read_raw(size, timeout)
+        return data.strip()
 
     async def clear_input_buffer(self):
         """

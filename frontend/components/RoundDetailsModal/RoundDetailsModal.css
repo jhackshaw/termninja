@@ -1,6 +1,7 @@
 
 .snapshot {
-  background-color: rgba(46, 52, 54, 0.7)
+  background-color: rgba(46, 52, 54, 0.7);
+  font-size: 1.4rem;
 }
 
 .root {
