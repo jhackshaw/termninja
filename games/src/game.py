@@ -1,6 +1,7 @@
 import asyncio
 import aiohttp
 import os
+import uuid
 import termninja_db as db
 from slugify import slugify
 from abc import ABCMeta, abstractmethod
@@ -78,13 +79,19 @@ class SendGTMEventMixin:
     GA_TRACKING_ID = os.environ.get('GA_TRACKING_ID', None)
     GA_URL = 'https://www.google-analytics.com/collect'
 
-    async def should_send_event(self):
+    def should_send_events(self):
         return not os.environ.get('DEBUG')
 
+    @classmethod
+    async def on_player_connected(cls, player):
+        await super().on_player_connected(player)
+        player.gtm_uid = str(uuid.uuid4())
+
     async def teardown(self):
+        print([p.earned for p in self._players])
         await super().teardown()
-        if self.should_send_event():
-            await self._send_teardown_events()
+        if self.should_send_events():
+            asyncio.create_task(self._send_teardown_events())
 
     async def _send_teardown_events(self):
         return asyncio.gather(*[
@@ -96,12 +103,16 @@ class SendGTMEventMixin:
         data = {
             'v': '1',
             'tid': self.GA_TRACKING_ID,
+            't': 'event',
+            'cid': player.gtm_uid or uuid.uuid4(),
+            'aip': '1',
             'ec': 'Client Disconnected',
             'ea': self.slug,
-            'ev': player.earned
+            'el': str(player.earned)
         }
         async with aiohttp.ClientSession() as session:
             await session.post(self.GA_URL, data=data)
+            print(f'sent {data} to {self.GA_URL}')
 
 
 class PromptForEmojiSupportMixin:
