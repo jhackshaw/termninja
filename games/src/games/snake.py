@@ -12,8 +12,21 @@ class BoardMeta(type):
         board = super().__new__(cls, name, bases, dct)
         board.PAD = " " * board.PADDING
         board.ALL_CELLS = board.make_all_cells()
-        board.EMPTY_BOARD_FORMAT = board.make_empty_board_format()
+        board.EMPTY_BOARD_FORMAT = cls.make_empty_board_format(board)
         return board
+
+    @classmethod
+    def make_empty_board_format(cls, board_cls):
+        top_line = f"{board_cls.PAD}{'{0}' * (board_cls.WIDTH + 2)}\n"
+        middle_line = (
+            f"{board_cls.PAD}{'{0}'}{board_cls.WIDTH * board_cls.EMPTY_CELL}{'{0}'}\n"
+        )
+        return (
+            f"{board_cls.PAD}{board_cls.SCORE_MESSAGE}   \n"
+            f"{top_line}"
+            f"{middle_line * board_cls.HEIGHT}"
+            f"{top_line}"
+        )
 
 
 class AsciiBoard(metaclass=BoardMeta):
@@ -43,20 +56,8 @@ class AsciiBoard(metaclass=BoardMeta):
         ])
 
     @classmethod
-    def make_empty_board_format(cls):
-        top_line = f"{cls.PAD}{'{0}' * (cls.WIDTH + 2)}\n"
-        middle_line = (
-            f"{cls.PAD}{'{0}'}{cls.WIDTH * cls.EMPTY_CELL}{'{0}'}\n"
-        )
-        return (
-            f"{cls.PAD}{cls.SCORE_MESSAGE}   \n"
-            f"{top_line}"
-            f"{middle_line * cls.HEIGHT}"
-            f"{top_line}"
-        )
-
-    @classmethod
     def make_empty_board(cls):
+        # pylint: disable=no-member
         return cls.EMPTY_BOARD_FORMAT.format(random.choice(cls.TREES))
 
     @classmethod
@@ -232,6 +233,7 @@ class Snake(StoreGamesWithSnapshotMixin,
         )
 
     def spawn_food(self):
+        # pylint: disable=no-member
         cell = random.choice(list(self.board.ALL_CELLS - set(self.snake)))
         self.food = (*cell, random.choice(self.board.FOODS))
 

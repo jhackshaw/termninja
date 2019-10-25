@@ -342,6 +342,7 @@ class BaseServer:
 
 class Server(RegisterGamesMixin,
              ThrottleConnectionsMixin,
+             OptionalAuthenticationMixin,
              SSLMixin,
              BaseServer):
     pass

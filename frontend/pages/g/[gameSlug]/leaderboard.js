@@ -15,10 +15,10 @@ const GameLeaderboard = ({ game, top_rounds }) => {
       <Container>
         <TermTabs>
           <TermTabItem href="/g/[gameSlug]" as={`/g/${game.slug}`}>
-            Recent
+            <i className="fas fa-clock" />{' '}Recent
           </TermTabItem>
           <TermTabItem active href="/g/[gameSlug]/leaderboard" as={`/g/${game.slug}/leaderboard`}>
-            Leaderboard
+            <i className="fas fa-trophy" />{' '}Leaderboard
           </TermTabItem>
         </TermTabs>
 

@@ -82,11 +82,24 @@ then
   echo -n "password: "
   read -r -s password
   echo
-  curl -d "username=$username"\
-       -d "password=$password"\
-       -X POST "$endpoint/auth/retrieve_play_token"\
-       -o ~/.termninja/token.txt\
-       -s
+
+  status_code=$(
+    curl -d "username=$username"\
+        -d "password=$password"\
+        --write-out "%{http_code}\n"\
+        -X POST "$endpoint/auth/retrieve_play_token"\
+        -o ~/.termninja/token.txt\
+        -s
+  )
+
+  if [[ "$status_code" -ne 200 ]]
+  then
+    echo "Login Failed"
+    rm ~/.termninja/token.txt
+  else
+    echo "Login Succeeded"
+  fi;
+
   exit
 fi
 
