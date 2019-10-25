@@ -39,7 +39,7 @@ const request = async (url, params, opts) => {
   }
 
   let data = {};
-  if (res.headers.get('Content-Type') == 'application/json') {
+  if (res.headers.get('Content-Type') === 'application/json') {
     data = await res.json();
   }
 

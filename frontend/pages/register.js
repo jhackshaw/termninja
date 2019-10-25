@@ -19,11 +19,15 @@ import api from '../api';
 
 const Login = props => {
   const router = useRouter();
-  const { register, handleSubmit, errors } = useForm();
+  const { register, handleSubmit, errors, setError } = useForm();
 
   const onSubmit = async data => {
-    await api.user.register(data);
-    router.push('/login')
+    try {
+      await api.user.register(data);
+      router.push('/login')
+    } catch (e) {
+      setError('username', 'invalid', 'Try Again Later')
+    }
   }
 
   const usernameCheck = async value => {

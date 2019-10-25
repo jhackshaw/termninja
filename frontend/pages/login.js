@@ -5,6 +5,7 @@ import { Container,
          CardBody,
          Form,
          FormGroup,
+         FormFeedback,
          Label,
          Input,
          Col,
@@ -18,16 +19,15 @@ import Link from 'next/link';
 
 const Login = props => {
   const router = useRouter();
-  const { user, login } = useContext(UserContext)
-  const { register, handleSubmit, errors } = useForm();  
+  const { login } = useContext(UserContext)
+  const { register, handleSubmit, errors, setError } = useForm();  
 
   const onSubmit = async ({ username, password }) => {
     try {
       await login(username, password);
       router.push('/')
     } catch (e) {
-      console.log(e)
-      setError(e.toString())
+      setError('username', 'failure', 'Invalid Login')
     }
     
   }
@@ -51,6 +51,9 @@ const Login = props => {
                            placeholder="Username"
                            invalid={Boolean(errors.username)}
                            innerRef={register({ required: true })} />
+                    { errors.username &&
+                      <FormFeedback>{ errors.username.message }</FormFeedback>
+                    }
                   </FormGroup>
                   <FormGroup>
                     <Label for="password">Password</Label>

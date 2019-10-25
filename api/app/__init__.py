@@ -55,6 +55,7 @@ async def not_found_handler(request, exception):
 
 @app.exception(ServerError)
 async def internal_error_handler(request, exception):
+    print(exception)
     return HTTPResponse(status=500)
 
 

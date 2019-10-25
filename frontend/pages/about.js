@@ -13,10 +13,17 @@ const About = props => {
       <Container>
         <Col xs={12} sm={{size: 10, offset: 1}} lg={{size: 8, offset: 2}} style={{lineHeight: 2.5}}>
           <h2>What is this thing?</h2>
-          <p>Termninja is a set of games that are played via a termnial. Players connect using something like netcat and all of the logic, rendering and input handling is done by the server.</p>
+          <p>Termninja is a set of games that are played in a termnial. Players connect using openssl and all of the logic, rendering, and input handling is done by the server.</p>
 
-          <h2>Ways to Play</h2>
-          <p>The recommended way to play termninja games is using the provided client script.</p>
+          <h2>Supported OS</h2>
+          <ul>
+            <li>Linux: Should definitely work</li>
+            <li>OSX: Should probably work</li>
+            <li>Windows: Should maybe work with the <a href="https://docs.microsoft.com/en-us/windows/wsl/install-win10" target="_blank">Windows Subsystem for Linux</a></li>
+          </ul>
+
+          <h2>How to Play</h2>
+          <p>The recommended way to play is with the provided client script.</p>
 
           <h5>Installation</h5>
           <ul>
@@ -60,6 +67,12 @@ const About = props => {
               <code>curl -X POST -d username=username&password=password https://play.term.ninja/auth/obtain_play_token</code>
             </p>
           </p>
+
+          <h2>Contributing</h2>
+          <ul>
+            <li>Bugs: Open an <a href="https://github.com/jhackshaw/termninja/issues" target="_blank">Issue</a> on Github</li>
+            <li>Contributions: Open a <a href="https://github.com/jhackshaw/termninja/pulls" target="_blank">pull request</a> on Github</li>
+          </ul>
         </Col>
       </Container>
     </Layout>

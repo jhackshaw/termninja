@@ -7,7 +7,7 @@ from sanic_jwt.exceptions import AuthenticationFailed
 from sanic_jwt.decorators import protected, inject_user
 from asyncpg.exceptions import UniqueViolationError
 from .validators import validate_page
-from .decorators import cache
+from .decorators import cache, throttle
 
 
 bp = Blueprint('user_views', url_prefix="/user")
@@ -41,6 +41,8 @@ class LogoutEndpoint(BaseEndpoint):
 
 
 class RetrievePlayTokenEndpoint(BaseEndpoint):
+    decorators = [throttle(max_per_minute=3, prefix='retrieve_play_token')]
+
     async def post(self, request, *args, **kwargs):
         """
         used by client script to send username/pass and get play token
@@ -52,6 +54,7 @@ class RetrievePlayTokenEndpoint(BaseEndpoint):
         return text(refreshed['play_token'])
 
 
+@throttle()
 async def authenticate(request):
     """
     Used by sanic-jwt for the auth/login endpoint.
@@ -85,6 +88,7 @@ async def extend_jwt_payload(payload, user):
 
 
 @bp.route('/', methods=['POST'])
+@throttle(max_per_minute=1, prefix='create_user')
 async def create_user(request):
     """
     Create a user
