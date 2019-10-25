@@ -1,4 +1,6 @@
 import asyncio
+import aiohttp
+import os
 import termninja_db as db
 from slugify import slugify
 from abc import ABCMeta, abstractmethod
@@ -70,6 +72,36 @@ class StoreGamesWithSnapshotMixin(StoreGamesMixin):
 
     def make_final_snapshot(self):
         raise NotImplementedError
+
+
+class SendGTMEventMixin:
+    GA_TRACKING_ID = os.environ.get('GA_TRACKING_ID', None)
+    GA_URL = 'https://www.google-analytics.com/collect'
+
+    async def should_send_event(self):
+        return not os.environ.get('DEBUG')
+
+    async def teardown(self):
+        await super().teardown()
+        if self.should_send_event():
+            await self._send_teardown_events()
+
+    async def _send_teardown_events(self):
+        return asyncio.gather(*[
+            self._send_teardown_event(p)
+            for p in self._players
+        ])
+
+    async def _send_teardown_event(self, player):
+        data = {
+            'v': '1',
+            'tid': self.GA_TRACKING_ID,
+            'ec': 'Client Disconnected',
+            'ea': self.slug,
+            'ev': player.earned
+        }
+        async with aiohttp.ClientSession() as session:
+            await session.post(self.GA_URL, data=data)
 
 
 class PromptForEmojiSupportMixin:
@@ -320,6 +352,7 @@ class GenericQuizGameBase(Game):
 
 
 class GenericQuizGame(StoreGamesWithResultMessageMixin,
+                      SendGTMEventMixin,
                       GenericQuizGameBase):
     def make_result_message_for(self, player):
         return (

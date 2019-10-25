@@ -4,7 +4,8 @@ from .. import cursor
 from ..game import (Game,
                     PromptForEmojiSupportMixin,
                     StoreGamesWithSnapshotMixin,
-                    StoreGamesWithResultMessageMixin)
+                    StoreGamesWithResultMessageMixin,
+                    SendGTMEventMixin)
 
 
 class BoardMeta(type):
@@ -133,6 +134,7 @@ class EmojiBoard(AsciiBoard):
 class Snake(StoreGamesWithSnapshotMixin,
             StoreGamesWithResultMessageMixin,
             PromptForEmojiSupportMixin,
+            SendGTMEventMixin,
             Game):
     name = "Snake"
     player_count = 1
