@@ -1,37 +1,10 @@
 import fetch from 'isomorphic-unfetch';
-import nookies from 'nookies';
 
 
 const baseUrl = process.env.TERMNINJA_API_URL || "https://play.term.ninja"
 
 
-const authHeaders = ctx => {
-  /*
-    These headers will cause a preflight OPTIONS
-    request due to api hosted on separate domain.
-    Only send them when necessary
-      e.g. authenticated requests
-  */
-  const { token } = nookies.get(ctx);
-  if (token) {
-    return {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
-      'Accept': 'application/json'
-    }
-  }
-  return {}
-}
-
-const request = async (url, params, opts) => {
-  const { auth, ctx } = opts;
-  if (auth) {
-    params.headers = {
-      ...params.headers || {},
-      ...authHeaders(ctx)
-    }
-    params.credentials = 'include'
-  }
+const request = async (url, params) => {
 
   const res = await fetch(`${baseUrl}${url}`, params)
   if (res.ok) {
@@ -48,17 +21,15 @@ const request = async (url, params, opts) => {
   throw err;
 }
 
-export const get = (url, opts={}) => (
+export const get = (url) => (
   request(url, {
     method: 'GET'
-  },
-  opts)
+  })
 )
 
 export const post = (url, data, opts={}) => (
   request(url, {
     method: 'POST',
     body: JSON.stringify(data)
-  },
-  opts)
+  })
 )

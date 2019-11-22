@@ -51,4 +51,4 @@ jobs:
     script:
       - npm i -g now
       - cp ./client.sh ./frontend/public/client
-      - now -t $now_deploy_token --target production ./frontend/
+      - now -t $now_deploy_token --prod ./frontend/

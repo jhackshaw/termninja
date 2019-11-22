@@ -20,7 +20,8 @@ class BoardMeta(type):
     def make_empty_board_format(cls, board_cls):
         top_line = f"{board_cls.PAD}{'{0}' * (board_cls.WIDTH + 2)}\n"
         middle_line = (
-            f"{board_cls.PAD}{'{0}'}{board_cls.WIDTH * board_cls.EMPTY_CELL}{'{0}'}\n"
+            f"{board_cls.PAD}{'{0}'}"
+            f"{board_cls.WIDTH * board_cls.EMPTY_CELL}{'{0}'}\n"
         )
         return (
             f"{board_cls.PAD}{board_cls.SCORE_MESSAGE}   \n"
