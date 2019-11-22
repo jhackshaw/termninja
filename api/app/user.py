@@ -74,7 +74,6 @@ async def retrieve_play_token(request):
     """
     Get a play token for a user. Used by client script to login.
     """
-    print(request.form)
     username = request.form.get('username')
     password = request.form.get('password')
     user = await get_user_from_creds(username, password)

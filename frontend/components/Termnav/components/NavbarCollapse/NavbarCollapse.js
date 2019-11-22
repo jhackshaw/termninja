@@ -1,16 +1,14 @@
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { NavbarToggler,
          Collapse,
          Nav,
          NavItem,
          NavLink } from 'reactstrap';
-import UserContext from '../../../../ctx/UserContext';
 import classes from './NavbarCollapse.css';
 
 
 const NavbarUserDropdown = props => {
-  const { user, logout } = useContext(UserContext)
   const [isOpen, setIsOpen] = useState(false);
 
 
@@ -48,29 +46,6 @@ const NavbarUserDropdown = props => {
           </NavLink> 
         </NavItem>
 
-        <NavItem className="ml-1 ml-lg-2">
-          { user ?
-            <Link href="/u/[username]" as={`/u/${user.username}`} passHref> 
-              <NavLink>
-                <div className={`${classes.linkicon} d-inline-block`}>
-                  <img src={`https://www.gravatar.com/avatar/${user.gravHash}?d=retro&size=30`}
-                        alt="hackshaw termninja profile"
-                        className="rounded-circle"
-                        width="30"
-                        height="30" />
-                </div>
-                <span className="d-inline-block d-sm-none ml-2">{ user.username }</span>
-              </NavLink>
-            </Link>
-          :
-          <Link href="/login" passHref>
-            <NavLink>
-              <i className={`fas fa-lg fa-user ${classes.linkicon}`} />
-              <span className="d-inline-block d-sm-none ml-2">Login</span>
-            </NavLink>
-          </Link>
-         }
-        </NavItem>
 
       </Nav>
     </Collapse>

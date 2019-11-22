@@ -253,5 +253,5 @@ class Hangman(StoreGamesWithResultMessageMixin,
             *parts,
             word=word_color(self.display_guess_word),
             letters=','.join(self.missed_letters),
-            description=self.description
+            description=''
         )
