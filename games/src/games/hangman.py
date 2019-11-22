@@ -174,7 +174,7 @@ class Hangman(StoreGamesWithResultMessageMixin,
                 yield self.on_loss()
                 return
             elif self.word_complete:
-                yield self.on_win()
+                yield await self.on_win()
                 return
 
     async def get_player_choice(self):
@@ -230,7 +230,8 @@ class Hangman(StoreGamesWithResultMessageMixin,
             f"{HangmanBoard.draw_result(cursor.red('HANGED'))}"
         )
 
-    def on_win(self):
+    async def on_win(self):
+        await self.player.on_earned_points(20 - self.misses)
         word = cursor.green(' '.join(list(self.word)))
         return (
             f"{HangmanBoard.draw_word(word)}"

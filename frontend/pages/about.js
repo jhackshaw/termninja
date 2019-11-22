@@ -39,6 +39,9 @@ const About = props => {
             <code>termninja</code>
             <p>connect and play - choose a game when prompted</p>
 
+            <code>termninja -r</code>
+            <p>create an account to compete on the leaderboard</p>
+
             <code>termninja -l</code>
             <p>login to track scores and compete for the leaderboard</p>
 
