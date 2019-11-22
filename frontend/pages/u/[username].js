@@ -9,21 +9,10 @@ import UserContext from '../../ctx/UserContext';
 
 
 const User = ({ user, rounds, prev_page, next_page }) => {  
-  const { logout } = useContext(UserContext);
-  const [localUser, setLocalUser] = useState(user);
-
-  const onLogout = () => {
-    setLocalUser(user => {
-      const { play_token, play_token_expires_at, ...rest } = user;
-      return rest;
-    })
-    logout()
-  }
 
   return (
     <Layout>
-      <UserJumbo {...localUser}
-                 onLogout={onLogout} />
+      <UserJumbo {...user} />
 
       <Container>
         <RoundListForUser rounds={rounds} />

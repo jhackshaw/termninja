@@ -5,12 +5,7 @@ import os
 from sanic import Sanic
 from sanic.response import json, text, HTTPResponse
 from sanic.exceptions import InvalidUsage, NotFound, ServerError
-from .user import (bp as user_bp,
-                   authenticate,
-                   retrieve_user,
-                   extend_jwt_payload,
-                   LogoutEndpoint,
-                   RetrievePlayTokenEndpoint)
+from .user import bp as user_bp
 from .game import bp as game_bp
 from .rounds import bp as round_bp
 
@@ -82,15 +77,3 @@ def add_cors_headers(request, response):
         'Access-Control-Allow-Headers': 'Content-Type,Authorization',
         'Access-Control-Allow-Credentials': 'true'
     })
-
-
-sanic_jwt.initialize(
-    app,
-    authenticate=authenticate,
-    retrieve_user=retrieve_user,
-    extend_payload=extend_jwt_payload,
-    class_views=(
-        ('/logout', LogoutEndpoint),
-        ('/retrieve_play_token', RetrievePlayTokenEndpoint)
-    )
-)
