@@ -1,14 +1,13 @@
 #!/bin/bash
 
-host="play.term.ninja"
-# endpoint="https://play.term.ninja"
+host="localhost"
 port=3333
 token=""
 
 login=false
 logout=false
 register=false
-unencrypted=false
+unencrypted=true
 realtime=false
 anonymous=false
 debug_output=false
@@ -26,7 +25,6 @@ then
   echo -e "\t-h HOST\t\ttermninja host to connect to (default play.term.ninja)"
   echo -e "\t-p PORT\t\ttermninja port to connect to (default 3333)"
   echo -e "\t-g GAME\t\tindex of game to start automatically"
-  # echo -e "\t-e ENDPOINT\thttp(s) endpoint to log in to with -l"
   echo -e "\t-l\t\tlogin to termninja server using https api at endpoint provided by -e"
   echo -e "\t-L\t\tLogout"
   echo -e "\t-r\t\tRegister"
@@ -49,9 +47,6 @@ while getopts ":h:p:t:g:e:auidlr" opt; do
     g)
       game=${OPTARG}
       ;;
-    # e)
-    #   endpoint=${OPTARG}
-    #   ;;
     l)
       login=true
       ;;
@@ -81,7 +76,7 @@ done
 
 
 # This endpoint is used for api calls
-if [ ${unencrypted} = false ]
+if [ ${unencrypted} = true ]
 then
   endpoint="http://$host"
 else
@@ -110,6 +105,7 @@ then
   status_code=$(
     curl -d "username=$username"\
          -d "password=$password"\
+         -H "Accept: application/json"\
          --write-out "%{http_code}\n"\
          -X POST "$endpoint/user"\
          -o /dev/null\
@@ -127,8 +123,7 @@ then
 fi
 
 
-# Get a token from the api and save it in the user's home dir
-# do nothing else if logging in
+# Get a token from the api and save it in home dir
 if [ ${login} = true ]
 then
   mkdir -p ~/.termninja/
@@ -141,11 +136,12 @@ then
 
   status_code=$(
     curl -d "username=$username"\
-        -d "password=$password"\
-        --write-out "%{http_code}\n"\
-        -X POST "$endpoint/user/retrieve_play_token"\
-        -o ~/.termninja/token.txt\
-        -s
+         -d "password=$password"\
+         -H "Accept: *"\
+         --write-out "%{http_code}\n"\
+         -X POST "$endpoint/user/retrieve_play_token"\
+         -o ~/.termninja/token.txt\
+         -s
   )
 
   echo "$status_code"
@@ -153,7 +149,7 @@ then
   if [[ "$status_code" -ne 200 ]]
   then
     echo "Login Failed"
-    rm -f ~/.termninja/token.txt
+    # rm -f ~/.termninja/token.txt
   else
     echo "Login Succeeded"
   fi;
@@ -207,7 +203,7 @@ fi
 # encrypted = openssl s_client
 if [ $unencrypted = true ]
 then
-  command="$command ncat $host $port"
+  command="$command nc $host $port"
 else
   command="$command openssl s_client -async -quiet -verify 3 -verify_return_error --tls1_2 -connect $host:$port 2>/dev/null"
 fi

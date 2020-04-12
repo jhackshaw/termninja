@@ -1,26 +1,45 @@
-version: '3'
+version: "3"
 
 services:
   postgres:
     image: postgres
     restart: always
     env_file:
-      - config.env
+      - ./config.env
 
   redis:
     image: redis:5.0.5-alpine
     restart: always
     env_file:
-      - config.env
+      - ./config.env
 
   base:
-    image: jhackshaw/termninja-base
     build:
       context: ./base
       args:
-        editable: ${TERMNINJA_DEVELOP}
+        editable: 1
     depends_on:
       - postgres
+
+  migrate:
+    build: ./api
+    command: alembic upgrade head
+    depends_on:
+      - base
+      - postgres
+    env_file:
+      - ./config.env
+
+  api:
+    build: ./api
+    ports:
+      - 3000:3000
+    depends_on:
+      - postgres
+      - base
+      - migrate
+    env_file:
+      - ./config.env
 
   frontend:
     build: ./frontend
@@ -28,37 +47,16 @@ services:
       - 80:3000
     depends_on:
       - api
-    volumes:
-      - ./frontend/:/app/
     env_file:
-      - config.env
-    network_mode: host
-
-  api:
-    image: jhackshaw/termninja-api
-    build: ./api
-    ports:
-      - 8080:3000
-    depends_on:
-      - postgres
-    volumes:
-      - ./api/:/api/
-      - ./base/termninja_db/:/base/termninja_db/
-    env_file:
-      - config.env
+      - ./config.env
 
   games:
-    image: jhackshaw/termninja-games
     build: ./games
     ports:
       - 3333:3000
-    command: --debug
     depends_on:
       - postgres
       - api
-    volumes:
-      - ./games/:/app/
-      - ./base/termninja_db/:/base/termninja_db/
+      - base
     env_file:
-      - config.env
-  
+      - ./config.env

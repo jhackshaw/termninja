@@ -1,4 +1,4 @@
-FROM jhackshaw/termninja-base:latest
+FROM termninja_base:latest
 
 RUN \
   apk --update add --no-cache --virtual build-deps build-base gcc && \

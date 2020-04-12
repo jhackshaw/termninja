@@ -28,7 +28,7 @@ const RoundListItem = ({
           </Col>
           {played_at && (
             <Col xs={12} md={6}>
-              {moment.unix(played_at).fromNow()}
+              {moment(played_at).fromNow()}
             </Col>
           )}
         </Row>

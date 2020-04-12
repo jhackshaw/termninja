@@ -1,11 +1,12 @@
 import asyncio
 import random
 from .. import cursor
-from ..game import (Game,
-                    PromptForEmojiSupportMixin,
-                    StoreGamesWithSnapshotMixin,
-                    StoreGamesWithResultMessageMixin,
-                    SendGTMEventMixin)
+from ..game import (
+    Game,
+    PromptForEmojiSupportMixin,
+    StoreGamesWithSnapshotMixin,
+    StoreGamesWithResultMessageMixin,
+)
 
 
 class BoardMeta(type):
@@ -36,26 +37,16 @@ class AsciiBoard(metaclass=BoardMeta):
     WIDTH = 28
     PADDING = 6
     EMPTY_CELL = " "
-    HEAD = cursor.red('@')
-    BODY = cursor.yellow('#')
-    FOODS = [
-        cursor.red('*'),
-        cursor.green('%'),
-        cursor.magenta('&')
-    ]
-    TREES = [
-        cursor.blue('+')
-    ]
+    HEAD = cursor.red("@")
+    BODY = cursor.yellow("#")
+    FOODS = [cursor.red("*"), cursor.green("%"), cursor.magenta("&")]
+    TREES = [cursor.blue("+")]
     SCORE_MESSAGE = "Score: "
     X_MOD = 1
 
     @classmethod
     def make_all_cells(cls):
-        return set([
-            (x, y)
-            for x in range(0, cls.WIDTH)
-            for y in range(0, cls.HEIGHT)
-        ])
+        return set([(x, y) for x in range(0, cls.WIDTH) for y in range(0, cls.HEIGHT)])
 
     @classmethod
     def make_empty_board(cls):
@@ -64,20 +55,16 @@ class AsciiBoard(metaclass=BoardMeta):
 
     @classmethod
     def save_cursor_state(cls, message):
-        return (
-            f'{cursor.HOME}{cursor.SAVE}'
-            f'{message}'
-            f'{cursor.RESTORE}'
-        )
+        return f"{cursor.HOME}{cursor.SAVE}" f"{message}" f"{cursor.RESTORE}"
 
     @classmethod
     def replace_cell(cls, x, y, val):
         cell_size = len(cls.EMPTY_CELL)
         x_offset = x * cell_size + cls.PADDING + cls.X_MOD
         return cls.save_cursor_state(
-            f'{cursor.up(cls.HEIGHT + 1 - y)}'
-            f'{cursor.move_to_column(x_offset)}'
-            f'{val}'
+            f"{cursor.up(cls.HEIGHT + 1 - y)}"
+            f"{cursor.move_to_column(x_offset)}"
+            f"{val}"
         )
 
     @classmethod
@@ -89,8 +76,7 @@ class AsciiBoard(metaclass=BoardMeta):
     def make_snapshot_from_state(cls, snake, food=None):
         wall = random.choice(AsciiBoard.TREES)
         board = [
-            [AsciiBoard.EMPTY_CELL for _ in range(cls.WIDTH)]
-            for _ in range(cls.HEIGHT)
+            [AsciiBoard.EMPTY_CELL for _ in range(cls.WIDTH)] for _ in range(cls.HEIGHT)
         ]
         head_x, head_y = snake[0]
         board[head_y][head_x] = AsciiBoard.HEAD
@@ -100,14 +86,10 @@ class AsciiBoard(metaclass=BoardMeta):
         x, y, _ = food
         board[y][x] = random.choice(AsciiBoard.FOODS)
 
-        board_body = '\n'.join([
-            f'{wall}{"".join(row)}{wall}' for row in board
-        ])
+        board_body = "\n".join([f'{wall}{"".join(row)}{wall}' for row in board])
 
         return (
-            f'{wall * (cls.WIDTH + 2)}\n'
-            f'{board_body}\n'
-            f'{wall * (cls.WIDTH + 2)}'
+            f"{wall * (cls.WIDTH + 2)}\n" f"{board_body}\n" f"{wall * (cls.WIDTH + 2)}"
         )
 
 
@@ -125,18 +107,19 @@ class EmojiBoard(AsciiBoard):
         "\U0001F332",  # evergreen
         "\U0001F333",  # deciduous
         "\U0001F334",  # palm
-        "\U0001F335"   # cactus
+        "\U0001F335",  # cactus
     ]
     SCORE_MESSAGE = "\U0001F480"  # skull
     EMPTY_CELL = "  "
     X_MOD = 3
 
 
-class Snake(StoreGamesWithSnapshotMixin,
-            StoreGamesWithResultMessageMixin,
-            PromptForEmojiSupportMixin,
-            SendGTMEventMixin,
-            Game):
+class Snake(
+    StoreGamesWithSnapshotMixin,
+    StoreGamesWithResultMessageMixin,
+    PromptForEmojiSupportMixin,
+    Game,
+):
     name = "Snake"
     player_count = 1
     icon = "dragon"
@@ -148,20 +131,10 @@ class Snake(StoreGamesWithSnapshotMixin,
         f"See website for details{cursor.RESET}"
     )
     description = "An all ascii take on the classic game of snake."
-    game_over = cursor.red('\n\nGAME OVER\n\n')
+    game_over = cursor.red("\n\nGAME OVER\n\n")
 
-    directions = {
-        'a': (-1, 0),
-        's': (0, 1),
-        'd': (1, 0),
-        'w': (0, -1)
-    }
-    valid_directions = {
-        (-1, 0): 'ws',
-        (0, -1): 'ad',
-        (1, 0): 'ws',
-        (0, 1): 'ad'
-    }
+    directions = {"a": (-1, 0), "s": (0, 1), "d": (1, 0), "w": (0, -1)}
+    valid_directions = {(-1, 0): "ws", (0, -1): "ad", (1, 0): "ws", (0, 1): "ad"}
 
     def __init__(self, *args):
         super().__init__(*args)
@@ -205,8 +178,8 @@ class Snake(StoreGamesWithSnapshotMixin,
                 return
 
             frame = (
-                f'{self.board.replace_cell(*new_head, self.board.HEAD)}'
-                f'{self.board.replace_cell(*self.snake[0], self.board.BODY)}'
+                f"{self.board.replace_cell(*new_head, self.board.HEAD)}"
+                f"{self.board.replace_cell(*self.snake[0], self.board.BODY)}"
             )
 
             self.snake.insert(0, new_head)
@@ -219,20 +192,18 @@ class Snake(StoreGamesWithSnapshotMixin,
                 frame += self.board.replace_score(self.player.earned)
             else:
                 old_tail = self.snake.pop()
-                frame += self.board.replace_cell(*old_tail,
-                                                 self.board.EMPTY_CELL)
+                frame += self.board.replace_cell(*old_tail, self.board.EMPTY_CELL)
             yield frame
 
     def initial_frame(self):
         return (
-            f'{self.board.make_empty_board()}'
-            f'{self.board.replace_cell(*self.food)}'
+            f"{self.board.make_empty_board()}" f"{self.board.replace_cell(*self.food)}"
         )
 
     def get_next_head(self):
         return (
             self.snake[0][0] + self.direction[0],
-            self.snake[0][1] + self.direction[1]
+            self.snake[0][1] + self.direction[1],
         )
 
     def spawn_food(self):
@@ -262,4 +233,5 @@ class Snake(StoreGamesWithSnapshotMixin,
         return self.board.make_snapshot_from_state(self.snake, self.food)
 
     def make_result_message_for(self, player):
-        return f'Consumed {player.earned} critters'
+        return f"Consumed {player.earned} critters"
+

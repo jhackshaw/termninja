@@ -31,7 +31,7 @@ const RoundModalHeader = ({ username, gravatar_hash, played_at, onClose }) => {
             <span className="text-dark text-truncate">anonymous</span>
           )}
         </Row>
-        <Row>{played_at && moment.unix(played_at).fromNow()}</Row>
+        <Row>{played_at && moment(played_at).fromNow()}</Row>
       </Col>
       <Col xs={2} className="pr-2">
         <div className="btn" onClick={onClose}>

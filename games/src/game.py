@@ -6,45 +6,39 @@ import termninja_db as db
 from slugify import slugify
 from abc import ABCMeta, abstractmethod
 from . import cursor
-from .messages import (GENERIC_QUIZ_INITIAL_QUESTION,
-                       GENERIC_QUIZ_PROGRESS_UPDATE,
-                       GENERIC_QUIZ_CLEAR_ENTRY,
-                       GENERIC_QUIZ_INTERMISSION_REPORT,
-                       SUPPORTS_EMOJIS_PROMPT)
+from .messages import (
+    GENERIC_QUIZ_INITIAL_QUESTION,
+    GENERIC_QUIZ_PROGRESS_UPDATE,
+    GENERIC_QUIZ_CLEAR_ENTRY,
+    GENERIC_QUIZ_INTERMISSION_REPORT,
+    SUPPORTS_EMOJIS_PROMPT,
+)
 
 
 class StoreGamesMixin:
     async def teardown(self):
-        await asyncio.gather(
-            super().teardown(),
-            self.store_round_played()
-        )
+        await asyncio.gather(super().teardown(), self.store_round_played())
 
     async def store_round_played(self):
         """
         For each player, record the fact that this player
         played this game in the db
         """
-        await asyncio.gather(*[
-            self.add_round_played(p)
-            for p in self._players
-        ])
+        await asyncio.gather(*[self.add_round_played(p) for p in self._players])
 
     async def add_round_played(self, player, **kwargs):
         await db.rounds.add_round_played(
             self.slug,
-            player.identity['username'],  # this gives us None for anonymous
+            player.identity["username"],  # this gives us None for anonymous
             player.earned,
-            **kwargs
+            **kwargs,
         )
 
 
 class StoreGamesWithResultMessageMixin(StoreGamesMixin):
     async def add_round_played(self, player, **kwargs):
         return await super().add_round_played(
-            player,
-            message=self.make_result_message_for(player),
-            **kwargs
+            player, message=self.make_result_message_for(player), **kwargs
         )
 
     def make_result_message_for(self, player):
@@ -60,59 +54,17 @@ class StoreGamesWithResultMessageMixin(StoreGamesMixin):
 class StoreGamesWithSnapshotMixin(StoreGamesMixin):
     async def add_round_played(self, *args, **kwargs):
         return await super().add_round_played(
-            *args,
-            snapshot=self._get_snapshot(),
-            **kwargs
+            *args, snapshot=self._get_snapshot(), **kwargs
         )
 
     def _get_snapshot(self):
         snapshot = self.make_final_snapshot()
-        centered = getattr(self, 'center_snapshot', True)
-        bold = getattr(self, 'bold_snapshot', True)
+        centered = getattr(self, "center_snapshot", True)
+        bold = getattr(self, "bold_snapshot", True)
         return cursor.ansi_to_html(snapshot, centered=centered, bold=bold)
 
     def make_final_snapshot(self):
         raise NotImplementedError
-
-
-class SendGTMEventMixin:
-    GA_TRACKING_ID = os.environ.get('GA_TRACKING_ID', None)
-    GA_URL = 'https://www.google-analytics.com/collect'
-
-    def should_send_events(self):
-        return not os.environ.get('DEBUG')
-
-    @classmethod
-    async def on_player_connected(cls, player):
-        await super().on_player_connected(player)
-        player.gtm_uid = str(uuid.uuid4())
-
-    async def teardown(self):
-        print([p.earned for p in self._players])
-        await super().teardown()
-        if self.should_send_events():
-            asyncio.create_task(self._send_teardown_events())
-
-    async def _send_teardown_events(self):
-        return asyncio.gather(*[
-            self._send_teardown_event(p)
-            for p in self._players
-        ])
-
-    async def _send_teardown_event(self, player):
-        data = {
-            'v': '1',
-            'tid': self.GA_TRACKING_ID,
-            't': 'event',
-            'cid': player.gtm_uid or uuid.uuid4(),
-            'aip': '1',
-            'ec': 'Client Disconnected',
-            'ea': self.slug,
-            'el': str(player.earned)
-        }
-        async with aiohttp.ClientSession() as session:
-            await session.post(self.GA_URL, data=data)
-            print(f'sent {data} to {self.GA_URL}')
 
 
 class PromptForEmojiSupportMixin:
@@ -120,7 +72,7 @@ class PromptForEmojiSupportMixin:
     async def on_player_connected(cls, player):
         await player.send(SUPPORTS_EMOJIS_PROMPT)
         response = await player.readline()
-        if response.lower().startswith('n'):
+        if response.lower().startswith("n"):
             player.emoji_support = False
         return await super().on_player_connected(player)
 
@@ -132,7 +84,7 @@ class SlugDescriptor:
         return owner.__dict__[self._name]
 
     def __set_name__(self, owner, name):
-        self._name = f'_{name}'
+        self._name = f"_{name}"
 
 
 class Game(metaclass=ABCMeta):
@@ -149,18 +101,14 @@ class Game(metaclass=ABCMeta):
 
     @classmethod
     async def player_connected(cls, player):
-        if not hasattr(cls, '__queue'):
+        if not hasattr(cls, "__queue"):
             await cls._initialize()
         await cls.on_player_connected(player)
         await cls.__queue.put(player)
 
     @classmethod
     async def on_player_connected(cls, player):
-        await player.send(
-            f'{cursor.CLEAR}'
-            f'{cursor.PAGE_DOWN}'
-            f'{cursor.down(50)}'
-        )
+        await player.send(f"{cursor.CLEAR}" f"{cursor.PAGE_DOWN}" f"{cursor.down(50)}")
 
     @classmethod
     async def _initialize(cls):
@@ -171,10 +119,7 @@ class Game(metaclass=ABCMeta):
     @classmethod
     async def _launcher(cls):
         while True:
-            players = [
-                await cls.__queue.get()
-                for _ in range(cls.player_count)
-            ]
+            players = [await cls.__queue.get() for _ in range(cls.player_count)]
             instance = cls(*players)
             asyncio.create_task(instance._start())
 
@@ -215,17 +160,13 @@ class Game(metaclass=ABCMeta):
         """
         Close all player streams
         """
-        await asyncio.gather(*[
-            p.close() for p in self._players
-        ])
+        await asyncio.gather(*[p.close() for p in self._players])
 
     async def send_to_players(self, msg):
         """
         Send message to all players in this controller
         """
-        return await asyncio.gather(*[
-            p.send(msg) for p in self._players
-        ])
+        return await asyncio.gather(*[p.send(msg) for p in self._players])
 
 
 class GenericQuestion:
@@ -254,7 +195,7 @@ class GenericQuizGameBase(Game):
 
     def __init__(self, *args):
         super().__init__(*args)
-        self.correct_count = 0   # number of questions with > 0 points earned
+        self.correct_count = 0  # number of questions with > 0 points earned
         self.question_count = 1  # total number of questions played
 
     async def iter_questions(self):
@@ -310,7 +251,7 @@ class GenericQuizGameBase(Game):
             prompt=question.prompt,
             progress=progress,
             earned=self.player.earned,
-            total_score=self.player.total_score
+            total_score=self.player.total_score,
         )
         await self.player.send(msg)
 
@@ -328,9 +269,7 @@ class GenericQuizGameBase(Game):
         Update the progress bar
         """
         progress = self.get_progress_line(round_length, time_remaining)
-        msg = self.PROGRESS_UPDATE.format(
-            progress=progress
-        )
+        msg = self.PROGRESS_UPDATE.format(progress=progress)
         await self.player.send(msg)
 
     async def get_answer(self):
@@ -355,19 +294,20 @@ class GenericQuizGameBase(Game):
         color = cursor.red
         if earned > 0:
             color = cursor.green
-        await self.player.send(GENERIC_QUIZ_INTERMISSION_REPORT.format(
-            correct_answer=color(question.get_display_answer()),
-            earned_points=color(earned)
-        ))
+        await self.player.send(
+            GENERIC_QUIZ_INTERMISSION_REPORT.format(
+                correct_answer=color(question.get_display_answer()),
+                earned_points=color(earned),
+            )
+        )
         await self.player.readline()
 
 
-class GenericQuizGame(StoreGamesWithResultMessageMixin,
-                      SendGTMEventMixin,
-                      GenericQuizGameBase):
+class GenericQuizGame(StoreGamesWithResultMessageMixin, GenericQuizGameBase):
     def make_result_message_for(self, player):
         return (
-            f'Answered {(self.correct_count / self.question_count)*100:.2f}% '
-            f'({self.correct_count}/{self.question_count}) '
-            f'correctly'
+            f"Answered {(self.correct_count / self.question_count)*100:.2f}% "
+            f"({self.correct_count}/{self.question_count}) "
+            f"correctly"
         )
+

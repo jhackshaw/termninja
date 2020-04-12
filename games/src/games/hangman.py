@@ -6,7 +6,6 @@ import inspect
 from .. import cursor
 from ..game import (StoreGamesWithResultMessageMixin,
                     StoreGamesWithSnapshotMixin,
-                    SendGTMEventMixin,
                     Game)
 
 
@@ -70,7 +69,6 @@ class HangmanBoard:
 
 class Hangman(StoreGamesWithResultMessageMixin,
               StoreGamesWithSnapshotMixin,
-              SendGTMEventMixin,
               Game):
     description = (
         "Hangman where the words are the names of celebrities. "
