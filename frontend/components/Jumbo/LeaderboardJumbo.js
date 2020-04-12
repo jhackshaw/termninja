@@ -1,11 +1,8 @@
-import React from 'react';
-import { Row,
-         Col } from 'reactstrap';
-import Jumbo from '.';
+import React from "react";
+import { Row, Col } from "reactstrap";
+import Jumbo from ".";
 
-
-export const LeaderboardJumbo = props => {
-
+export const LeaderboardJumbo = (props) => {
   return (
     <Jumbo>
       <Row className="align-items-center">
@@ -14,7 +11,6 @@ export const LeaderboardJumbo = props => {
           <small>Global combined score leaderboard</small>
         </Col>
       </Row>
-  </Jumbo>
-  )
-}
-
+    </Jumbo>
+  );
+};

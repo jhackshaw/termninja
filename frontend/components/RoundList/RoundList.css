@@ -8,7 +8,7 @@
 }
 
 .silver {
-  color: #C0C0C0;
+  color: #c0c0c0;
 }
 
 .bronze {
@@ -17,5 +17,5 @@
 
 .clickable:hover {
   cursor: pointer;
-  background-color: rgba(0,0,0,.075)
+  background-color: rgba(0, 0, 0, 0.075);
 }

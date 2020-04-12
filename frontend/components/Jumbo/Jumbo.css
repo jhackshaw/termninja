@@ -1,18 +1,16 @@
-
 .root {
-  background-image: url('/static/background.svg');
+  background-image: url("/background.svg");
   background-size: cover;
   background-repeat: no-repeat;
 }
 
-
 .container {
-  font-family: 'Roboto mono';
+  font-family: "Roboto mono";
 }
 
 .logoutBtn {
   border-color: white;
-  color: white
+  color: white;
 }
 .logoutBtn:hover {
   background-color: white;

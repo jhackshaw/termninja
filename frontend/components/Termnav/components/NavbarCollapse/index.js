@@ -1,1 +1,1 @@
-export { default } from './NavbarCollapse';
+export { default } from "./NavbarCollapse";

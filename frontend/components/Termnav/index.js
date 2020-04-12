@@ -1,1 +1,1 @@
-export { default } from './Termnav';
+export { default } from "./Termnav";

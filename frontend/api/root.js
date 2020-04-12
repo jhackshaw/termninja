@@ -1,35 +1,35 @@
-import fetch from 'isomorphic-unfetch';
+import fetch from "isomorphic-unfetch";
 
-
-const baseUrl = process.env.TERMNINJA_API_URL || "https://play.term.ninja"
-
+// call a different endpoint based on whether this is
+// being rendered server side or client side
+let baseUrl = process.env.TERMNINJA_CLIENT_API_URL;
+if (typeof window === "undefined") {
+  baseUrl = process.env.TERMNINJA_SERVER_API_URL;
+}
 
 const request = async (url, params) => {
-
-  const res = await fetch(`${baseUrl}${url}`, params)
+  const res = await fetch(`${baseUrl}${url}`, params);
   if (res.ok) {
-    return res.json()
+    return res.json();
   }
 
   let data = {};
-  if (res.headers.get('Content-Type') === 'application/json') {
+  if (res.headers.get("Content-Type") === "application/json") {
     data = await res.json();
   }
 
-  const err = new Error(data && data['message'] || 'Something went wrong');
+  const err = new Error((data && data["message"]) || "Something went wrong");
   err.status = res.status;
   throw err;
-}
+};
 
-export const get = (url) => (
+export const get = (url) =>
   request(url, {
-    method: 'GET'
-  })
-)
+    method: "GET",
+  });
 
-export const post = (url, data, opts={}) => (
+export const post = (url, data, opts = {}) =>
   request(url, {
-    method: 'POST',
-    body: JSON.stringify(data)
-  })
-)
+    method: "POST",
+    body: JSON.stringify(data),
+  });

@@ -1,11 +1,9 @@
-
-
 .root {
   box-sizing: border-box;
 }
 
 .link {
-  color: #1ca354
+  color: #1ca354;
 }
 
 .link:hover {

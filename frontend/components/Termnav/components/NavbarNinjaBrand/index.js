@@ -1,1 +1,1 @@
-export { default } from './NavbarNinjaBrand';
+export { default } from "./NavbarNinjaBrand";
