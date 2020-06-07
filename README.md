@@ -20,7 +20,7 @@ Termninja is a collection of networked terminal games including:
    - `docker-compose up --build`
 3. Navigate to [localhost](http://localhost) in a browser to view the scoreboard
 4. Install the termninja client in your terminal
-   - `curl -X GET http://client -o ./termninja`
+   - `curl -X GET http://localhost/client -o ./termninja`
    - `chmod +x ./termninja`
 5. Use the client to play games
    - `./termninja --help`
