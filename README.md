@@ -26,7 +26,7 @@ Termninja is a collection of networked terminal games including:
     - `chmod +x ./termninja`
 5. Use the client to play games
     - `./termninja --help`
-    - `./termninja -i -g 1` (snake)
+    - `./termninja -a` *(anonymous)*
 6. View scores in the browser
 7. Give others access to the same server to compete together
 
