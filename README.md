@@ -7,9 +7,20 @@ Termninja is a collection of networked terminal games including:
 
 #### Snake
 
+![snake demo](https://i.ibb.co/MkYMb0d/ezgif-com-video-to-gif.gif)
+
 #### Celebrity Hangman
 
+![Hangman Demo](https://i.ibb.co/R44vsZb/ezgif-com-video-to-gif-1.gif)
+
 #### Subnet Racer
+
+![Subnet Racer Demo](https://i.ibb.co/SvtPTQQ/ezgif-com-video-to-gif-2.gif)
+
+
+The play history and leaderboard is connected and can be seen in the browser:
+
+![Browser Demo](https://i.ibb.co/ZdcF93S/ezgif-com-video-to-gif-3.gif)
 
 ## How to play
 
