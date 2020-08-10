@@ -3,7 +3,7 @@
 
 ## About
 
-Termninja is a collection of networked terminal games including:
+Termninja is a game server with a collection of games played over a network using netcat. Currently includes:
 
 #### Snake
 
