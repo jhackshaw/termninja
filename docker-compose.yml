@@ -23,7 +23,7 @@ services:
 
   migrate:
     build: ./api
-    command: alembic upgrade head
+    command: sh -c '/base/wait-for.sh postgres:5432 -- alembic upgrade head'
     depends_on:
       - base
       - postgres
@@ -52,6 +52,7 @@ services:
 
   games:
     build: ./games
+    command: sh -c '/base/wait-for.sh postgres:5432 -- sleep 2 && python app.py'
     ports:
       - 3333:3000
     depends_on:

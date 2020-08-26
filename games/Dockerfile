@@ -9,4 +9,4 @@ RUN \
 
 COPY . .
 
-ENTRYPOINT [ "python", "app.py" ]
+CMD ["python", "run.py"]
